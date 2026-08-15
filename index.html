@@ -337,6 +337,41 @@
   .final-cta p{color:var(--mist); margin-bottom:30px; font-size:15.5px;}
   footer{background:#161f36; color:var(--mist-dim); padding:28px 24px; text-align:center; font-size:13px;}
 
+  /* ---------- REGISTRATION FORM ---------- */
+  .reg-card{
+    max-width:520px; margin:0 auto; background:#fff; border-radius:var(--radius-lg);
+    padding:34px 30px; text-align:left; box-shadow:0 30px 60px -20px rgba(0,0,0,0.35); color:var(--ink);
+  }
+  .reg-field{margin-bottom:16px;}
+  .reg-field label{display:block; font-size:13px; font-weight:700; color:var(--ink); margin-bottom:6px;}
+  .reg-field input, .reg-field select{
+    width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid var(--card-border);
+    font-family:'Be Vietnam Pro'; font-size:14.5px; color:var(--ink); background:var(--paper);
+  }
+  .reg-field input:focus, .reg-field select:focus{outline:none; border-color:var(--gold);}
+  .reg-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .reg-submit{
+    width:100%; padding:14px; border:none; border-radius:100px; background:var(--gold); color:var(--ink);
+    font-weight:700; font-size:15px; cursor:pointer; margin-top:6px; transition:transform .15s ease;
+  }
+  .reg-submit:hover{transform:translateY(-2px);}
+  .reg-submit:disabled{opacity:.6; cursor:not-allowed; transform:none;}
+  .reg-divider{display:flex; align-items:center; gap:12px; margin:20px 0 16px; color:var(--ink-soft); font-size:12.5px;}
+  .reg-divider::before, .reg-divider::after{content:""; flex:1; height:1px; background:var(--card-border);}
+  .reg-zalo{
+    display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:13px;
+    border-radius:100px; border:1.5px solid #0068FF; color:#0068FF; font-weight:700; font-size:14.5px;
+    background:#fff;
+  }
+  .reg-zalo:hover{background:#F0F7FF;}
+  .reg-status{font-size:13.5px; margin-top:12px; text-align:center; display:none;}
+  .reg-status.show{display:block;}
+  .reg-status.ok{color:#1E8E5A;}
+  .reg-status.err{color:var(--coral-dark);}
+  .reg-success{display:none; text-align:center; padding:20px 0;}
+  .reg-success.show{display:block;}
+  .reg-success .check{font-size:44px; margin-bottom:12px;}
+
   @media(max-width:940px){
     .hero-inner{grid-template-columns:1fr;}
     .hero-art{height:320px; order:-1;}
@@ -349,6 +384,8 @@
   }
   @media(max-width:560px){
     .why-grid, .teacher-grid, .testi-grid, .pricing-grid{grid-template-columns:1fr;}
+    .reg-row{grid-template-columns:1fr;}
+    .reg-card{padding:26px 20px;}
     .practice-grid{grid-template-columns:repeat(2,1fr);}
     .level-card{grid-template-columns:1fr; text-align:left;}
     .level-node{margin-bottom:6px;}
@@ -680,6 +717,16 @@
           <li>Ân cần, kiên nhẫn với học sinh nhỏ tuổi</li>
         </ul>
       </div>
+      <div class="teacher-card">
+        <div class="avatar" style="background:var(--ink); color:#fff;">ĐT</div>
+        <h4>Thầy Đức Thành</h4>
+        <div class="role">Giáo viên luyện thi Toán Quốc tế</div>
+        <ul>
+          <li>7 năm kinh nghiệm luyện thi IKMC, SASMO</li>
+          <li>Bám sát cấu trúc đề thi các kỳ thi Toán Quốc tế</li>
+          <li>Luyện đề bài bản, chấm chữa chi tiết</li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>
@@ -726,8 +773,97 @@
 <section class="final-cta" id="dangky">
   <h2>Cho con bắt đầu hành trình yêu Toán ngay hôm nay</h2>
   <p>Chỉ từ 250.000đ/tháng — đánh giá năng lực & tư vấn lộ trình miễn phí.</p>
-  <a href="#" class="btn btn-primary">Đăng ký học ngay</a>
+
+  <div class="reg-card">
+    <div class="reg-success" id="regSuccess">
+      <div class="check">✅</div>
+      <h3 style="font-family:'Baloo 2'; margin-bottom:8px;">Đăng ký thành công!</h3>
+      <p style="color:var(--ink-soft); font-size:14px;">CLB Toán Bác Long sẽ liên hệ tư vấn cho bạn trong thời gian sớm nhất.</p>
+    </div>
+
+    <form id="regForm">
+      <div class="reg-field">
+        <label for="parentName">Họ tên phụ huynh *</label>
+        <input type="text" id="parentName" name="Họ tên phụ huynh" required placeholder="Nguyễn Văn A">
+      </div>
+      <div class="reg-field">
+        <label for="phone">Số điện thoại / Zalo *</label>
+        <input type="tel" id="phone" name="Số điện thoại" required placeholder="09xxxxxxxx">
+      </div>
+      <div class="reg-field">
+        <label for="email">Email (không bắt buộc)</label>
+        <input type="email" id="email" name="Email" placeholder="email@vidu.com">
+      </div>
+      <div class="reg-row">
+        <div class="reg-field">
+          <label for="childName">Họ tên con</label>
+          <input type="text" id="childName" name="Họ tên con" placeholder="Tên bé">
+        </div>
+        <div class="reg-field">
+          <label for="grade">Con đang học lớp</label>
+          <select id="grade" name="Lớp">
+            <option>Pre-K (Mẫu giáo)</option>
+            <option>Lớp 1</option>
+            <option>Lớp 2</option>
+            <option>Lớp 3</option>
+            <option>Lớp 4</option>
+            <option>Lớp 5</option>
+          </select>
+        </div>
+      </div>
+      <div class="reg-field">
+        <label for="plan">Gói quan tâm</label>
+        <select id="plan" name="Gói quan tâm">
+          <option>Gói Đồng Hành (250k–300k/tháng)</option>
+          <option>Gói Lớp Học Trực Tiếp (750k–900k/tháng)</option>
+          <option>Chưa rõ — cần tư vấn</option>
+        </select>
+      </div>
+      <button type="submit" class="reg-submit" id="regSubmit">Đăng ký ngay</button>
+      <div class="reg-status" id="regStatus"></div>
+    </form>
+
+    <div class="reg-divider">hoặc</div>
+    <a href="https://zalo.me/0935110981" target="_blank" rel="noopener" class="reg-zalo">
+      💬 Đăng ký nhanh qua Zalo — 0935 110 981
+    </a>
+  </div>
 </section>
+
+<script>
+  const regForm = document.getElementById('regForm');
+  const regSubmit = document.getElementById('regSubmit');
+  const regStatus = document.getElementById('regStatus');
+  const regSuccess = document.getElementById('regSuccess');
+
+  regForm.addEventListener('submit', async function(e){
+    e.preventDefault();
+    regSubmit.disabled = true;
+    regSubmit.textContent = 'Đang gửi...';
+    regStatus.className = 'reg-status';
+    regStatus.textContent = '';
+
+    const data = {};
+    new FormData(regForm).forEach((value, key) => { data[key] = value; });
+    data['_subject'] = 'Đăng ký học mới - Toán Bác Long';
+
+    try {
+      const res = await fetch('https://formsubmit.co/ajax/digivina@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if(!res.ok) throw new Error('Gửi thất bại');
+      regForm.style.display = 'none';
+      regSuccess.classList.add('show');
+    } catch (err) {
+      regStatus.textContent = 'Có lỗi khi gửi form. Vui lòng đăng ký qua Zalo bên dưới giúp mình nhé!';
+      regStatus.classList.add('show', 'err');
+      regSubmit.disabled = false;
+      regSubmit.textContent = 'Đăng ký ngay';
+    }
+  });
+</script>
 
 <footer>
   © 2026 CLB Toán Bác Long (LongMath) — Toán tư duy tiểu học. Mọi thông tin trên trang chỉ mang tính minh họa.
