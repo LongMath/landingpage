@@ -220,10 +220,18 @@
     display:inline-block; font-family:'JetBrains Mono'; font-size:11.5px; font-weight:700;
     color:var(--ink-soft); background:var(--paper-2); padding:5px 12px; border-radius:100px; white-space:nowrap;
   }
+  .level-tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:14px;}
+  .level-tags span{
+    font-family:'JetBrains Mono'; font-size:10.5px; font-weight:700; letter-spacing:.03em;
+    color:var(--gold-dark); background:rgba(227,160,56,.14); padding:4px 10px; border-radius:100px;
+  }
+  .level-tags-label{font-size:11px; color:var(--ink-soft); font-weight:600; margin-right:2px;}
 
   /* Pre-K: same solid style as other levels, distinct deep-red node */
   .level-card.prek .level-node{background:var(--coral-dark); color:#fff; font-size:24px;}
   .level-card.prek .level-message{color:var(--coral-dark); border-left-color:var(--coral-dark);}
+  .level-card.lv5 .level-node{background:var(--ink-2); color:#fff;}
+  .level-card.lv5 .level-message{color:var(--ink-2); border-left-color:var(--ink-2);}
 
   /* ---------- PRACTICE LINKS ---------- */
   .practice-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:16px; position:relative; z-index:1;}
@@ -474,15 +482,15 @@
     <div class="promo-strip">
       <div>
         <div class="big mono">Đánh giá năng lực Toán tư duy</div>
-        <small>Tư vấn lộ trình phù hợp theo từng cấp độ — hoàn toàn miễn phí</small>
+        <small>Tư vấn lộ trình phù hợp theo từng khối lớp — hoàn toàn miễn phí</small>
       </div>
       <div class="discount-chip">0đ<span>miễn phí</span></div>
     </div>
 
     <div class="section-head" style="max-width:760px;">
       <span class="kicker">LỘ TRÌNH HỌC TẬP</span>
-      <h2>5 cấp độ phát triển tư duy toàn diện</h2>
-      <p>Bắt đầu từ giai đoạn làm quen Pre-K, con bước vào 4 cấp độ chính thức — mỗi cấp độ là một chặng trên hành trình, hoàn thành chặng này mới mở khóa chặng tiếp theo, giống một bàn cờ chinh phục kiến thức.</p>
+      <h2>Đồng hành cùng con từ Mẫu giáo đến Lớp 5</h2>
+      <p>Mỗi khối lớp là một lớp học riêng biệt với chương trình và mục tiêu phù hợp — con học đúng nội dung, đúng trình độ ngay từ đầu.</p>
     </div>
 
     <div class="path">
@@ -498,48 +506,69 @@
             <p class="content">Nhận biết số đếm 1–10, màu sắc và hình khối cơ bản, so sánh to – nhỏ, nhiều – ít qua trò chơi và hoạt động trải nghiệm, giúp con làm quen với sự tập trung và sẵn sàng tâm thế bước vào lớp 1.</p>
           </div>
         </div>
+
         <div class="level-card">
           <div class="level-node">1</div>
           <div>
             <div class="level-head">
-              <h4>Làm quen con số</h4>
-              <span class="grade">Lớp 1–2</span>
+              <h4>Khai mở tư duy</h4>
+              <span class="grade">Lớp 1</span>
             </div>
-            <div class="level-message">💬 Bước đệm khởi đầu, xây dựng sự tự tin với toán học</div>
-            <p class="content">Nhận biết số học, đếm hình, so sánh các đại lượng và làm quen với các phép tính cộng trừ cơ bản thông qua hình ảnh trực quan, sinh động.</p>
+            <div class="level-message">💬 Khai mở tư duy – Yêu Toán từ sớm – Vững bước tương lai</div>
+            <p class="content">Học Toán bằng tư duy qua trò chơi, hình ảnh và tình huống gần gũi, giúp con hiểu bản chất thay vì học vẹt. Phát triển tư duy logic, quan sát, ghi nhớ, phân tích và xây nền tảng vững chắc cho các môn học sau này.</p>
+            <div class="level-tags"><span class="level-tags-label">Định hướng:</span><span>AIMO</span><span>TIMO</span><span>AMO</span><span>SASMO</span></div>
           </div>
         </div>
+
         <div class="level-card lv2">
           <div class="level-node">2</div>
           <div>
             <div class="level-head">
-              <h4>Tính nhẩm nhanh & Phản xạ</h4>
-              <span class="grade">Lớp 2–3</span>
+              <h4>Phát triển tư duy từ sớm</h4>
+              <span class="grade">Lớp 2</span>
             </div>
-            <div class="level-message">💬 Tăng tốc tính toán, rèn luyện tư duy linh hoạt</div>
-            <p class="content">Phát triển phản xạ tính nhẩm nhanh, nắm vững bảng cửu chương, các mẹo tính toán thông minh và bắt đầu làm quen với các dạng toán đố có lời văn cơ bản.</p>
+            <div class="level-message">💬 Yêu Toán – Học chủ động – Tự tin vươn xa</div>
+            <p class="content">Học Toán bằng tư duy thay vì học thuộc, rèn khả năng suy luận qua Quy luật – Logic – Hình học trực quan, đồng thời làm quen Toán Tiếng Anh một cách tự nhiên.</p>
+            <div class="level-tags"><span class="level-tags-label">Định hướng:</span><span>TIMO</span><span>SASMO</span><span>HKIMO</span><span>FMO</span></div>
           </div>
         </div>
+
         <div class="level-card lv3">
           <div class="level-node">3</div>
           <div>
             <div class="level-head">
-              <h4>Tư duy logic & Biện luận</h4>
-              <span class="grade">Lớp 3–4</span>
+              <h4>Tư duy vững vàng</h4>
+              <span class="grade">Lớp 3</span>
             </div>
-            <div class="level-message">💬 Khơi gợi tư duy suy luận, giải quyết các bài toán phức tạp hơn</div>
-            <p class="content">Chuyên sâu về giải toán có lời văn, nhận diện quy luật số, làm quen với các bài toán thực tế, hình học không gian và phương pháp suy luận logic đa chiều.</p>
+            <div class="level-message">💬 Tư duy vững vàng – Bứt phá thành tích</div>
+            <p class="content">Phát triển năng lực phân tích, lập luận và giải quyết vấn đề qua các chuyên đề Logic, Quy luật, Tổ hợp, Hình học. Làm quen Toán Tiếng Anh, chuẩn bị chinh phục các kỳ thi Toán Quốc tế.</p>
+            <div class="level-tags"><span class="level-tags-label">Định hướng:</span><span>AIMO</span><span>SASMO</span><span>ASMO</span><span>ITMC</span><span>TIMO</span><span>AMO</span></div>
           </div>
         </div>
+
         <div class="level-card lv4">
           <div class="level-node">4</div>
           <div>
             <div class="level-head">
-              <h4>Chinh phục đỉnh cao & Luyện đề</h4>
-              <span class="grade">Lớp 4–5</span>
+              <h4>Bứt phá tư duy</h4>
+              <span class="grade">Lớp 4</span>
             </div>
-            <div class="level-message">💬 Vượt thử thách, hoàn thiện kỹ năng giải toán nâng cao</div>
-            <p class="content">Luyện tập các dạng bài toán nâng cao đòi hỏi tư duy định lượng cao, rèn kỹ năng quản lý thời gian, tốc độ làm bài và sự nhạy bén qua hệ thống đề luyện đa dạng.</p>
+            <div class="level-message">💬 Dành cho học sinh khá muốn bứt phá tư duy</div>
+            <p class="content">Rèn tư duy cốt lõi qua các chuyên đề Quy luật – Chu kỳ, Logic – Suy luận, Đếm – Tổ hợp, Hình học trực quan, Chia hết – Số dư. Luyện thi bài bản theo lộ trình 3 giai đoạn, bám sát cấu trúc các kỳ thi Toán Tiếng Anh.</p>
+            <div class="level-tags"><span class="level-tags-label">Định hướng:</span><span>AIMO</span><span>SASMO</span><span>ASMO</span><span>ITMC</span><span>TIMO</span><span>AMO</span></div>
+          </div>
+        </div>
+
+        <div class="level-card lv5">
+          <div class="level-node">5</div>
+          <div>
+            <div class="level-head">
+              <h4>Toán nâng cao</h4>
+              <span class="grade">Lớp 5</span>
+            </div>
+            <div class="level-message">💬 Định hướng thi vào lớp 6 trường chất lượng cao</div>
+            <p class="content">Số học nâng cao, Tổ hợp – Logic – Quy luật, Hình học và suy luận, Tỉ số – tỉ lệ – chuyển động. Luyện đề chuyên sâu bám sát cấu trúc đề thi các trường chất lượng cao, phân tích lỗi sai chi tiết.</p>
+            <div class="level-tags"><span class="level-tags-label">Trường định hướng:</span><span>Amsterdam</span><span>Cầu Giấy</span><span>Thanh Xuân</span><span>Nguyễn Tất Thành</span><span>Ngôi Sao</span></div>
           </div>
         </div>
       </div>
@@ -552,7 +581,7 @@
     <div class="section-head" style="max-width:640px;">
       <span class="kicker">HỌC PHÍ</span>
       <h2>Chọn gói đồng hành phù hợp với con</h2>
-      <p>Bắt đầu nhẹ nhàng với gói Đồng Hành, hoặc học trực tiếp cùng giáo viên ngay từ đầu — cả hai đều theo sát lộ trình 5 cấp độ.</p>
+      <p>Bắt đầu nhẹ nhàng với gói Đồng Hành, hoặc học trực tiếp cùng giáo viên ngay từ đầu — cả hai đều theo sát lộ trình từ Mẫu giáo đến Lớp 5.</p>
     </div>
     <div class="pricing-grid">
       <div class="price-plan">
@@ -570,14 +599,14 @@
       <div class="price-plan featured">
         <span class="plan-badge">ĐƯỢC CHỌN NHIỀU NHẤT</span>
         <div class="plan-name">Gói Lớp Học Trực Tiếp</div>
-        <div class="plan-desc">Học trực tiếp cùng giáo viên, lớp nhỏ 10–12 học sinh, 2 giờ/buổi, theo sát từng cấp độ trong lộ trình.</div>
+        <div class="plan-desc">Học trực tiếp cùng giáo viên, lớp nhỏ 10–12 học sinh, 2 giờ/buổi, theo đúng chương trình từng khối lớp.</div>
         <div class="plan-price">750.000đ<small>/ tháng (4 buổi)</small></div>
         <div class="plan-price" style="margin-top:8px; font-size:20px;">900.000đ<small>/ tháng (5 buổi)</small></div>
         <ul class="plan-list">
           <li>Giáo viên kèm sát trực tiếp</li>
           <li>Lớp nhỏ tối đa 10–12 học sinh</li>
           <li>Đánh giá năng lực & tư vấn lộ trình miễn phí</li>
-          <li>Lộ trình bài bản theo 5 cấp độ</li>
+          <li>Lộ trình bài bản theo từng khối lớp</li>
         </ul>
         <a href="#dangky" class="plan-cta solid">Đăng ký học ngay</a>
       </div>
@@ -757,7 +786,7 @@
           <div class="testi-avatar" style="background:var(--gold); color:var(--ink);">NL</div>
           <div><div class="testi-name">Chị Ngọc Lan</div><div class="testi-stars">★★★★★</div></div>
         </div>
-        Lộ trình rõ ràng theo từng cấp độ, mình dễ theo dõi được con đang học đến đâu và tiến bộ ra sao.
+        Lộ trình rõ ràng theo từng khối lớp, mình dễ theo dõi được con đang học đến đâu và tiến bộ ra sao.
       </div>
       <div class="testi-card">
         <div class="testi-head">
