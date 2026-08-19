@@ -283,6 +283,37 @@
   .plan-cta.ghost{background:var(--paper-2); color:var(--ink);}
   .plan-cta.solid{background:var(--gold); color:var(--ink);}
 
+  /* ---------- EXAM ROOM (TABS) ---------- */
+  .exam-tabs{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin:0 auto 36px; position:relative; z-index:1;
+  }
+  .exam-tab{
+    padding:11px 22px; border-radius:100px; border:1.5px solid var(--card-border); background:#fff;
+    font-family:'Baloo 2'; font-weight:700; font-size:15px; color:var(--ink-soft); cursor:pointer;
+    transition:all .15s ease;
+  }
+  .exam-tab:hover{border-color:var(--gold);}
+  .exam-tab.active{background:var(--ink); border-color:var(--ink); color:#fff; box-shadow:var(--shadow-soft);}
+  .exam-panels{position:relative; z-index:1;}
+  .exam-panel{display:none;}
+  .exam-panel.active{display:block; animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  .exam-panel-head{text-align:center; max-width:560px; margin:0 auto 26px;}
+  .exam-panel-head h3{font-family:'Baloo 2'; font-weight:700; font-size:21px; color:var(--ink); margin-bottom:8px;}
+  .exam-panel-head p{font-size:14px; color:var(--ink-soft);}
+  .exam-resource-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; max-width:940px; margin:0 auto;}
+  .exam-resource{
+    background:#fff; border:1px solid var(--card-border); border-radius:var(--radius-md);
+    padding:26px 22px 22px; text-align:center; transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .exam-resource.ready:hover{transform:translateY(-6px); box-shadow:var(--shadow-soft); border-color:var(--gold);}
+  .exam-resource-icon{
+    width:52px; height:52px; border-radius:14px; margin:0 auto 14px; display:flex; align-items:center; justify-content:center;
+    font-size:22px; background:var(--paper-2);
+  }
+  .exam-resource h4{font-size:15px; color:var(--ink); margin-bottom:6px;}
+  .exam-resource p{font-size:12.5px; color:var(--ink-soft); margin-bottom:16px; min-height:32px;}
+
   /* ---------- WHY US ---------- */
   .why-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:22px; position:relative; z-index:1;}
   .section-head{position:relative; z-index:1;}
@@ -386,6 +417,7 @@
     .why-grid, .teacher-grid{grid-template-columns:repeat(2,1fr);}
     .testi-grid{grid-template-columns:repeat(2,1fr);}
     .practice-grid{grid-template-columns:repeat(3,1fr);}
+    .exam-resource-grid{grid-template-columns:repeat(3,1fr); gap:14px;}
     .path::before{left:35px;}
     .nav-links{display:none;}
     .burger{display:flex;}
@@ -395,6 +427,9 @@
     .reg-row{grid-template-columns:1fr;}
     .reg-card{padding:26px 20px;}
     .practice-grid{grid-template-columns:repeat(2,1fr);}
+    .exam-resource-grid{grid-template-columns:1fr;}
+    .exam-tabs{gap:8px;}
+    .exam-tab{padding:9px 16px; font-size:13.5px;}
     .level-card{grid-template-columns:1fr; text-align:left;}
     .level-node{margin-bottom:6px;}
     .path::before{left:29px;}
@@ -413,7 +448,7 @@
     <ul class="nav-links">
       <li><a href="#roadmap">Lộ trình</a></li>
       <li><a href="#hocphi">Học phí</a></li>
-      <li><a href="#luyentap">Luyện tập</a></li>
+      <li><a href="#phongthi">Phòng thi</a></li>
       <li><a href="#giaovien">Giáo viên</a></li>
       <li><a href="#danhgia">Đánh giá</a></li>
     </ul>
@@ -594,7 +629,7 @@
           <li>Truy cập hệ thống luyện đề trực tuyến</li>
           <li>Phù hợp cho con mới làm quen</li>
         </ul>
-        <a href="#luyentap" class="plan-cta ghost">Bắt đầu với gói Đồng Hành</a>
+        <a href="#phongthi" class="plan-cta ghost">Bắt đầu với gói Đồng Hành</a>
       </div>
       <div class="price-plan featured">
         <span class="plan-badge">ĐƯỢC CHỌN NHIỀU NHẤT</span>
@@ -614,55 +649,169 @@
   </div>
 </section>
 
-<section class="section" id="luyentap" style="padding-top:0;">
+<section class="section" id="phongthi" style="padding-top:0;">
   <div class="blob" style="width:260px; height:260px; top:-40px; right:-70px; background:rgba(230,58,46,0.16);" aria-hidden="true"></div>
   <div class="wrap">
-    <div class="section-head">
-      <span class="kicker">🎯 LUYỆN TẬP TRỰC TUYẾN</span>
-      <h2>Cho con luyện đề mọi lúc, mọi nơi</h2>
-      <p>Hệ thống bài luyện trắc nghiệm theo từng khối lớp, có chấm điểm và nhận xét tự động — <strong style="color:var(--coral-dark);">hoàn toàn miễn phí</strong>, chọn đúng khối của con để bắt đầu.</p>
+    <div class="section-head" style="max-width:680px;">
+      <span class="kicker">🎯 PHÒNG THI & KIỂM TRA TRỰC TUYẾN</span>
+      <h2>Luyện tập & kiểm tra theo từng khối lớp</h2>
+      <p>Mỗi khối lớp có chương trình, độ khó và dạng đề riêng — chọn đúng khối của con để luyện tập nhanh, làm bài kiểm tra định kỳ hoặc tải đề về in tại nhà.</p>
     </div>
-    <div class="practice-grid">
-      <div class="practice-card">
-        <div class="practice-node">Pre-K</div>
-        <h4>Pre-K (Mầm non)</h4>
-        <p>Làm quen số đếm & hình khối qua trò chơi</p>
-        <span class="practice-btn soon">Sắp ra mắt</span>
+
+    <div class="exam-tabs" role="tablist">
+      <button class="exam-tab active" data-panel="k1">Khối 1</button>
+      <button class="exam-tab" data-panel="k2">Khối 2</button>
+      <button class="exam-tab" data-panel="k3">Khối 3</button>
+      <button class="exam-tab" data-panel="k4">Khối 4</button>
+      <button class="exam-tab" data-panel="k5">Khối 5</button>
+    </div>
+
+    <div class="exam-panels">
+      <div class="exam-panel active" data-panel="k1">
+        <div class="exam-panel-head">
+          <h3>Luyện thi Toán tư duy — Khối 1</h3>
+          <p>Đề luyện theo cấu trúc thi Toán tư duy quốc tế, độ khó phù hợp học sinh Khối 1.</p>
+        </div>
+        <div class="exam-resource-grid">
+          <div class="exam-resource">
+            <div class="exam-resource-icon">⚡</div>
+            <h4>Luyện tập trắc nghiệm nhanh</h4>
+            <p>Làm bài & chấm điểm tự động ngay trên trình duyệt.</p>
+            <span class="practice-btn soon">Sắp ra mắt</span>
+          </div>
+          <div class="exam-resource">
+            <div class="exam-resource-icon">📝</div>
+            <h4>Kiểm tra định kỳ (Forms)</h4>
+            <p>Bài test lấy điểm, báo cáo gửi về email phụ huynh.</p>
+            <span class="practice-btn soon">Sắp ra mắt</span>
+          </div>
+          <div class="exam-resource">
+            <div class="exam-resource-icon">📄</div>
+            <h4>Tải đề PDF gốc</h4>
+            <p>In ra giấy, cho con làm bản cứng tại nhà.</p>
+            <span class="practice-btn soon">Sắp ra mắt</span>
+          </div>
+        </div>
       </div>
-      <div class="practice-card">
-        <div class="practice-node">K1</div>
-        <h4>Khối 1</h4>
-        <p>Làm quen số & phép tính cơ bản</p>
-        <span class="practice-btn soon">Sắp ra mắt</span>
+      <div class="exam-panel" data-panel="k2">
+        <div class="exam-panel-head">
+          <h3>Luyện thi IKMC — Khối 2</h3>
+          <p>Đề luyện theo cấu trúc IKMC, gồm Khởi động, Thử thách và Olympic.</p>
+        </div>
+        <div class="exam-resource-grid">
+          <div class="exam-resource ready">
+            <div class="exam-resource-icon">⚡</div>
+            <h4>Luyện tập trắc nghiệm nhanh</h4>
+            <p>Làm bài & chấm điểm tự động ngay trên trình duyệt.</p>
+            <a href="https://longmath.github.io/khoi_2/" target="_blank" rel="noopener" class="practice-btn go">Bắt đầu ngay →</a>
+          </div>
+          <div class="exam-resource">
+            <div class="exam-resource-icon">📝</div>
+            <h4>Kiểm tra định kỳ (Forms)</h4>
+            <p>Bài test lấy điểm, báo cáo gửi về email phụ huynh.</p>
+            <span class="practice-btn soon">Sắp ra mắt</span>
+          </div>
+          <div class="exam-resource">
+            <div class="exam-resource-icon">📄</div>
+            <h4>Tải đề PDF gốc</h4>
+            <p>In ra giấy, cho con làm bản cứng tại nhà.</p>
+            <span class="practice-btn soon">Sắp ra mắt</span>
+          </div>
+        </div>
       </div>
-      <div class="practice-card active">
-        <span class="practice-badge">Đang mở</span>
-        <div class="practice-node">K2</div>
-        <h4>Khối 2</h4>
-        <p>Luyện đề IKMC — Khởi động, Thử thách, Olympic</p>
-        <a href="https://longmath.github.io/khoi_2/" target="_blank" rel="noopener" class="practice-btn go">Luyện tập ngay →</a>
+      <div class="exam-panel" data-panel="k3">
+        <div class="exam-panel-head">
+          <h3>Luyện thi Toán tư duy — Khối 3</h3>
+          <p>Tư duy logic & giải toán có lời văn, bám sát cấu trúc các kỳ thi Toán Quốc tế.</p>
+        </div>
+        <div class="exam-resource-grid">
+          <div class="exam-resource">
+            <div class="exam-resource-icon">⚡</div>
+            <h4>Luyện tập trắc nghiệm nhanh</h4>
+            <p>Làm bài & chấm điểm tự động ngay trên trình duyệt.</p>
+            <span class="practice-btn soon">Sắp ra mắt</span>
+          </div>
+          <div class="exam-resource">
+            <div class="exam-resource-icon">📝</div>
+            <h4>Kiểm tra định kỳ (Forms)</h4>
+            <p>Bài test lấy điểm, báo cáo gửi về email phụ huynh.</p>
+            <span class="practice-btn soon">Sắp ra mắt</span>
+          </div>
+          <div class="exam-resource">
+            <div class="exam-resource-icon">📄</div>
+            <h4>Tải đề PDF gốc</h4>
+            <p>In ra giấy, cho con làm bản cứng tại nhà.</p>
+            <span class="practice-btn soon">Sắp ra mắt</span>
+          </div>
+        </div>
       </div>
-      <div class="practice-card">
-        <div class="practice-node">K3</div>
-        <h4>Khối 3</h4>
-        <p>Tư duy logic & giải toán có lời văn</p>
-        <span class="practice-btn soon">Sắp ra mắt</span>
+      <div class="exam-panel" data-panel="k4">
+        <div class="exam-panel-head">
+          <h3>Luyện thi Toán tư duy — Khối 4</h3>
+          <p>Đề nâng cao dành cho học sinh khá muốn bứt phá, luyện theo chuyên đề.</p>
+        </div>
+        <div class="exam-resource-grid">
+          <div class="exam-resource">
+            <div class="exam-resource-icon">⚡</div>
+            <h4>Luyện tập trắc nghiệm nhanh</h4>
+            <p>Làm bài & chấm điểm tự động ngay trên trình duyệt.</p>
+            <span class="practice-btn soon">Sắp ra mắt</span>
+          </div>
+          <div class="exam-resource">
+            <div class="exam-resource-icon">📝</div>
+            <h4>Kiểm tra định kỳ (Forms)</h4>
+            <p>Bài test lấy điểm, báo cáo gửi về email phụ huynh.</p>
+            <span class="practice-btn soon">Sắp ra mắt</span>
+          </div>
+          <div class="exam-resource">
+            <div class="exam-resource-icon">📄</div>
+            <h4>Tải đề PDF gốc</h4>
+            <p>In ra giấy, cho con làm bản cứng tại nhà.</p>
+            <span class="practice-btn soon">Sắp ra mắt</span>
+          </div>
+        </div>
       </div>
-      <div class="practice-card">
-        <div class="practice-node">K4</div>
-        <h4>Khối 4</h4>
-        <p>Số học nâng cao & hình học cơ bản</p>
-        <span class="practice-btn soon">Sắp ra mắt</span>
-      </div>
-      <div class="practice-card">
-        <div class="practice-node">K5</div>
-        <h4>Khối 5</h4>
-        <p>Ôn luyện tổng hợp & đề thi thử</p>
-        <span class="practice-btn soon">Sắp ra mắt</span>
+      <div class="exam-panel" data-panel="k5">
+        <div class="exam-panel-head">
+          <h3>Luyện thi Toán nâng cao — Khối 5</h3>
+          <p>Ôn luyện tổng hợp, định hướng thi vào lớp 6 trường chất lượng cao.</p>
+        </div>
+        <div class="exam-resource-grid">
+          <div class="exam-resource">
+            <div class="exam-resource-icon">⚡</div>
+            <h4>Luyện tập trắc nghiệm nhanh</h4>
+            <p>Làm bài & chấm điểm tự động ngay trên trình duyệt.</p>
+            <span class="practice-btn soon">Sắp ra mắt</span>
+          </div>
+          <div class="exam-resource">
+            <div class="exam-resource-icon">📝</div>
+            <h4>Kiểm tra định kỳ (Forms)</h4>
+            <p>Bài test lấy điểm, báo cáo gửi về email phụ huynh.</p>
+            <span class="practice-btn soon">Sắp ra mắt</span>
+          </div>
+          <div class="exam-resource">
+            <div class="exam-resource-icon">📄</div>
+            <h4>Tải đề PDF gốc</h4>
+            <p>In ra giấy, cho con làm bản cứng tại nhà.</p>
+            <span class="practice-btn soon">Sắp ra mắt</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </section>
+
+<script>
+  document.querySelectorAll('.exam-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      const target = tab.getAttribute('data-panel');
+      document.querySelectorAll('.exam-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.exam-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelector('.exam-panel[data-panel="' + target + '"]').classList.add('active');
+    });
+  });
+</script>
 
 <section class="section" id="uudai">
   <div class="wrap">
