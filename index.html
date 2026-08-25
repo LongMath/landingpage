@@ -333,6 +333,12 @@
     color:var(--gold-dark);
   }
   .tuhoc-card.toan .go{color:var(--coral-dark);}
+  .tuhoc-card.soon{cursor:default;}
+  .tuhoc-card.soon:hover{transform:none;}
+  .tuhoc-card .soon-badge{
+    display:inline-block; font-family:'JetBrains Mono'; font-size:11px; font-weight:700; letter-spacing:.04em;
+    color:var(--gold-dark); background:rgba(227,160,56,.14); padding:5px 14px; border-radius:100px; margin-bottom:14px;
+  }
 
   /* ---------- WHY US ---------- */
   .why-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:22px; position:relative; z-index:1;}
@@ -718,8 +724,8 @@
       </div>
       <div class="exam-panel" data-panel="k2">
         <div class="exam-panel-head">
-          <h3>Luyện thi IKMC — Khối 2</h3>
-          <p>Đề luyện theo cấu trúc IKMC, gồm Khởi động, Thử thách và Olympic.</p>
+          <h3>Luyện thi Toán tư duy — Khối 2</h3>
+          <p>Đề luyện theo cấu trúc IKMC, gồm Khởi động, Thử thách và Olympic, độ khó phù hợp học sinh Khối 2.</p>
         </div>
         <div class="exam-resource-grid">
           <div class="exam-resource ready">
@@ -832,18 +838,18 @@
       <p>Mỗi bài học đều có sơ đồ tư duy tổng hợp, dễ hiểu, dễ nhớ — con tự ôn lại bất cứ lúc nào, không cần đến lớp.</p>
     </div>
     <div class="tuhoc-grid">
-      <a href="tuhoc.html?subject=toan" class="tuhoc-card toan">
+      <div class="tuhoc-card soon toan">
         <span class="icon">➗</span>
+        <span class="soon-badge">SẮP RA MẮT</span>
         <h3>Toán tư duy</h3>
-        <p>Mindmap chuyên đề theo từng khối lớp, từ cơ bản đến nâng cao.</p>
-        <span class="go">Vào học Toán →</span>
-      </a>
-      <a href="tuhoc.html?subject=khoahoc" class="tuhoc-card">
+        <p>Mindmap chuyên đề theo từng khối lớp, từ cơ bản đến nâng cao — đang được hoàn thiện.</p>
+      </div>
+      <div class="tuhoc-card soon">
         <span class="icon">🔬</span>
+        <span class="soon-badge">SẮP RA MẮT</span>
         <h3>Khoa học</h3>
-        <p>Song ngữ Việt – Anh, đầy đủ Khối 1 đến Khối 4.</p>
-        <span class="go">Vào học Khoa học →</span>
-      </a>
+        <p>Song ngữ Việt – Anh, đầy đủ Khối 1 đến Khối 4 — đang được hoàn thiện.</p>
+      </div>
     </div>
   </div>
 </section>
