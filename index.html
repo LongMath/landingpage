@@ -28,6 +28,7 @@
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
+  section[id]{scroll-margin-top:90px;}
   body{
     font-family:'Be Vietnam Pro', sans-serif;
     background:var(--paper);
@@ -88,6 +89,8 @@
     cursor:pointer; border:none; transition:transform .15s ease, box-shadow .15s ease;
   }
   .btn-primary{background:var(--gold); color:var(--ink); box-shadow:0 10px 24px -8px rgba(227,160,56,0.55);}
+  .btn-ghost-light{background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,0.55);}
+  .btn-ghost-light:hover{background:rgba(255,255,255,0.1); border-color:#fff;}
   .btn-primary:hover{transform:translateY(-2px); box-shadow:0 14px 28px -8px rgba(227,160,56,0.65);}
   .nav .btn{padding:11px 22px; font-size:14px;}
   .burger{display:none; flex-direction:column; gap:5px; cursor:pointer;}
@@ -314,6 +317,23 @@
   .exam-resource h4{font-size:15px; color:var(--ink); margin-bottom:6px;}
   .exam-resource p{font-size:12.5px; color:var(--ink-soft); margin-bottom:16px; min-height:32px;}
 
+  /* ---------- TỰ HỌC (on-page teaser) ---------- */
+  .tuhoc-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:26px; max-width:820px; margin:0 auto;}
+  .tuhoc-card{
+    background:#fff; border:1px solid var(--card-border); border-radius:var(--radius-lg);
+    padding:34px 30px; text-align:center; text-decoration:none; display:block;
+    box-shadow:var(--shadow-soft); transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .tuhoc-card:hover{transform:translateY(-6px);}
+  .tuhoc-card .icon{font-size:44px; margin-bottom:14px; display:block;}
+  .tuhoc-card h3{font-family:'Baloo 2'; font-size:22px; color:var(--ink); margin-bottom:8px;}
+  .tuhoc-card p{font-size:13.5px; color:var(--ink-soft); margin-bottom:18px;}
+  .tuhoc-card .go{
+    display:inline-flex; align-items:center; gap:6px; font-weight:700; font-size:14px;
+    color:var(--gold-dark);
+  }
+  .tuhoc-card.toan .go{color:var(--coral-dark);}
+
   /* ---------- WHY US ---------- */
   .why-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:22px; position:relative; z-index:1;}
   .section-head{position:relative; z-index:1;}
@@ -447,6 +467,8 @@
     </a>
     <ul class="nav-links">
       <li><a href="#roadmap">Lộ trình</a></li>
+      <li><a href="#tuhoc">Tự học</a></li>
+      <li><a href="danhgia.html">Xếp lớp</a></li>
       <li><a href="#hocphi">Học phí</a></li>
       <li><a href="#phongthi">Phòng thi</a></li>
       <li><a href="#giaovien">Giáo viên</a></li>
@@ -490,7 +512,8 @@
 
       <div class="hero-ctas">
         <a href="#hocphi" class="btn btn-primary">Xem bảng học phí →</a>
-        <div class="bonus-line">🎁 Đánh giá năng lực & tư vấn lộ trình <b>hoàn toàn miễn phí</b></div>
+        <a href="#tuhoc" class="btn btn-ghost-light">📚 Học thử miễn phí</a>
+        <a href="danhgia.html" class="bonus-line" style="cursor:pointer;">🎁 Đánh giá năng lực & tư vấn lộ trình <b>hoàn toàn miễn phí</b> →</a>
       </div>
     </div>
 
@@ -797,6 +820,30 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="tuhoc" style="padding-top:0;">
+  <div class="wrap">
+    <div class="section-head" style="max-width:680px;">
+      <span class="kicker">📚 KHU VỰC TỰ HỌC</span>
+      <h2>Ôn lại lý thuyết bằng Mindmap, hoàn toàn miễn phí</h2>
+      <p>Mỗi bài học đều có sơ đồ tư duy tổng hợp, dễ hiểu, dễ nhớ — con tự ôn lại bất cứ lúc nào, không cần đến lớp.</p>
+    </div>
+    <div class="tuhoc-grid">
+      <a href="tuhoc.html?subject=toan" class="tuhoc-card toan">
+        <span class="icon">➗</span>
+        <h3>Toán tư duy</h3>
+        <p>Mindmap chuyên đề theo từng khối lớp, từ cơ bản đến nâng cao.</p>
+        <span class="go">Vào học Toán →</span>
+      </a>
+      <a href="tuhoc.html?subject=khoahoc" class="tuhoc-card">
+        <span class="icon">🔬</span>
+        <h3>Khoa học</h3>
+        <p>Song ngữ Việt – Anh, đầy đủ Khối 1 đến Khối 4.</p>
+        <span class="go">Vào học Khoa học →</span>
+      </a>
     </div>
   </div>
 </section>
