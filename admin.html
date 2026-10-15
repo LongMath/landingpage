@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Quản trị — Toán Bác Long</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF6EC; --paper-deep:#F2E9D6; --navy:#0C2050; --navy-light:#3D5A85;
+    --gold:#E3A038; --gold-deep:#C97F1E; --coral:#E63A2E; --green:#178A50; --line:#E4D9BE;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--navy); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; font-size:14.5px;}
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif; margin:0; font-weight:700;}
+  p{margin:0; line-height:1.6;}
+  [hidden]{display:none !important;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 24px;}
+  header{background:var(--navy); color:#FFF7E6;}
+  header .bar{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 0; flex-wrap:wrap;}
+  .brand{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px;}
+  .brand span{color:var(--gold);}
+  .who{display:flex; align-items:center; gap:12px; font-size:13px;}
+  .who a{color:#EAD9A8; text-decoration:none; border-bottom:1px solid rgba(234,217,168,0.4);}
+  main{padding:28px 0 60px;}
+  .card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px; margin-bottom:20px; box-shadow:0 10px 24px -18px rgba(12,32,80,0.3);}
+  .card.narrow{max-width:420px; margin:40px auto;}
+  .card h2{font-size:18px; margin-bottom:4px;}
+  .hint{color:var(--navy-light); font-size:13px;}
+  .summary{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;}
+  .pill{background:#fff; border:1px solid var(--line); border-radius:999px; padding:6px 14px; font-size:13px; font-weight:600;}
+  .tabs{display:flex; gap:6px; margin-bottom:18px; flex-wrap:wrap;}
+  .tab{border:1px solid var(--line); background:#fff; color:var(--navy-light); font-weight:700; font-family:inherit; font-size:14px; padding:9px 18px; border-radius:10px; cursor:pointer;}
+  .tab.active{background:var(--navy); color:#FFF7E6; border-color:var(--navy);}
+  label{display:block; font-size:12.5px; font-weight:700; margin:14px 0 5px;}
+  input[type=text], input[type=email], input[type=password], input[type=number], select, textarea{
+    width:100%; padding:9px 11px; border:1.5px solid var(--line); border-radius:9px; font:inherit; color:var(--navy); background:#fff;
+  }
+  input:focus, select:focus, textarea:focus{outline:2px solid var(--gold); outline-offset:0; border-color:var(--gold);}
+  input[type=file]{width:100%; padding:8px; border:1.5px dashed var(--line); border-radius:9px; background:var(--paper);}
+  textarea{min-height:64px; resize:vertical;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:0 16px;}
+  .grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 16px;}
+  @media (max-width:700px){ .grid2,.grid3{grid-template-columns:1fr;} }
+  .btn{border:none; font:inherit; font-weight:700; cursor:pointer; border-radius:9px; padding:10px 18px;}
+  .btn.primary{background:linear-gradient(180deg,#F3B85A,var(--gold)); color:var(--navy); box-shadow:0 3px 0 var(--gold-deep);}
+  .btn.ghost{background:var(--paper-deep); color:var(--navy);}
+  .btn.danger{background:#FDEDEA; color:var(--coral);}
+  .btn.small{padding:5px 10px; font-size:12.5px;}
+  .btn:disabled{opacity:0.55; cursor:not-allowed;}
+  .note{background:#FFF7E6; border:1px solid #F1DDAE; border-radius:9px; padding:10px 12px; font-size:13px; margin-top:12px;}
+  .note.warn{background:#FDEDEA; border-color:#F5C6C0;}
+  .tablewrap{overflow-x:auto; margin-top:12px;}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th{text-align:left; font-size:12px; color:var(--navy-light); padding:8px 10px; border-bottom:1.5px solid var(--line); white-space:nowrap;}
+  td{padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:middle;}
+  td select, td input{padding:6px 8px; font-size:13px; width:auto; min-width:90px;}
+  .tag{display:inline-block; font-size:11.5px; font-weight:700; border-radius:999px; padding:2px 9px;}
+  .tag.cong_khai{background:#E1F2E7; color:var(--green);}
+  .tag.thanh_vien{background:#EAF1FB; color:#185FA5;}
+  .tag.tra_phi{background:#FDEDEA; color:var(--coral);}
+  .muted{color:var(--navy-light); font-size:12.5px;}
+  .row-actions{display:flex; gap:6px; flex-wrap:wrap;}
+  #toast{position:fixed; right:18px; bottom:18px; display:flex; flex-direction:column; gap:8px; z-index:50;}
+  .toast{background:var(--navy); color:#FFF7E6; padding:11px 16px; border-radius:10px; box-shadow:0 10px 24px -8px rgba(0,0,0,0.35); max-width:360px; font-size:13.5px;}
+  .toast.err{background:var(--coral);}
+  .toast.ok{background:var(--green);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand">Toán Bác Long <span>· Quản trị</span></div>
+    <div class="who" id="who" hidden>
+      <a href="https://longmath.github.io/landingpage/">← Về trang giới thiệu</a>
+      <span id="who-email"></span>
+      <button class="btn ghost small" id="btn-logout" type="button">Đăng xuất</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ĐĂNG NHẬP -->
+  <section id="view-login" class="card narrow" hidden>
+    <h2>Đăng nhập quản trị</h2>
+    <p class="hint">Chỉ tài khoản đã được cấp quyền admin mới dùng được trang này.</p>
+    <form id="form-login">
+      <label for="login-email">Email</label>
+      <input type="email" id="login-email" autocomplete="username" required>
+      <label for="login-password">Mật khẩu</label>
+      <input type="password" id="login-password" autocomplete="current-password" required>
+      <p id="login-error" class="note warn" hidden></p>
+      <p style="margin-top:16px;"><button class="btn primary" type="submit" id="btn-login">Đăng nhập</button></p>
+    </form>
+  </section>
+
+  <!-- KHÔNG CÓ QUYỀN -->
+  <section id="view-denied" class="card narrow" hidden>
+    <h2>Không có quyền quản trị</h2>
+    <p class="hint">Tài khoản <b id="denied-email"></b> đã đăng nhập nhưng chưa được cấp quyền admin. Hãy đăng xuất và dùng đúng tài khoản admin.</p>
+  </section>
+
+  <!-- ỨNG DỤNG -->
+  <section id="view-app" hidden>
+    <div class="summary" id="summary"></div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" type="button" data-tab="materials">Tài liệu</button>
+      <button class="tab" type="button" data-tab="topics">Chuyên đề</button>
+      <button class="tab" type="button" data-tab="levels">Bảng đề</button>
+    </div>
+
+    <!-- TAB TÀI LIỆU -->
+    <div id="tab-materials">
+      <div class="card">
+        <h2>Tải tài liệu lên</h2>
+        <p class="hint">Chọn nơi gắn tài liệu, chọn file, đặt mức truy cập. Nên để trạng thái "Nháp" trước, kiểm tra rồi mới chuyển "Đã đăng".</p>
+        <form id="form-upload">
+          <div class="grid3">
+            <div><label for="up-exam">Kỳ thi</label><select id="up-exam"></select></div>
+            <div><label for="up-level">Khối / bảng đề</label><select id="up-level"></select></div>
+            <div><label for="up-topic">Chuyên đề</label><select id="up-topic"></select></div>
+          </div>
+          <label for="up-file">File</label>
+          <input type="file" id="up-file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg">
+          <div class="grid2">
+            <div><label for="up-loai">Loại tài liệu</label><select id="up-loai"></select></div>
+            <div><label for="up-pages">Số trang (không bắt buộc)</label><input type="number" id="up-pages" min="1"></div>
+          </div>
+          <label for="up-title">Tiêu đề hiển thị</label>
+          <input type="text" id="up-title" placeholder="Ví dụ: Gà và thỏ — bản tóm tắt">
+          <label for="up-desc">Mô tả ngắn (không bắt buộc)</label>
+          <textarea id="up-desc"></textarea>
+          <div class="grid2">
+            <div><label for="up-access">Ai được tải?</label><select id="up-access"></select></div>
+            <div><label for="up-status">Trạng thái</label><select id="up-status"></select></div>
+          </div>
+          <div class="note" id="up-access-note"></div>
+          <p style="margin-top:16px;"><button class="btn primary" type="submit" id="btn-upload">Tải lên</button></p>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Tài liệu đã tải</h2>
+        <p class="hint">Muốn đổi mức truy cập của một tài liệu, hãy xoá rồi tải lại (vì file nằm ở kho khác nhau).</p>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Tiêu đề</th><th>Gắn với</th><th>Loại</th><th>Ai tải được</th><th>Trạng thái</th><th></th></tr></thead>
+          <tbody id="materials-body"></tbody>
+        </table></div>
+        <p class="muted" id="materials-empty" hidden style="margin-top:12px;">Chưa có tài liệu nào.</p>
+      </div>
+    </div>
+
+    <!-- TAB CHUYÊN ĐỀ -->
+    <div id="tab-topics" hidden>
+      <div class="card">
+        <h2>Chuyên đề</h2>
+        <div class="grid2">
+          <div><label for="tp-exam">Kỳ thi</label><select id="tp-exam"></select></div>
+          <div><label for="tp-level">Khối / bảng đề</label><select id="tp-level"></select></div>
+        </div>
+        <div class="tablewrap"><table>
+          <thead><tr><th>STT</th><th>Tên chuyên đề</th><th>Nhóm</th><th>Ai đọc được</th><th>Trạng thái</th></tr></thead>
+          <tbody id="topics-body"></tbody>
+        </table></div>
+        <p class="muted" id="topics-empty" hidden style="margin-top:12px;">Bảng đề này chưa có chuyên đề.</p>
+      </div>
+      <div class="card">
+        <h2>Thêm chuyên đề vào bảng đề đang chọn</h2>
+        <form id="form-topic">
+          <div class="grid2">
+            <div><label for="nt-name">Tên chuyên đề</label><input type="text" id="nt-name" required></div>
+            <div><label for="nt-group">Nhóm (không bắt buộc)</label><input type="text" id="nt-group"></div>
+          </div>
+          <div class="grid3">
+            <div><label for="nt-order">Số thứ tự</label><input type="number" id="nt-order" min="0" value="0"></div>
+            <div><label for="nt-access">Ai đọc được</label><select id="nt-access"></select></div>
+            <div><label for="nt-status">Trạng thái</label><select id="nt-status"></select></div>
+          </div>
+          <p style="margin-top:16px;"><button class="btn primary" type="submit">Thêm chuyên đề</button></p>
+        </form>
+      </div>
+    </div>
+
+    <!-- TAB BẢNG ĐỀ -->
+    <div id="tab-levels" hidden>
+      <div class="card">
+        <h2>Khối / bảng đề</h2>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Kỳ thi</th><th>Tên</th><th>Khối</th><th>Vòng</th><th>Số chuyên đề</th><th>Trạng thái</th></tr></thead>
+          <tbody id="levels-body"></tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <h2>Thêm khối / bảng đề</h2>
+        <form id="form-level">
+          <div class="grid2">
+            <div><label for="nl-exam">Kỳ thi</label><select id="nl-exam"></select></div>
+            <div><label for="nl-name">Tên (ví dụ: IMAS vòng 1)</label><input type="text" id="nl-name" required></div>
+          </div>
+          <div class="grid3">
+            <div><label for="nl-from">Từ khối (không bắt buộc)</label><input type="number" id="nl-from" min="0" max="12"></div>
+            <div><label for="nl-to">Đến khối (không bắt buộc)</label><input type="number" id="nl-to" min="0" max="12"></div>
+            <div><label for="nl-round">Vòng (không bắt buộc)</label><input type="text" id="nl-round"></div>
+          </div>
+          <div class="grid2">
+            <div><label for="nl-order">Số thứ tự</label><input type="number" id="nl-order" min="0" value="0"></div>
+            <div><label for="nl-status">Trạng thái</label><select id="nl-status"></select></div>
+          </div>
+          <p style="margin-top:16px;"><button class="btn primary" type="submit">Thêm bảng đề</button></p>
+        </form>
+        <p class="hint" style="margin-top:10px;">Muốn thêm hoặc sửa tên kỳ thi, vào Table Editor của Supabase, bảng exams.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  // Trang này chỉ là giao diện tiện dụng. Bảo vệ thật nằm ở phân quyền (RLS) trong Supabase:
+  // người không phải admin có mở trang này cũng không đọc hay sửa được gì.
+  var SUPABASE_URL = 'https://vmttxgndosucjpysdrzg.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdHR4Z25kb3N1Y2pweXNkcnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMTE5NjcsImV4cCI6MjEwNDg4Nzk2N30.q79YcNPMQhhtOhp3ei1kWV03_TdORAx1PnJi3BgYXlU';
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  var BUCKET_PUBLIC = 'tai-lieu-cong-khai';
+  var BUCKET_PRIVATE = 'tai-lieu-rieng';
+  var LOAI = { ly_thuyet_day_du:'Lý thuyết đầy đủ', tom_tat:'Tóm tắt', vi_du:'Ví dụ', bai_tap_thuc_hanh:'Bài tập thực hành', bai_ve_nha:'Bài tập về nhà', khac:'Khác' };
+  var QUYEN = { cong_khai:'Công khai', thanh_vien:'Thành viên', tra_phi:'Trả phí' };
+  var TRANG_THAI = { nhap:'Nháp', da_dang:'Đã đăng' };
+  var QUYEN_NOTE = {
+    cong_khai: 'Công khai: ai cũng tải được, kể cả người chưa đăng nhập. Chỉ dùng cho nội dung bạn tự viết hoặc được phép phát hành.',
+    thanh_vien: 'Thành viên: chỉ người đã đăng nhập tải được.',
+    tra_phi: 'Trả phí: hiện chỉ admin tải được. Việc mở cho người đã mua sẽ làm ở bước thanh toán.'
+  };
+
+  var S = { exams: [], levels: [], topics: [], materials: [] };
+  var currentUid;
+  var $ = function (id) { return document.getElementById(id); };
+
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function optionsFromMap(map, selected) {
+    return Object.keys(map).map(function (k) {
+      return '<option value="' + esc(k) + '"' + (k === selected ? ' selected' : '') + '>' + esc(map[k]) + '</option>';
+    }).join('');
+  }
+  function toast(msg, type) {
+    var el = document.createElement('div');
+    el.className = 'toast ' + (type || '');
+    el.textContent = msg;
+    $('toast').appendChild(el);
+    setTimeout(function () { el.remove(); }, type === 'err' ? 7000 : 3500);
+  }
+  function friendlyError(error) {
+    var m = (error && error.message) || String(error);
+    if (/row-level security|permission denied/i.test(m)) return 'Không đủ quyền thực hiện (tài khoản chưa phải admin?).';
+    if (/duplicate key|already exists/i.test(m)) return 'Đã tồn tại mục trùng (tên hoặc đường dẫn file bị trùng).';
+    if (/Invalid login credentials/i.test(m)) return 'Sai email hoặc mật khẩu.';
+    if (/payload too large|exceeded the maximum/i.test(m)) return 'File quá lớn so với giới hạn của gói hiện tại.';
+    return m;
+  }
+  function slugify(name) {
+    var dot = name.lastIndexOf('.');
+    var base = dot > 0 ? name.slice(0, dot) : name;
+    var ext = dot > 0 ? name.slice(dot + 1).toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+    var s = base.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D')
+      .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'file';
+    return ext ? s + '.' + ext : s;
+  }
+  function numOrNull(v) {
+    var n = parseInt(v, 10);
+    return isNaN(n) ? null : n;
+  }
+
+  /* ---------- HIỂN THỊ KHUNG ---------- */
+  function showView(name) {
+    ['login', 'denied', 'app'].forEach(function (v) { $('view-' + v).hidden = (v !== name); });
+    $('who').hidden = (name === 'login');
+  }
+
+  async function route(session) {
+    var uid = session && session.user ? session.user.id : null;
+    if (uid === currentUid) return;
+    currentUid = uid;
+    if (!uid) { S = { exams: [], levels: [], topics: [], materials: [] }; showView('login'); return; }
+    $('who-email').textContent = session.user.email || '';
+    var res = await sb.rpc('is_admin');
+    if (res.error || res.data !== true) {
+      $('denied-email').textContent = session.user.email || '';
+      showView('denied');
+      return;
+    }
+    showView('app');
+    await reloadAll();
+  }
+
+  /* ---------- TẢI DỮ LIỆU ---------- */
+  async function reloadAll() {
+    var r = await Promise.all([
+      sb.from('exams').select('*').order('thu_tu'),
+      sb.from('exam_levels').select('*').order('thu_tu'),
+      sb.from('topics').select('*').order('thu_tu'),
+      sb.from('materials').select('*').order('created_at', { ascending: false })
+    ]);
+    for (var i = 0; i < r.length; i++) {
+      if (r[i].error) { toast('Không tải được dữ liệu: ' + friendlyError(r[i].error), 'err'); return; }
+    }
+    S.exams = r[0].data || [];
+    S.levels = r[1].data || [];
+    S.topics = r[2].data || [];
+    S.materials = r[3].data || [];
+    renderAll();
+  }
+
+  function renderAll() {
+    $('summary').innerHTML =
+      '<span class="pill">' + S.exams.length + ' kỳ thi</span>' +
+      '<span class="pill">' + S.levels.length + ' bảng đề</span>' +
+      '<span class="pill">' + S.topics.length + ' chuyên đề</span>' +
+      '<span class="pill">' + S.materials.length + ' tài liệu</span>';
+    fillStaticSelects();
+    fillExamSelect('up-exam');
+    fillExamSelect('tp-exam');
+    fillExamSelect('nl-exam');
+    cascadeUploadLevel();
+    cascadeTopicsLevel();
+    renderMaterials();
+    renderLevels();
+  }
+
+  function fillStaticSelects() {
+    if (!$('up-loai').options.length) {
+      $('up-loai').innerHTML = optionsFromMap(LOAI, 'tom_tat');
+      $('up-access').innerHTML = optionsFromMap(QUYEN, 'cong_khai');
+      $('up-status').innerHTML = optionsFromMap(TRANG_THAI, 'nhap');
+      $('nt-access').innerHTML = optionsFromMap(QUYEN, 'thanh_vien');
+      $('nt-status').innerHTML = optionsFromMap(TRANG_THAI, 'nhap');
+      $('nl-status').innerHTML = optionsFromMap(TRANG_THAI, 'nhap');
+      updateAccessNote();
+    }
+  }
+  function updateAccessNote() { $('up-access-note').textContent = QUYEN_NOTE[$('up-access').value] || ''; }
+
+  function fillExamSelect(id) {
+    var el = $(id), keep = el.value;
+    el.innerHTML = S.exams.map(function (e) { return '<option value="' + esc(e.id) + '">' + esc(e.ten) + '</option>'; }).join('');
+    if (keep && S.exams.some(function (e) { return e.id === keep; })) el.value = keep;
+  }
+  function levelsOfExam(examId) { return S.levels.filter(function (l) { return l.exam_id === examId; }); }
+  function topicsOfLevel(levelId) { return S.topics.filter(function (t) { return t.level_id === levelId; }); }
+
+  function cascadeUploadLevel() {
+    var el = $('up-level'), keep = el.value;
+    var list = levelsOfExam($('up-exam').value);
+    el.innerHTML = list.map(function (l) { return '<option value="' + esc(l.id) + '">' + esc(l.ten) + '</option>'; }).join('');
+    if (keep && list.some(function (l) { return l.id === keep; })) el.value = keep;
+    cascadeUploadTopic();
+  }
+  function cascadeUploadTopic() {
+    var el = $('up-topic'), keep = el.value;
+    var list = topicsOfLevel($('up-level').value);
+    el.innerHTML = '<option value="">(Gắn cho cả bảng đề này)</option>' +
+      list.map(function (t) { return '<option value="' + esc(t.id) + '">' + esc(t.ten) + '</option>'; }).join('');
+    if (keep && list.some(function (t) { return t.id === keep; })) el.value = keep;
+  }
+  function cascadeTopicsLevel() {
+    var el = $('tp-level'), keep = el.value;
+    var list = levelsOfExam($('tp-exam').value);
+    el.innerHTML = list.map(function (l) { return '<option value="' + esc(l.id) + '">' + esc(l.ten) + '</option>'; }).join('');
+    if (keep && list.some(function (l) { return l.id === keep; })) el.value = keep;
+    renderTopics();
+  }
+
+  /* ---------- TÀI LIỆU ---------- */
+  function materialContext(m) {
+    var topic = m.topic_id ? S.topics.find(function (t) { return t.id === m.topic_id; }) : null;
+    var level = S.levels.find(function (l) { return l.id === (topic ? topic.level_id : m.level_id); });
+    if (!level) return '—';
+    var exam = S.exams.find(function (e) { return e.id === level.exam_id; });
+    var label = (exam ? exam.ma : '?') + ' › ' + level.ten + (topic ? ' › ' + topic.ten : ' (cả bảng đề)');
+    return esc(label);
+  }
+  function renderMaterials() {
+    var body = $('materials-body');
+    $('materials-empty').hidden = S.materials.length > 0;
+    body.innerHTML = S.materials.map(function (m) {
+      return '<tr>' +
+        '<td><b>' + esc(m.tieu_de) + '</b>' + (m.mo_ta ? '<div class="muted">' + esc(m.mo_ta) + '</div>' : '') + '</td>' +
+        '<td class="muted">' + materialContext(m) + '</td>' +
+        '<td>' + esc(LOAI[m.loai] || m.loai) + '</td>' +
+        '<td><span class="tag ' + esc(m.access_level) + '">' + esc(QUYEN[m.access_level] || m.access_level) + '</span></td>' +
+        '<td><select data-act="status" data-id="' + esc(m.id) + '">' + optionsFromMap(TRANG_THAI, m.trang_thai) + '</select></td>' +
+        '<td><div class="row-actions">' +
+          '<button class="btn ghost small" type="button" data-act="open" data-id="' + esc(m.id) + '">Mở file</button>' +
+          '<button class="btn danger small" type="button" data-act="delete" data-id="' + esc(m.id) + '">Xoá</button>' +
+        '</div></td></tr>';
+    }).join('');
+  }
+
+  async function doUpload(ev) {
+    ev.preventDefault();
+    var file = $('up-file').files[0];
+    var levelId = $('up-level').value;
+    var topicId = $('up-topic').value;
+    var access = $('up-access').value;
+    var title = $('up-title').value.trim();
+    if (!file) { toast('Hãy chọn một file.', 'err'); return; }
+    if (!levelId) { toast('Hãy chọn khối / bảng đề.', 'err'); return; }
+    if (!title) { title = file.name.replace(/\.[^.]+$/, ''); $('up-title').value = title; }
+
+    var bucket = access === 'cong_khai' ? BUCKET_PUBLIC : BUCKET_PRIVATE;
+    var folder = topicId ? 't-' + topicId : 'l-' + levelId;
+    var path = folder + '/' + Date.now() + '-' + slugify(file.name);
+    var btn = $('btn-upload');
+    btn.disabled = true; btn.textContent = 'Đang tải lên...';
+    try {
+      var up = await sb.storage.from(bucket).upload(path, file, { contentType: file.type || 'application/octet-stream', upsert: false });
+      if (up.error) { toast('Tải file thất bại: ' + friendlyError(up.error), 'err'); return; }
+      var ins = await sb.from('materials').insert({
+        topic_id: topicId || null,
+        level_id: topicId ? null : levelId,
+        loai: $('up-loai').value,
+        tieu_de: title,
+        mo_ta: $('up-desc').value.trim() || null,
+        access_level: access,
+        bucket: bucket,
+        file_path: path,
+        so_trang: numOrNull($('up-pages').value),
+        trang_thai: $('up-status').value
+      });
+      if (ins.error) {
+        await sb.storage.from(bucket).remove([path]);
+        toast('Lưu thông tin thất bại, đã huỷ file vừa tải: ' + friendlyError(ins.error), 'err');
+        return;
+      }
+      toast('Đã tải lên: ' + title, 'ok');
+      $('form-upload').reset();
+      $('up-loai').value = 'tom_tat';
+      updateAccessNote();
+      await reloadAll();
+    } catch (e) {
+      toast('Có lỗi: ' + friendlyError(e), 'err');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Tải lên';
+    }
+  }
+
+  async function openFile(id) {
+    var m = S.materials.find(function (x) { return x.id === id; });
+    if (!m) return;
+    var w = window.open('about:blank', '_blank');
+    var url = null;
+    if (m.bucket === BUCKET_PUBLIC) {
+      url = sb.storage.from(m.bucket).getPublicUrl(m.file_path).data.publicUrl;
+    } else {
+      var r = await sb.storage.from(m.bucket).createSignedUrl(m.file_path, 120);
+      if (r.error) { if (w) w.close(); toast('Không mở được file: ' + friendlyError(r.error), 'err'); return; }
+      url = r.data.signedUrl;
+    }
+    if (w) w.location = url; else window.location.href = url;
+  }
+
+  async function deleteMaterial(id) {
+    var m = S.materials.find(function (x) { return x.id === id; });
+    if (!m) return;
+    if (!confirm('Xoá tài liệu "' + m.tieu_de + '"? Không thể hoàn tác.')) return;
+    var del = await sb.from('materials').delete().eq('id', id);
+    if (del.error) { toast('Không xoá được: ' + friendlyError(del.error), 'err'); return; }
+    var rm = await sb.storage.from(m.bucket).remove([m.file_path]);
+    if (rm.error) toast('Đã xoá mục trong danh sách nhưng file chưa xoá khỏi kho: ' + friendlyError(rm.error), 'err');
+    else toast('Đã xoá tài liệu.', 'ok');
+    await reloadAll();
+  }
+
+  async function setMaterialStatus(id, value) {
+    var r = await sb.from('materials').update({ trang_thai: value, updated_at: new Date().toISOString() }).eq('id', id);
+    if (r.error) { toast('Không cập nhật được: ' + friendlyError(r.error), 'err'); await reloadAll(); return; }
+    toast('Đã cập nhật trạng thái.', 'ok');
+    var m = S.materials.find(function (x) { return x.id === id; });
+    if (m) m.trang_thai = value;
+  }
+
+  /* ---------- CHUYÊN ĐỀ ---------- */
+  function renderTopics() {
+    var list = topicsOfLevel($('tp-level').value);
+    $('topics-empty').hidden = list.length > 0;
+    $('topics-body').innerHTML = list.map(function (t) {
+      return '<tr><td>' + esc(t.thu_tu) + '</td><td><b>' + esc(t.ten) + '</b></td><td>' + esc(t.nhom || '') + '</td>' +
+        '<td><select data-act="topic-access" data-id="' + esc(t.id) + '">' + optionsFromMap(QUYEN, t.access_level) + '</select></td>' +
+        '<td><select data-act="topic-status" data-id="' + esc(t.id) + '">' + optionsFromMap(TRANG_THAI, t.trang_thai) + '</select></td></tr>';
+    }).join('');
+  }
+  async function updateTopic(id, patch) {
+    var r = await sb.from('topics').update(patch).eq('id', id);
+    if (r.error) { toast('Không cập nhật được: ' + friendlyError(r.error), 'err'); await reloadAll(); return; }
+    var t = S.topics.find(function (x) { return x.id === id; });
+    if (t) Object.assign(t, patch);
+    toast('Đã cập nhật chuyên đề.', 'ok');
+  }
+  async function addTopic(ev) {
+    ev.preventDefault();
+    var levelId = $('tp-level').value;
+    if (!levelId) { toast('Hãy chọn khối / bảng đề trước.', 'err'); return; }
+    var r = await sb.from('topics').insert({
+      level_id: levelId,
+      ten: $('nt-name').value.trim(),
+      nhom: $('nt-group').value.trim() || null,
+      thu_tu: numOrNull($('nt-order').value) || 0,
+      access_level: $('nt-access').value,
+      trang_thai: $('nt-status').value
+    });
+    if (r.error) { toast('Không thêm được: ' + friendlyError(r.error), 'err'); return; }
+    toast('Đã thêm chuyên đề.', 'ok');
+    $('nt-name').value = ''; $('nt-group').value = '';
+    await reloadAll();
+  }
+
+  /* ---------- BẢNG ĐỀ ---------- */
+  function renderLevels() {
+    var examById = {};
+    S.exams.forEach(function (e) { examById[e.id] = e; });
+    $('levels-body').innerHTML = S.levels.map(function (l) {
+      var khoi = l.khoi_tu == null && l.khoi_den == null ? '—' : (l.khoi_tu === l.khoi_den ? String(l.khoi_tu) : (l.khoi_tu + '–' + l.khoi_den));
+      var count = topicsOfLevel(l.id).length;
+      return '<tr><td>' + esc((examById[l.exam_id] || {}).ma || '?') + '</td><td><b>' + esc(l.ten) + '</b></td><td>' + esc(khoi) + '</td><td>' + esc(l.vong || '') + '</td><td>' + count + '</td>' +
+        '<td><select data-act="level-status" data-id="' + esc(l.id) + '">' + optionsFromMap(TRANG_THAI, l.trang_thai) + '</select></td></tr>';
+    }).join('');
+  }
+  async function addLevel(ev) {
+    ev.preventDefault();
+    var r = await sb.from('exam_levels').insert({
+      exam_id: $('nl-exam').value,
+      ten: $('nl-name').value.trim(),
+      khoi_tu: numOrNull($('nl-from').value),
+      khoi_den: numOrNull($('nl-to').value),
+      vong: $('nl-round').value.trim() || null,
+      thu_tu: numOrNull($('nl-order').value) || 0,
+      trang_thai: $('nl-status').value
+    });
+    if (r.error) { toast('Không thêm được: ' + friendlyError(r.error), 'err'); return; }
+    toast('Đã thêm bảng đề.', 'ok');
+    $('form-level').reset();
+    $('nl-status').value = 'nhap';
+    await reloadAll();
+  }
+  async function updateLevelStatus(id, value) {
+    var r = await sb.from('exam_levels').update({ trang_thai: value }).eq('id', id);
+    if (r.error) { toast('Không cập nhật được: ' + friendlyError(r.error), 'err'); await reloadAll(); return; }
+    var l = S.levels.find(function (x) { return x.id === id; });
+    if (l) l.trang_thai = value;
+    toast('Đã cập nhật bảng đề.', 'ok');
+  }
+
+  /* ---------- SỰ KIỆN ---------- */
+  $('form-login').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    var err = $('login-error'); err.hidden = true;
+    var btn = $('btn-login'); btn.disabled = true;
+    var r = await sb.auth.signInWithPassword({ email: $('login-email').value.trim(), password: $('login-password').value });
+    btn.disabled = false;
+    if (r.error) { err.textContent = friendlyError(r.error); err.hidden = false; }
+  });
+  $('btn-logout').addEventListener('click', function () { sb.auth.signOut(); });
+
+  document.querySelectorAll('.tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
+      ['materials', 'topics', 'levels'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
+    });
+  });
+
+  $('up-exam').addEventListener('change', cascadeUploadLevel);
+  $('up-level').addEventListener('change', cascadeUploadTopic);
+  $('up-access').addEventListener('change', updateAccessNote);
+  $('tp-exam').addEventListener('change', cascadeTopicsLevel);
+  $('tp-level').addEventListener('change', renderTopics);
+  $('form-upload').addEventListener('submit', doUpload);
+  $('form-topic').addEventListener('submit', addTopic);
+  $('form-level').addEventListener('submit', addLevel);
+
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-act]');
+    if (!b) return;
+    if (b.dataset.act === 'open') openFile(b.dataset.id);
+    if (b.dataset.act === 'delete') deleteMaterial(b.dataset.id);
+  });
+  document.addEventListener('change', function (ev) {
+    var s = ev.target.closest('select[data-act]');
+    if (!s) return;
+    var act = s.dataset.act, id = s.dataset.id;
+    if (act === 'status') setMaterialStatus(id, s.value);
+    if (act === 'topic-access') updateTopic(id, { access_level: s.value });
+    if (act === 'topic-status') updateTopic(id, { trang_thai: s.value });
+    if (act === 'level-status') updateLevelStatus(id, s.value);
+  });
+
+  // Không gọi tiếp Supabase ngay trong hàm này, nên chuyển sang lượt chạy sau để tránh kẹt.
+  sb.auth.onAuthStateChange(function (_event, session) { setTimeout(function () { route(session); }, 0); });
+  sb.auth.getSession().then(function (r) { route(r.data ? r.data.session : null); });
+</script>
+</body>
+</html>
