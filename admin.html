@@ -166,11 +166,21 @@
           <div><label for="tp-level">Khối / bảng đề</label><select id="tp-level"></select></div>
         </div>
         <div class="tablewrap"><table>
-          <thead><tr><th>STT</th><th>Tên chuyên đề</th><th>Nhóm</th><th>Ai đọc được</th><th>Trạng thái</th></tr></thead>
+          <thead><tr><th>STT</th><th>Tên chuyên đề</th><th>Nhóm</th><th>Ai đọc được</th><th>Trạng thái</th><th></th></tr></thead>
           <tbody id="topics-body"></tbody>
         </table></div>
         <p class="muted" id="topics-empty" hidden style="margin-top:12px;">Bảng đề này chưa có chuyên đề.</p>
       </div>
+      <form id="form-topic-edit" class="card" hidden>
+        <h2 id="te-title">Sửa chuyên đề</h2>
+        <div class="grid3">
+          <div><label for="te-name">Tên chuyên đề</label><input type="text" id="te-name" required></div>
+          <div><label for="te-group">Nhóm (không bắt buộc)</label><input type="text" id="te-group"></div>
+          <div><label for="te-order">Số thứ tự</label><input type="number" id="te-order" min="0"></div>
+        </div>
+        <p class="hint" style="margin-top:8px;">Đổi tên không làm mất lý thuyết, từ khoá, bài tập hay tài liệu của chuyên đề.</p>
+        <p style="margin-top:14px;" class="row-actions"><button class="btn primary" type="submit">Lưu thay đổi</button><button class="btn ghost" type="button" id="btn-cancel-topic-edit">Huỷ</button></p>
+      </form>
       <div class="card">
         <h2>Thêm chuyên đề vào bảng đề đang chọn</h2>
         <form id="form-topic">
@@ -193,10 +203,25 @@
       <div class="card">
         <h2>Khối / bảng đề</h2>
         <div class="tablewrap"><table>
-          <thead><tr><th>Kỳ thi</th><th>Tên</th><th>Khối</th><th>Vòng</th><th>Số chuyên đề</th><th>Trạng thái</th></tr></thead>
+          <thead><tr><th>Kỳ thi</th><th>Tên</th><th>Khối</th><th>Vòng</th><th>Số chuyên đề</th><th>Trạng thái</th><th></th></tr></thead>
           <tbody id="levels-body"></tbody>
         </table></div>
       </div>
+      <form id="form-level-edit" class="card" hidden>
+        <h2 id="le-title">Sửa bảng đề</h2>
+        <div class="grid2">
+          <div><label for="le-exam">Kỳ thi</label><select id="le-exam"></select></div>
+          <div><label for="le-name">Tên (ví dụ: SASMO lớp 2-3)</label><input type="text" id="le-name" required></div>
+        </div>
+        <div class="grid3">
+          <div><label for="le-from">Từ khối (không bắt buộc)</label><input type="number" id="le-from" min="0" max="12"></div>
+          <div><label for="le-to">Đến khối (không bắt buộc)</label><input type="number" id="le-to" min="0" max="12"></div>
+          <div><label for="le-round">Vòng (không bắt buộc)</label><input type="text" id="le-round"></div>
+        </div>
+        <div class="grid2"><div><label for="le-order">Số thứ tự</label><input type="number" id="le-order" min="0"></div><div></div></div>
+        <p class="hint" style="margin-top:8px;">Đổi tên, khối hoặc kỳ thi không làm mất chuyên đề, bài tập hay tài liệu bên trong. Trạng thái Nháp hoặc Đã đăng đổi ngay ở bảng phía trên.</p>
+        <p style="margin-top:14px;" class="row-actions"><button class="btn primary" type="submit">Lưu thay đổi</button><button class="btn ghost" type="button" id="btn-cancel-level-edit">Huỷ</button></p>
+      </form>
       <div class="card">
         <h2>Thêm khối / bảng đề</h2>
         <form id="form-level">
@@ -356,7 +381,8 @@
   function friendlyError(error) {
     var m = (error && error.message) || String(error);
     if (/row-level security|permission denied/i.test(m)) return 'Không đủ quyền thực hiện (tài khoản chưa phải admin?).';
-    if (/duplicate key|already exists/i.test(m)) return 'Đã tồn tại mục trùng (tên hoặc đường dẫn file bị trùng).';
+    if (/check constraint/i.test(m)) return 'Giá trị chưa hợp lệ (ví dụ khối "từ" lớn hơn khối "đến", hoặc khối ngoài khoảng 0 đến 12).';
+    if (/duplicate key|already exists/i.test(m)) return 'Đã tồn tại mục trùng (tên đã có trong cùng kỳ thi hoặc bảng đề, hoặc đường dẫn file bị trùng).';
     if (/Invalid login credentials/i.test(m)) return 'Sai email hoặc mật khẩu.';
     if (/payload too large|exceeded the maximum/i.test(m)) return 'File quá lớn so với giới hạn của gói hiện tại.';
     return m;
@@ -592,7 +618,8 @@
     $('topics-body').innerHTML = list.map(function (t) {
       return '<tr><td>' + esc(t.thu_tu) + '</td><td><b>' + esc(t.ten) + '</b></td><td>' + esc(t.nhom || '') + '</td>' +
         '<td><select data-act="topic-access" data-id="' + esc(t.id) + '">' + optionsFromMap(QUYEN, t.access_level) + '</select></td>' +
-        '<td><select data-act="topic-status" data-id="' + esc(t.id) + '">' + optionsFromMap(TRANG_THAI, t.trang_thai) + '</select></td></tr>';
+        '<td><select data-act="topic-status" data-id="' + esc(t.id) + '">' + optionsFromMap(TRANG_THAI, t.trang_thai) + '</select></td>' +
+        '<td><button class="btn ghost small" type="button" data-act="topic-edit" data-id="' + esc(t.id) + '">Sửa</button></td></tr>';
     }).join('');
   }
   async function updateTopic(id, patch) {
@@ -628,7 +655,8 @@
       var khoi = l.khoi_tu == null && l.khoi_den == null ? '—' : (l.khoi_tu === l.khoi_den ? String(l.khoi_tu) : (l.khoi_tu + '–' + l.khoi_den));
       var count = topicsOfLevel(l.id).length;
       return '<tr><td>' + esc((examById[l.exam_id] || {}).ma || '?') + '</td><td><b>' + esc(l.ten) + '</b></td><td>' + esc(khoi) + '</td><td>' + esc(l.vong || '') + '</td><td>' + count + '</td>' +
-        '<td><select data-act="level-status" data-id="' + esc(l.id) + '">' + optionsFromMap(TRANG_THAI, l.trang_thai) + '</select></td></tr>';
+        '<td><select data-act="level-status" data-id="' + esc(l.id) + '">' + optionsFromMap(TRANG_THAI, l.trang_thai) + '</select></td>' +
+        '<td><button class="btn ghost small" type="button" data-act="level-edit" data-id="' + esc(l.id) + '">Sửa</button></td></tr>';
     }).join('');
   }
   async function addLevel(ev) {
@@ -656,6 +684,66 @@
     toast('Đã cập nhật bảng đề.', 'ok');
   }
 
+
+
+  /* ---------- SỬA BẢNG ĐỀ VÀ CHUYÊN ĐỀ ---------- */
+  var ED = { levelId: null, topicId: null };
+  function scrollTo(el) { if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+
+  function showLevelEdit(id) {
+    var l = S.levels.find(function (x) { return x.id === id; });
+    if (!l) return;
+    ED.levelId = id;
+    $('le-exam').innerHTML = S.exams.map(function (e) {
+      return '<option value="' + esc(e.id) + '"' + (e.id === l.exam_id ? ' selected' : '') + '>' + esc(e.ten) + '</option>';
+    }).join('');
+    $('le-name').value = l.ten;
+    $('le-from').value = l.khoi_tu == null ? '' : l.khoi_tu;
+    $('le-to').value = l.khoi_den == null ? '' : l.khoi_den;
+    $('le-round').value = l.vong || '';
+    $('le-order').value = l.thu_tu == null ? 0 : l.thu_tu;
+    $('le-title').textContent = 'Sửa bảng đề: ' + l.ten;
+    $('form-level-edit').hidden = false;
+    scrollTo($('form-level-edit')); $('le-name').focus();
+  }
+  async function saveLevelEdit(ev) {
+    ev.preventDefault();
+    if (!ED.levelId) return;
+    var name = $('le-name').value.trim();
+    var from = numOrNull($('le-from').value), to = numOrNull($('le-to').value);
+    if (!name) { toast('Cần nhập tên bảng đề.', 'err'); return; }
+    if ((from != null && (from < 0 || from > 12)) || (to != null && (to < 0 || to > 12))) { toast('Khối phải nằm trong khoảng 0 đến 12.', 'err'); return; }
+    if (from != null && to != null && from > to) { toast('Khối "từ" không được lớn hơn khối "đến".', 'err'); return; }
+    var r = await sb.from('exam_levels').update({
+      exam_id: $('le-exam').value, ten: name, khoi_tu: from, khoi_den: to,
+      vong: nz($('le-round').value), thu_tu: numOrNull($('le-order').value) || 0
+    }).eq('id', ED.levelId);
+    if (r.error) { toast('Không lưu được: ' + friendlyError(r.error), 'err'); return; }
+    toast('Đã lưu bảng đề.', 'ok');
+    $('form-level-edit').hidden = true; ED.levelId = null;
+    await reloadAll();
+  }
+
+  function showTopicEdit(id) {
+    var t = S.topics.find(function (x) { return x.id === id; });
+    if (!t) return;
+    ED.topicId = id;
+    $('te-name').value = t.ten; $('te-group').value = t.nhom || ''; $('te-order').value = t.thu_tu == null ? 0 : t.thu_tu;
+    $('te-title').textContent = 'Sửa chuyên đề: ' + t.ten;
+    $('form-topic-edit').hidden = false;
+    scrollTo($('form-topic-edit')); $('te-name').focus();
+  }
+  async function saveTopicEdit(ev) {
+    ev.preventDefault();
+    if (!ED.topicId) return;
+    var name = $('te-name').value.trim();
+    if (!name) { toast('Cần nhập tên chuyên đề.', 'err'); return; }
+    var r = await sb.from('topics').update({ ten: name, nhom: nz($('te-group').value), thu_tu: numOrNull($('te-order').value) || 0 }).eq('id', ED.topicId);
+    if (r.error) { toast('Không lưu được: ' + friendlyError(r.error), 'err'); return; }
+    toast('Đã lưu chuyên đề.', 'ok');
+    $('form-topic-edit').hidden = true; ED.topicId = null;
+    await reloadAll();
+  }
 
   /* ---------- NỘI DUNG CHUYÊN ĐỀ ---------- */
   var C = { topicId: null, problems: [], solutions: {}, terms: [], editingId: null, plan: null };
@@ -983,6 +1071,10 @@
   $('form-upload').addEventListener('submit', doUpload);
   $('form-topic').addEventListener('submit', addTopic);
   $('form-level').addEventListener('submit', addLevel);
+  $('form-level-edit').addEventListener('submit', saveLevelEdit);
+  $('btn-cancel-level-edit').addEventListener('click', function () { $('form-level-edit').hidden = true; ED.levelId = null; });
+  $('form-topic-edit').addEventListener('submit', saveTopicEdit);
+  $('btn-cancel-topic-edit').addEventListener('click', function () { $('form-topic-edit').hidden = true; ED.topicId = null; });
   $('ct-exam').addEventListener('change', cascadeContentLevel);
   $('ct-level').addEventListener('change', cascadeContentTopic);
   $('ct-topic').addEventListener('change', function () { loadContent($('ct-topic').value); });
@@ -1007,6 +1099,8 @@
     if (b.dataset.act === 'open') openFile(b.dataset.id);
     if (b.dataset.act === 'delete') deleteMaterial(b.dataset.id);
     if (b.dataset.act === 'term-del') deleteTerm(b.dataset.id);
+    if (b.dataset.act === 'level-edit') showLevelEdit(b.dataset.id);
+    if (b.dataset.act === 'topic-edit') showTopicEdit(b.dataset.id);
     if (b.dataset.act === 'prob-del') deleteProblem(b.dataset.id);
     if (b.dataset.act === 'prob-edit') showProblemForm(C.problems.find(function (x) { return x.id === b.dataset.id; }));
   });
