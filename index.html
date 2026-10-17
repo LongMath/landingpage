@@ -462,6 +462,29 @@
     .cta-banner{flex-direction:column; text-align:center;}
     .promo-strip{flex-direction:column; text-align:center;}
   }
+
+  /* ---------- MENU TRÊN ĐIỆN THOẠI ---------- */
+  .nav-right { display:flex; align-items:center; gap:14px; }
+  .burger { background:none; border:0; padding:10px 6px; margin:0; }
+  .burger span { transition:transform .2s ease, opacity .2s ease; }
+  .burger.on span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+  .burger.on span:nth-child(2) { opacity:0; }
+  .burger.on span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+  .burger:focus-visible { outline:2px solid var(--gold); outline-offset:2px; border-radius:6px; }
+  .mobile-menu { display:none; }
+  @media(max-width:940px){
+    .mobile-menu.open { display:block; position:absolute; left:0; right:0; top:100%; background:rgba(12,32,80,0.98); border-top:1px solid rgba(227,160,56,0.25); border-bottom:1px solid rgba(227,160,56,0.25); padding:6px 24px 14px; max-height:calc(100vh - 76px); overflow-y:auto; box-shadow:0 18px 30px -12px rgba(0,0,0,0.45); }
+    .mobile-menu a { display:block; padding:14px 4px; color:rgba(255,255,255,0.92); font-weight:600; font-size:16px; text-decoration:none; border-bottom:1px solid rgba(255,255,255,0.08); }
+    .mobile-menu a:last-child { border-bottom:0; }
+    .mobile-menu a:hover, .mobile-menu a:active { color:var(--gold); }
+  }
+  @media(max-width:560px){
+    .nav { padding:12px 14px; }
+    .logo-img { height:38px; }
+    .nav .btn { padding:9px 14px; font-size:13px; }
+    .nav-right { gap:8px; }
+  }
+  @media(max-width:380px){ .logo-img { height:32px; } }
 </style>
 </head>
 <body class="grid-bg">
@@ -481,8 +504,12 @@
       <li><a href="#giaovien">Giáo viên</a></li>
       <li><a href="#danhgia">Đánh giá</a></li>
     </ul>
-    <a href="#dangky" class="btn btn-primary">Đăng ký học</a>
+    <div class="nav-right">
+      <a href="#dangky" class="btn btn-primary">Đăng ký học</a>
+      <button class="burger" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span><span></span></button>
+    </div>
   </nav>
+  <div class="mobile-menu" id="mobile-menu"></div>
 </header>
 
 <section class="hero">
@@ -1174,5 +1201,27 @@
   setInterval(tick, 1000);
 </script>
 
+
+<script>
+(function () {
+  var burger = document.querySelector('.burger'), menu = document.getElementById('mobile-menu'), links = document.querySelector('.nav-links');
+  if (!burger || !menu || !links) return;
+  Array.prototype.forEach.call(links.querySelectorAll('a'), function (a) {
+    var item = document.createElement('a');
+    item.href = a.getAttribute('href'); item.textContent = a.textContent;
+    menu.appendChild(item);
+  });
+  function setOpen(open) {
+    menu.classList.toggle('open', open); burger.classList.toggle('on', open);
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    burger.setAttribute('aria-label', open ? 'Đóng menu' : 'Mở menu');
+  }
+  burger.addEventListener('click', function () { setOpen(!menu.classList.contains('open')); });
+  menu.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
+  document.addEventListener('click', function (e) { if (!menu.contains(e.target) && !burger.contains(e.target)) setOpen(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+  window.addEventListener('resize', function () { if (window.innerWidth > 940) setOpen(false); });
+})();
+</script>
 </body>
 </html>

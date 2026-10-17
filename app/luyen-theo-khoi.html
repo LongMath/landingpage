@@ -77,6 +77,31 @@
   .foot-links a{font-size:13.5px; text-decoration:none; color:var(--navy-light); font-weight:600;}
   .foot-fine{margin-top:18px; font-size:12px; color:var(--navy-light);}
   :focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+
+  /* ---------- MENU TRÊN ĐIỆN THOẠI ---------- */
+  .burger { display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:0; padding:10px 6px; }
+  .burger span { width:24px; height:2px; background:var(--navy); transition:transform .2s ease, opacity .2s ease; }
+  .burger.on span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+  .burger.on span:nth-child(2) { opacity:0; }
+  .burger.on span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+  .burger:focus-visible { outline:2px solid var(--gold); outline-offset:2px; border-radius:6px; }
+  .mobile-menu { display:none; }
+  @media (max-width:920px) {
+    .burger { display:flex; }
+    .head-actions { margin-left:auto; }
+    .mobile-menu.open { display:block; position:absolute; left:0; right:0; top:100%; background:var(--paper); border-bottom:1px solid var(--line); box-shadow:0 18px 30px -12px rgba(12,32,80,0.25); padding:6px 24px 14px; max-height:calc(100vh - 70px); overflow-y:auto; }
+    .mobile-menu a { display:block; padding:14px 4px; color:var(--navy); font-weight:600; font-size:16px; text-decoration:none; border-bottom:1px solid var(--line); }
+    .mobile-menu a:last-child { border-bottom:0; }
+    .mobile-menu a.active { color:var(--gold-deep); }
+  }
+  @media (max-width:640px) {
+    header .bar { gap:8px; }
+    .brand span { font-size:16px; }
+    .head-actions { gap:6px; }
+    .btn-outline, .btn-gold { padding:7px 11px; font-size:12.5px; }
+    #greeting, #auth-greeting, .head-actions .tag-soon { display:none; }
+  }
+  @media (max-width:440px) { .brand span { display:none; } }
 </style>
 </head>
 <body>
@@ -104,7 +129,9 @@
       <span style="font-size:13.5px; font-weight:700; color:var(--navy);" id="auth-greeting">Xin chào</span>
       <a class="btn-outline" href="#" onclick="handleSignOut(); return false;">Đăng xuất</a>
     </div>
+    <button class="burger" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span><span></span></button>
   </div>
+  <div class="mobile-menu" id="mobile-menu"></div>
 </header>
 
 <section class="page-hero">
@@ -376,5 +403,28 @@
   switchAuthTab('login');
 </script>
 
+
+<script>
+(function () {
+  var burger = document.querySelector('.burger'), menu = document.getElementById('mobile-menu'), nav = document.querySelector('header nav');
+  if (!burger || !menu || !nav) return;
+  Array.prototype.forEach.call(nav.querySelectorAll('a'), function (a) {
+    var item = document.createElement('a');
+    item.href = a.getAttribute('href'); item.textContent = a.textContent.trim();
+    if (a.classList.contains('active')) item.className = 'active';
+    menu.appendChild(item);
+  });
+  function setOpen(open) {
+    menu.classList.toggle('open', open); burger.classList.toggle('on', open);
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    burger.setAttribute('aria-label', open ? 'Đóng menu' : 'Mở menu');
+  }
+  burger.addEventListener('click', function () { setOpen(!menu.classList.contains('open')); });
+  menu.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
+  document.addEventListener('click', function (e) { if (!menu.contains(e.target) && !burger.contains(e.target)) setOpen(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+  window.addEventListener('resize', function () { if (window.innerWidth > 920) setOpen(false); });
+})();
+</script>
 </body>
 </html>
