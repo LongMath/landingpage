@@ -115,6 +115,8 @@
       <button class="tab" type="button" data-tab="exams">Kỳ thi</button>
       <button class="tab" type="button" data-tab="levels">Bảng đề</button>
       <button class="tab" type="button" data-tab="content">Nội dung</button>
+      <button class="tab" type="button" data-tab="papers">Đề thi</button>
+      <button class="tab" type="button" data-tab="access">Quyền truy cập</button>
     </div>
 
     <!-- TAB TÀI LIỆU -->
@@ -359,6 +361,101 @@
         </div>
       </div>
     </div>
+
+    <!-- TAB ĐỀ THI -->
+    <div id="tab-papers" hidden>
+      <div class="card">
+        <h2>Đề thi, luyện đề, kiểm tra tuần</h2>
+        <p class="hint">Mỗi đề gồm các bài lấy từ ngân hàng bài tập. Học sinh điền đáp số, có đồng hồ đếm ngược, nộp bài thì hệ thống chấm và hiện lời giải. Đề mức "Công khai" cho khách làm thử không cần đăng ký.</p>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Tên đề</th><th>Loại</th><th>Phạm vi</th><th>Giờ</th><th>Số câu</th><th>Quyền</th><th>Trạng thái</th><th></th></tr></thead>
+          <tbody id="papers-body"></tbody>
+        </table></div>
+        <p class="muted" id="papers-empty" hidden style="margin-top:12px;">Chưa có đề nào.</p>
+        <p style="margin-top:14px;"><button class="btn primary" type="button" id="btn-new-paper">+ Tạo đề mới</button></p>
+      </div>
+
+      <form id="form-paper" class="card" hidden>
+        <h2 id="pp-title">Tạo đề mới</h2>
+        <div class="grid2">
+          <div><label for="pp-ten">Tên đề</label><input type="text" id="pp-ten" required placeholder="Ví dụ: IKMC 3-4 · Đề số 1"></div>
+          <div><label for="pp-loai">Loại</label><select id="pp-loai"></select></div>
+        </div>
+        <div class="grid3">
+          <div><label for="pp-exam">Kỳ thi (không bắt buộc)</label><select id="pp-exam"></select></div>
+          <div><label for="pp-level">Bảng đề (không bắt buộc)</label><select id="pp-level"></select></div>
+          <div><label for="pp-time">Thời gian làm bài (phút)</label><input type="number" id="pp-time" min="1" max="600" value="60"></div>
+        </div>
+        <div class="grid3">
+          <div><label for="pp-access">Ai làm được</label><select id="pp-access"></select></div>
+          <div><label for="pp-status">Trạng thái</label><select id="pp-status"></select></div>
+          <div><label for="pp-order">Số thứ tự</label><input type="number" id="pp-order" min="0" value="0"></div>
+        </div>
+        <label for="pp-desc">Mô tả ngắn (không bắt buộc)</label><textarea id="pp-desc"></textarea>
+        <p class="hint" style="margin-top:6px;">Đề "Trả phí" nên gắn kỳ thi hoặc bảng đề để gói Luyện thi theo kỳ thi mở được. Nếu không gắn, chỉ tài khoản Full mới làm được. Đề chỉ đăng được khi đã có câu hỏi.</p>
+        <p style="margin-top:14px;" class="row-actions"><button class="btn primary" type="submit">Lưu thông tin đề</button><button class="btn ghost" type="button" id="btn-cancel-paper">Huỷ</button></p>
+      </form>
+
+      <div id="pi-card" class="card" hidden>
+        <h2 id="pi-title">Câu hỏi của đề</h2>
+        <p class="hint" id="pi-info"></p>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Câu</th><th>Đề bài</th><th>Chuyên đề</th><th>Điểm</th><th></th></tr></thead>
+          <tbody id="pi-body"></tbody>
+        </table></div>
+        <p class="muted" id="pi-empty" hidden style="margin-top:8px;">Đề chưa có câu nào. Chọn chuyên đề bên dưới rồi thêm bài.</p>
+        <p style="margin-top:10px; font-weight:700;" id="pi-total"></p>
+        <p style="margin-top:10px;" class="row-actions"><button class="btn primary" type="button" id="btn-save-items">Lưu danh sách câu</button><button class="btn ghost" type="button" id="btn-dup-paper">Nhân bản đề để sửa</button></p>
+
+        <h3 style="font-size:16px; margin-top:22px;">Thêm bài từ ngân hàng</h3>
+        <div class="grid3">
+          <div><label for="pk-exam">Kỳ thi</label><select id="pk-exam"></select></div>
+          <div><label for="pk-level">Bảng đề</label><select id="pk-level"></select></div>
+          <div><label for="pk-topic">Chuyên đề</label><select id="pk-topic"></select></div>
+        </div>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Bài</th><th>Đề bài</th><th></th></tr></thead>
+          <tbody id="pk-body"></tbody>
+        </table></div>
+        <p style="margin-top:10px;"><button class="btn ghost small" type="button" id="btn-pk-all">Thêm tất cả bài có đáp số của chuyên đề</button></p>
+      </div>
+    </div>
+
+    <!-- TAB QUYỀN TRUY CẬP -->
+    <div id="tab-access" hidden>
+      <div class="card">
+        <h2>Cấp quyền gói trả phí</h2>
+        <p class="hint">Khi khách mua gói, nhập email tài khoản của họ (khách cần đăng ký tài khoản trên website trước), chọn phạm vi họ được học và ngày hết hạn (bỏ trống nếu không giới hạn). Gói "Tài khoản theo khối" chọn Một khối: chỉ mở chương trình theo khối (kỳ thi loại Chương trình như Toán tư duy), không mở các kỳ thi Olympic. Gói "Luyện thi theo kỳ thi" chọn Cả một kỳ thi và đặt hạn theo tháng. Gói Full chọn Tất cả. Cấp lại cho cùng tài khoản và cùng phạm vi sẽ cập nhật hạn, tức là gia hạn. Quyền chỉ mở các chuyên đề và tài liệu có mức "Trả phí".</p>
+        <form id="form-access">
+          <div class="grid2">
+            <div><label for="ac-email">Email tài khoản phụ huynh</label><input type="email" id="ac-email" required autocomplete="off"></div>
+            <div><label for="ac-scope">Phạm vi quyền</label>
+              <select id="ac-scope">
+                <option value="khoi">Một khối (Tài khoản theo khối)</option>
+                <option value="tat_ca">Tất cả (Tài khoản Full)</option>
+                <option value="exam">Cả một kỳ thi (Luyện thi theo kỳ thi)</option>
+                <option value="level">Một bảng đề</option>
+              </select></div>
+          </div>
+          <div class="grid3">
+            <div id="ac-wrap-khoi"><label for="ac-khoi">Khối</label><select id="ac-khoi"></select></div>
+            <div id="ac-wrap-exam" hidden><label for="ac-exam">Kỳ thi</label><select id="ac-exam"></select></div>
+            <div id="ac-wrap-level" hidden><label for="ac-level">Bảng đề</label><select id="ac-level"></select></div>
+            <div><label for="ac-date">Hết hạn (không bắt buộc)</label><input type="date" id="ac-date"><div class="row-actions" style="margin-top:6px;"><button type="button" class="btn ghost small" data-months="1">+1 tháng</button><button type="button" class="btn ghost small" data-months="3">+3 tháng</button><button type="button" class="btn ghost small" data-months="12">+12 tháng</button></div></div>
+            <div><label for="ac-note">Ghi chú</label><input type="text" id="ac-note" placeholder="Ví dụ: chuyển khoản 12/10"></div>
+          </div>
+          <p style="margin-top:14px;"><button class="btn primary" type="submit" id="btn-grant">Cấp quyền</button></p>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Quyền đã cấp</h2>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Tài khoản</th><th>Phạm vi</th><th>Hết hạn</th><th>Trạng thái</th><th>Ghi chú</th><th></th></tr></thead>
+          <tbody id="access-body"></tbody>
+        </table></div>
+        <p class="muted" id="access-empty" hidden style="margin-top:12px;">Chưa cấp quyền nào.</p>
+      </div>
+    </div>
   </section>
 </main>
 
@@ -406,7 +503,14 @@
   }
   function friendlyError(error) {
     var m = (error && error.message) || String(error);
-    if (/row-level security|permission denied/i.test(m)) return 'Không đủ quyền thực hiện (tài khoản chưa phải admin?).';
+    if (/Khong tim thay tai khoan/i.test(m)) return 'Chưa có tài khoản với email này. Khách cần đăng ký tài khoản trên website trước.';
+    if (/De da co luot lam bai/i.test(m)) return 'Đề này đã có người làm nên không đổi bộ câu được. Bấm "Nhân bản đề để sửa" rồi sửa trên bản sao.';
+    if (/Co cau chua co dap so/i.test(m)) return 'Có câu chưa có đáp số. Hãy nhập đáp số cho bài đó ở tab Nội dung trước.';
+    if (/Co cau bi chon hai lan/i.test(m)) return 'Có câu bị chọn hai lần.';
+    if (/Diem phai lon hon 0/i.test(m)) return 'Điểm của mỗi câu phải lớn hơn 0.';
+    if (/Chon dung mot pham vi/i.test(m)) return 'Hãy chọn đúng một phạm vi quyền.';
+    if (/Khoi khong hop le/i.test(m)) return 'Khối không hợp lệ (chọn từ 1 đến 5).';
+    if (/row-level security|permission denied|Khong co quyen/i.test(m)) return 'Không đủ quyền thực hiện (tài khoản chưa phải admin?).';
     if (/check constraint/i.test(m)) return 'Giá trị chưa hợp lệ (ví dụ khối "từ" lớn hơn khối "đến", hoặc khối ngoài khoảng 0 đến 12).';
     if (/duplicate key|already exists/i.test(m)) return 'Đã tồn tại mục trùng (tên đã có trong cùng kỳ thi hoặc bảng đề, hoặc đường dẫn file bị trùng).';
     if (/Invalid login credentials/i.test(m)) return 'Sai email hoặc mật khẩu.';
@@ -477,9 +581,14 @@
     fillExamSelect('tp-exam');
     fillExamSelect('nl-exam');
     fillExamSelect('ct-exam');
+    fillExamSelect('ac-exam');
     cascadeUploadLevel();
     cascadeTopicsLevel();
     cascadeContentLevel();
+    cascadeAccessLevel();
+    initPaperSelects();
+    fillAccessKhoi();
+    updateAccessScopeUI();
     renderMaterials();
     renderLevels();
     renderExams();
@@ -815,6 +924,280 @@
     resetExamForm();
   }
 
+
+  /* ---------- QUYỀN TRUY CẬP GÓI TRẢ PHÍ ---------- */
+  var AC = { list: [] };
+
+  function updateAccessScopeUI() {
+    var sc = $('ac-scope').value;
+    $('ac-wrap-khoi').hidden = sc !== 'khoi';
+    $('ac-wrap-exam').hidden = !(sc === 'exam' || sc === 'level');
+    $('ac-wrap-level').hidden = sc !== 'level';
+  }
+  function fillAccessKhoi() {
+    var el = $('ac-khoi');
+    if (!el.options.length) el.innerHTML = [1, 2, 3, 4, 5].map(function (k) { return '<option value="' + k + '">Khối ' + k + '</option>'; }).join('');
+  }
+  function cascadeAccessLevel() {
+    var el = $('ac-level'), keep = el.value;
+    var list = levelsOfExam($('ac-exam').value);
+    el.innerHTML = list.map(function (l) { return '<option value="' + esc(l.id) + '">' + esc(l.ten) + '</option>'; }).join('');
+    if (keep && list.some(function (l) { return l.id === keep; })) el.value = keep;
+  }
+  // Đặt hạn nhanh: hôm nay cộng n tháng; nếu tháng đích ngắn hơn thì lấy ngày cuối tháng (31/1 cộng 1 tháng là 28 hoặc 29/2).
+  function addMonthsStr(n, from) {
+    var d = from ? new Date(from) : new Date();
+    var y = d.getFullYear(), m = d.getMonth() + n, day = d.getDate();
+    var t = new Date(y, m, day);
+    if (t.getDate() !== day) t = new Date(y, m + 1, 0);
+    return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+  }
+  async function loadAccess() {
+    var r = await sb.rpc('admin_list_access');
+    if (r.error) { toast('Không tải được danh sách quyền: ' + friendlyError(r.error), 'err'); return; }
+    AC.list = r.data || [];
+    renderAccess();
+  }
+  function accessScope(a) {
+    if (a.tat_ca) return 'Tất cả các khối';
+    if (a.khoi != null) return 'Khối ' + a.khoi;
+    if (a.level_id) {
+      var l = S.levels.find(function (x) { return x.id === a.level_id; });
+      var e = l && S.exams.find(function (x) { return x.id === l.exam_id; });
+      return 'Bảng đề: ' + (l ? l.ten : '(đã xoá)') + (e ? ' (' + e.ma + ')' : '');
+    }
+    var ex = S.exams.find(function (x) { return x.id === a.exam_id; });
+    return 'Cả kỳ thi: ' + (ex ? ex.ten : '(đã xoá)');
+  }
+  function accessStatus(a) {
+    if (!a.het_han) return { t: 'Không giới hạn', c: 'cong_khai' };
+    return new Date(a.het_han) > new Date() ? { t: 'Còn hạn', c: 'thanh_vien' } : { t: 'Đã hết hạn', c: 'tra_phi' };
+  }
+  function renderAccess() {
+    $('access-empty').hidden = AC.list.length > 0;
+    $('access-body').innerHTML = AC.list.map(function (a) {
+      var st = accessStatus(a);
+      var d = a.het_han ? new Date(a.het_han).toLocaleDateString('vi-VN') : '—';
+      return '<tr><td><b>' + esc(a.email) + '</b>' + (a.ho_ten ? '<div class="muted">' + esc(a.ho_ten) + '</div>' : '') + '</td>' +
+        '<td>' + esc(accessScope(a)) + '</td><td>' + esc(d) + '</td>' +
+        '<td><span class="tag ' + st.c + '">' + esc(st.t) + '</span></td>' +
+        '<td class="muted">' + esc(a.ghi_chu || '') + '</td>' +
+        '<td><button class="btn danger small" type="button" data-act="access-revoke" data-id="' + esc(a.id) + '">Thu hồi</button></td></tr>';
+    }).join('');
+  }
+  async function grantAccess(ev) {
+    ev.preventDefault();
+    var email = $('ac-email').value.trim(), sc = $('ac-scope').value;
+    if (!email) { toast('Hãy nhập email tài khoản.', 'err'); return; }
+    var p = { p_email: email, p_exam: null, p_level: null, p_khoi: null, p_tat_ca: false };
+    var label;
+    if (sc === 'tat_ca') { p.p_tat_ca = true; label = 'tất cả các khối'; }
+    else if (sc === 'khoi') { p.p_khoi = parseInt($('ac-khoi').value, 10); label = 'khối ' + p.p_khoi; }
+    else if (sc === 'exam') {
+      if (!$('ac-exam').value) { toast('Hãy chọn kỳ thi.', 'err'); return; }
+      p.p_exam = $('ac-exam').value; label = 'cả kỳ thi';
+    } else {
+      if (!$('ac-level').value) { toast('Hãy chọn bảng đề.', 'err'); return; }
+      p.p_level = $('ac-level').value; label = 'một bảng đề';
+    }
+    var het = null;
+    if ($('ac-date').value) {
+      var d = new Date($('ac-date').value + 'T23:59:59');
+      if (isNaN(d) || d <= new Date()) { toast('Ngày hết hạn phải ở tương lai. Muốn dừng quyền ngay, hãy dùng nút Thu hồi.', 'err'); return; }
+      het = d.toISOString();
+    }
+    p.p_het_han = het; p.p_ghi_chu = $('ac-note').value.trim() || null;
+    var btn = $('btn-grant'); btn.disabled = true;
+    var r = await sb.rpc('admin_grant_access', p);
+    btn.disabled = false;
+    if (r.error) { toast('Không cấp được quyền: ' + friendlyError(r.error), 'err'); return; }
+    toast('Đã cấp quyền ' + label + ' cho ' + email + (het ? ', hết hạn ' + new Date(het).toLocaleDateString('vi-VN') : ', không giới hạn') + '.', 'ok');
+    $('ac-email').value = ''; $('ac-date').value = ''; $('ac-note').value = '';
+    await loadAccess();
+  }
+  async function revokeAccess(id) {
+    var a = AC.list.find(function (x) { return x.id === id; });
+    if (!a || !confirm('Thu hồi quyền của ' + a.email + ' (' + accessScope(a) + ')? Tài khoản này sẽ mất quyền xem ngay lập tức.')) return;
+    var r = await sb.from('entitlements').delete().eq('id', id);
+    if (r.error) { toast('Không thu hồi được: ' + friendlyError(r.error), 'err'); return; }
+    toast('Đã thu hồi quyền.', 'ok');
+    await loadAccess();
+  }
+
+
+  /* ---------- ĐỀ THI ---------- */
+  var PP = { papers: [], sel: null, items: [], picker: [], form: null };
+  var LOAI_DE = { thi_thu: 'Thi thử', luyen_de: 'Luyện đề', kiem_tra_tuan: 'Kiểm tra tuần' };
+
+  function initPaperSelects() {
+    if (!$('pp-loai').options.length) {
+      $('pp-loai').innerHTML = optionsFromMap(LOAI_DE, 'thi_thu');
+      $('pp-access').innerHTML = optionsFromMap(QUYEN, 'thanh_vien');
+      $('pp-status').innerHTML = optionsFromMap(TRANG_THAI, 'nhap');
+    }
+    var examOpts = S.exams.map(function (e) { return '<option value="' + esc(e.id) + '">' + esc(e.ten) + '</option>'; }).join('');
+    var keep = $('pp-exam').value;
+    $('pp-exam').innerHTML = '<option value="">— không gắn kỳ thi —</option>' + examOpts;
+    if (keep && S.exams.some(function (e) { return e.id === keep; })) $('pp-exam').value = keep;
+    fillPaperLevels();
+    fillExamSelect('pk-exam');
+    cascadePickerLevel();
+  }
+  function fillPaperLevels() {
+    var ex = $('pp-exam').value, keep = $('pp-level').value;
+    var list = ex ? levelsOfExam(ex) : [];
+    $('pp-level').innerHTML = '<option value="">— không gắn bảng đề —</option>' + list.map(function (l) { return '<option value="' + esc(l.id) + '">' + esc(l.ten) + '</option>'; }).join('');
+    if (keep && list.some(function (l) { return l.id === keep; })) $('pp-level').value = keep;
+  }
+  function paperScopeLabel(p) {
+    var lv = S.levels.find(function (l) { return l.id === p.level_id; });
+    var ex = S.exams.find(function (e) { return e.id === (lv ? lv.exam_id : p.exam_id); });
+    return [ex && ex.ma, lv && lv.ten].filter(Boolean).join(' › ') || '—';
+  }
+  async function loadPapers() {
+    var r = await sb.rpc('list_papers');
+    if (r.error) { toast('Không tải được danh sách đề: ' + friendlyError(r.error), 'err'); return; }
+    PP.papers = r.data || [];
+    renderPapers();
+    if (PP.sel && !PP.papers.some(function (p) { return p.id === PP.sel; })) { PP.sel = null; $('pi-card').hidden = true; }
+  }
+  function renderPapers() {
+    $('papers-empty').hidden = PP.papers.length > 0;
+    $('papers-body').innerHTML = PP.papers.map(function (p) {
+      return '<tr' + (p.id === PP.sel ? ' style="background:var(--paper)"' : '') + '><td><b>' + esc(p.ten) + '</b></td><td>' + esc(LOAI_DE[p.loai] || p.loai) + '</td>' +
+        '<td class="muted">' + esc(paperScopeLabel(p)) + '</td><td>' + esc(p.thoi_gian_phut) + ' phút</td><td>' + esc(p.so_cau) + '</td>' +
+        '<td><span class="tag ' + esc(p.access_level) + '">' + esc(QUYEN[p.access_level] || p.access_level) + '</span></td>' +
+        '<td><select data-act="paper-status" data-id="' + esc(p.id) + '">' + optionsFromMap(TRANG_THAI, p.trang_thai) + '</select></td>' +
+        '<td><div class="row-actions"><button class="btn ghost small" type="button" data-act="paper-items" data-id="' + esc(p.id) + '">Soạn câu</button>' +
+        '<button class="btn ghost small" type="button" data-act="paper-edit" data-id="' + esc(p.id) + '">Sửa</button></div></td></tr>';
+    }).join('');
+  }
+  function showPaperForm(p) {
+    PP.form = p ? p.id : null;
+    $('pp-title').textContent = p ? 'Sửa đề: ' + p.ten : 'Tạo đề mới';
+    $('pp-ten').value = p ? p.ten : ''; $('pp-loai').value = p ? p.loai : 'thi_thu';
+    var lv = p && S.levels.find(function (l) { return l.id === p.level_id; });
+    $('pp-exam').value = p ? (lv ? lv.exam_id : (p.exam_id || '')) : ''; fillPaperLevels();
+    $('pp-level').value = p && p.level_id ? p.level_id : '';
+    $('pp-time').value = p ? p.thoi_gian_phut : 60; $('pp-access').value = p ? p.access_level : 'thanh_vien';
+    $('pp-status').value = p ? p.trang_thai : 'nhap'; $('pp-order').value = p ? (p.thu_tu || 0) : 0; $('pp-desc').value = p ? (p.mo_ta || '') : '';
+    $('form-paper').hidden = false; scrollTo($('form-paper')); $('pp-ten').focus();
+  }
+  async function savePaper(ev) {
+    ev.preventDefault();
+    var ten = $('pp-ten').value.trim(), mins = numOrNull($('pp-time').value);
+    if (!ten) { toast('Cần nhập tên đề.', 'err'); return; }
+    if (!mins || mins < 1 || mins > 600) { toast('Thời gian làm bài phải từ 1 đến 600 phút.', 'err'); return; }
+    var examId = $('pp-exam').value || null, levelId = $('pp-level').value || null;
+    if (levelId) { var lv = S.levels.find(function (l) { return l.id === levelId; }); examId = lv ? lv.exam_id : examId; }
+    var access = $('pp-access').value, status = $('pp-status').value;
+    var cur = PP.form ? PP.papers.find(function (x) { return x.id === PP.form; }) : null;
+    if (status === 'da_dang' && (!cur || !cur.so_cau)) { toast('Đề chưa có câu hỏi nên chưa đăng được. Hãy lưu ở trạng thái Nháp, thêm câu rồi đăng.', 'err'); return; }
+    if (access === 'tra_phi' && !examId && !levelId && !window.confirm('Đề Trả phí chưa gắn kỳ thi hay bảng đề: chỉ tài khoản Full mới làm được. Vẫn lưu?')) return;
+    var row = { ten: ten, loai: $('pp-loai').value, exam_id: examId, level_id: levelId, thoi_gian_phut: mins, access_level: access, trang_thai: status, thu_tu: numOrNull($('pp-order').value) || 0, mo_ta: nz($('pp-desc').value) };
+    var r = PP.form ? await sb.from('papers').update(row).eq('id', PP.form) : await sb.from('papers').insert(row).select('id').single();
+    if (r.error) { toast('Không lưu được đề: ' + friendlyError(r.error), 'err'); return; }
+    var newId = PP.form || (r.data && r.data.id);
+    toast(PP.form ? 'Đã lưu đề.' : 'Đã tạo đề. Bấm "Soạn câu" để thêm câu hỏi.', 'ok');
+    $('form-paper').hidden = true; PP.form = null;
+    await loadPapers();
+    if (newId && !cur) openPaperItems(newId);
+  }
+  async function setPaperStatus(id, value) {
+    var p = PP.papers.find(function (x) { return x.id === id; });
+    if (value === 'da_dang' && p && !p.so_cau) { toast('Đề chưa có câu hỏi nên chưa đăng được.', 'err'); renderPapers(); return; }
+    var r = await sb.from('papers').update({ trang_thai: value }).eq('id', id);
+    if (r.error) { toast('Không cập nhật được: ' + friendlyError(r.error), 'err'); await loadPapers(); return; }
+    if (p) p.trang_thai = value;
+    toast('Đã cập nhật trạng thái đề.', 'ok');
+  }
+
+  /* --- soạn câu hỏi của đề --- */
+  async function openPaperItems(id) {
+    PP.sel = id; renderPapers();
+    var p = PP.papers.find(function (x) { return x.id === id; }); if (!p) return;
+    var r = await sb.rpc('admin_paper_items', { p_paper: id });
+    if (r.error) { toast('Không tải được câu hỏi của đề: ' + friendlyError(r.error), 'err'); return; }
+    PP.items = (r.data || []).map(function (x) { return { problem_id: x.problem_id, diem: Number(x.diem), de_vi: x.de_vi, de_en: x.de_en, topic_ten: x.topic_ten }; });
+    $('pi-title').textContent = 'Câu hỏi của đề: ' + p.ten;
+    $('pi-card').hidden = false; renderItems(); scrollTo($('pi-card'));
+    PP.picker = []; renderPicker();
+  }
+  function renderItems() {
+    var total = PP.items.reduce(function (t, x) { return t + (Number(x.diem) || 0); }, 0);
+    $('pi-empty').hidden = PP.items.length > 0;
+    $('pi-body').innerHTML = PP.items.map(function (x, i) {
+      return '<tr><td><b>' + (i + 1) + '</b></td><td>' + esc(snippet(x.de_vi || x.de_en)) + '</td><td class="muted">' + esc(x.topic_ten || '') + '</td>' +
+        '<td><input type="number" min="0.25" step="0.25" value="' + esc(x.diem) + '" data-act="pi-diem" data-i="' + i + '" style="width:80px;"></td>' +
+        '<td><div class="row-actions"><button class="btn ghost small" type="button" data-act="pi-up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + ' aria-label="Lên">↑</button>' +
+        '<button class="btn ghost small" type="button" data-act="pi-down" data-i="' + i + '"' + (i === PP.items.length - 1 ? ' disabled' : '') + ' aria-label="Xuống">↓</button>' +
+        '<button class="btn danger small" type="button" data-act="pi-del" data-i="' + i + '">Bỏ</button></div></td></tr>';
+    }).join('');
+    $('pi-total').textContent = 'Tổng: ' + PP.items.length + ' câu, ' + (Math.round(total * 100) / 100) + ' điểm';
+    $('pi-info').textContent = 'Thứ tự trong bảng là thứ tự học sinh gặp câu hỏi. Sau khi có người làm đề, bộ câu không đổi được nữa (hãy nhân bản đề để sửa).';
+  }
+  function cascadePickerLevel() {
+    var el = $('pk-level'), keep = el.value, list = levelsOfExam($('pk-exam').value);
+    el.innerHTML = list.map(function (l) { return '<option value="' + esc(l.id) + '">' + esc(l.ten) + '</option>'; }).join('');
+    if (keep && list.some(function (l) { return l.id === keep; })) el.value = keep;
+    cascadePickerTopic();
+  }
+  function cascadePickerTopic() {
+    var el = $('pk-topic'), keep = el.value, list = topicsOfLevel($('pk-level').value);
+    el.innerHTML = '<option value="">— chọn chuyên đề —</option>' + list.map(function (t) { return '<option value="' + esc(t.id) + '">' + esc(t.ten) + '</option>'; }).join('');
+    el.value = (keep && list.some(function (t) { return t.id === keep; })) ? keep : '';
+  }
+  async function loadPicker() {
+    var tid = $('pk-topic').value; PP.picker = [];
+    if (!tid) { renderPicker(); return; }
+    var r = await sb.from('problems').select('*').eq('topic_id', tid).order('so_thu_tu');
+    if (r.error) { toast('Không tải được bài: ' + friendlyError(r.error), 'err'); return; }
+    var probs = r.data || [], has = {};
+    if (probs.length) {
+      var sr = await sb.from('problem_solutions').select('problem_id,dap_so').in('problem_id', probs.map(function (p) { return p.id; }));
+      if (!sr.error) (sr.data || []).forEach(function (x) { if (x.dap_so && String(x.dap_so).trim()) has[x.problem_id] = true; });
+    }
+    var tn = ($('pk-topic').options[$('pk-topic').selectedIndex] || {}).textContent || '';
+    PP.picker = probs.map(function (p) { return { id: p.id, so: p.so_thu_tu, de_vi: p.de_vi, de_en: p.de_en, nhap: p.trang_thai !== 'da_dang', hasAns: !!has[p.id], topic_ten: tn }; });
+    renderPicker();
+  }
+  function inItems(id) { return PP.items.some(function (x) { return x.problem_id === id; }); }
+  function renderPicker() {
+    $('pk-body').innerHTML = PP.picker.length ? PP.picker.map(function (p) {
+      var added = inItems(p.id);
+      return '<tr><td>Bài ' + esc(p.so) + (p.nhap ? ' <span class="tag nhap">Nháp</span>' : '') + '</td><td>' + esc(snippet(p.de_vi || p.de_en)) + '</td><td>' +
+        (!p.hasAns ? '<span class="tag tra_phi">Thiếu đáp số</span>' : (added ? '<span class="tag cong_khai">Đã thêm</span>' : '<button class="btn ghost small" type="button" data-act="pk-add" data-id="' + esc(p.id) + '">Thêm vào đề</button>')) + '</td></tr>';
+    }).join('') : '<tr><td colspan="3" class="muted">Chọn chuyên đề để xem các bài.</td></tr>';
+  }
+  function addItem(id) {
+    var p = PP.picker.find(function (x) { return x.id === id; });
+    if (!p || !p.hasAns || inItems(id)) return;
+    PP.items.push({ problem_id: p.id, diem: 1, de_vi: p.de_vi, de_en: p.de_en, topic_ten: p.topic_ten });
+    renderItems(); renderPicker();
+  }
+  function addAllItems() {
+    var n = 0; PP.picker.forEach(function (p) { if (p.hasAns && !inItems(p.id)) { PP.items.push({ problem_id: p.id, diem: 1, de_vi: p.de_vi, de_en: p.de_en, topic_ten: p.topic_ten }); n++; } });
+    if (!n) toast('Không còn bài nào có đáp số để thêm.', 'err'); else toast('Đã thêm ' + n + ' bài. Nhớ bấm Lưu danh sách câu.', 'ok');
+    renderItems(); renderPicker();
+  }
+  async function saveItems() {
+    if (!PP.sel) return;
+    for (var i = 0; i < PP.items.length; i++) { if (!(Number(PP.items[i].diem) > 0)) { toast('Điểm của mỗi câu phải lớn hơn 0 (câu ' + (i + 1) + ').', 'err'); return; } }
+    var btn = $('btn-save-items'); btn.disabled = true;
+    var r = await sb.rpc('admin_save_paper_items', { p_paper: PP.sel, p_items: PP.items.map(function (x) { return { problem_id: x.problem_id, diem: Number(x.diem) }; }) });
+    btn.disabled = false;
+    if (r.error) { toast('Không lưu được: ' + friendlyError(r.error), 'err'); return; }
+    toast('Đã lưu ' + r.data + ' câu cho đề.', 'ok');
+    await loadPapers();
+  }
+  async function dupPaper() {
+    if (!PP.sel) return;
+    var r = await sb.rpc('admin_duplicate_paper', { p_paper: PP.sel });
+    if (r.error) { toast('Không nhân bản được: ' + friendlyError(r.error), 'err'); return; }
+    toast('Đã nhân bản thành đề nháp mới. Bạn đang soạn bản sao.', 'ok');
+    await loadPapers(); await openPaperItems(r.data);
+  }
+
   /* ---------- NỘI DUNG CHUYÊN ĐỀ ---------- */
   var C = { topicId: null, problems: [], solutions: {}, terms: [], editingId: null, plan: null };
 
@@ -1129,7 +1512,9 @@
   document.querySelectorAll('.tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
       document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
-      ['materials', 'topics', 'exams', 'levels', 'content'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
+      ['materials', 'topics', 'exams', 'levels', 'content', 'papers', 'access'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
+      if (tab.dataset.tab === 'access') loadAccess();
+      if (tab.dataset.tab === 'papers') loadPapers();
     });
   });
 
@@ -1143,6 +1528,20 @@
   $('form-level').addEventListener('submit', addLevel);
   $('form-level-edit').addEventListener('submit', saveLevelEdit);
   $('form-exam').addEventListener('submit', saveExam);
+  $('form-access').addEventListener('submit', grantAccess);
+  $('btn-new-paper').addEventListener('click', function () { showPaperForm(null); });
+  $('btn-cancel-paper').addEventListener('click', function () { $('form-paper').hidden = true; PP.form = null; });
+  $('form-paper').addEventListener('submit', savePaper);
+  $('pp-exam').addEventListener('change', fillPaperLevels);
+  $('pk-exam').addEventListener('change', cascadePickerLevel);
+  $('pk-level').addEventListener('change', cascadePickerTopic);
+  $('pk-topic').addEventListener('change', loadPicker);
+  $('btn-pk-all').addEventListener('click', addAllItems);
+  $('btn-save-items').addEventListener('click', saveItems);
+  $('btn-dup-paper').addEventListener('click', dupPaper);
+  $('ac-exam').addEventListener('change', cascadeAccessLevel);
+  $('ac-scope').addEventListener('change', updateAccessScopeUI);
+  document.querySelectorAll('[data-months]').forEach(function (b) { b.addEventListener('click', function () { $('ac-date').value = addMonthsStr(parseInt(b.dataset.months, 10)); }); });
   $('btn-cancel-exam').addEventListener('click', resetExamForm);
   $('btn-cancel-level-edit').addEventListener('click', function () { $('form-level-edit').hidden = true; ED.levelId = null; });
   $('form-topic-edit').addEventListener('submit', saveTopicEdit);
@@ -1173,11 +1572,19 @@
     if (b.dataset.act === 'term-del') deleteTerm(b.dataset.id);
     if (b.dataset.act === 'level-edit') showLevelEdit(b.dataset.id);
     if (b.dataset.act === 'exam-edit') showExamEdit(b.dataset.id);
+    if (b.dataset.act === 'access-revoke') revokeAccess(b.dataset.id);
+    if (b.dataset.act === 'paper-items') openPaperItems(b.dataset.id);
+    if (b.dataset.act === 'paper-edit') showPaperForm(PP.papers.find(function (x) { return x.id === b.dataset.id; }));
+    if (b.dataset.act === 'pk-add') addItem(b.dataset.id);
+    if (b.dataset.act === 'pi-del') { PP.items.splice(parseInt(b.dataset.i, 10), 1); renderItems(); renderPicker(); }
+    if (b.dataset.act === 'pi-up' || b.dataset.act === 'pi-down') { var i = parseInt(b.dataset.i, 10), j = b.dataset.act === 'pi-up' ? i - 1 : i + 1; if (PP.items[j]) { var t = PP.items[i]; PP.items[i] = PP.items[j]; PP.items[j] = t; renderItems(); } }
     if (b.dataset.act === 'topic-edit') showTopicEdit(b.dataset.id);
     if (b.dataset.act === 'prob-del') deleteProblem(b.dataset.id);
     if (b.dataset.act === 'prob-edit') showProblemForm(C.problems.find(function (x) { return x.id === b.dataset.id; }));
   });
   document.addEventListener('change', function (ev) {
+    var dg = ev.target.closest('input[data-act="pi-diem"]');
+    if (dg) { var it = PP.items[parseInt(dg.dataset.i, 10)]; if (it) { it.diem = Number(dg.value); var tot = PP.items.reduce(function (t, x) { return t + (Number(x.diem) || 0); }, 0); $('pi-total').textContent = 'Tổng: ' + PP.items.length + ' câu, ' + (Math.round(tot * 100) / 100) + ' điểm'; } return; }
     var s = ev.target.closest('select[data-act]');
     if (!s) return;
     var act = s.dataset.act, id = s.dataset.id;
@@ -1186,6 +1593,7 @@
     if (act === 'topic-status') updateTopic(id, { trang_thai: s.value });
     if (act === 'level-status') updateLevelStatus(id, s.value);
     if (act === 'prob-status') setProblemStatus(id, s.value);
+    if (act === 'paper-status') setPaperStatus(id, s.value);
   });
 
   // Không gọi tiếp Supabase ngay trong hàm này, nên chuyển sang lượt chạy sau để tránh kẹt.

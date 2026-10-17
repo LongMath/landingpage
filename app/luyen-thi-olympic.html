@@ -145,6 +145,7 @@
       <a href="toanbaclong-platform.html">Trang chủ</a>
       <a href="luyen-theo-khoi.html">Luyện theo khối</a>
       <a href="luyen-thi-olympic.html" class="active">Luyện thi Olympic</a>
+      <a href="thi-thu.html">Thi thử</a>
       <a href="goc-tu-hoc.html">Góc tự học</a>
       <a href="bao-cao.html">Báo cáo</a>
     </nav>
@@ -165,7 +166,7 @@
   <div class="wrap">
     <div class="breadcrumb"><a href="toanbaclong-platform.html">Trang chủ</a> / Luyện thi Olympic</div>
     <h1>Luyện thi Olympic — kho chuyên đề theo kỳ thi</h1>
-    <p class="lede">Chọn kỳ thi và khối, xem các chuyên đề và tải tài liệu. Bản tóm tắt tải tự do, bản đầy đủ dành cho thành viên đăng nhập. Nội dung được bổ sung dần.</p>
+    <p class="lede">Chọn kỳ thi và khối, xem các chuyên đề và tải tài liệu. Bản tóm tắt tải tự do, bản đầy đủ dành cho thành viên đăng nhập. Nội dung được bổ sung dần. <a href="../index.html#hocphi" style="color:var(--gold-deep); font-weight:700; text-decoration:none;">Xem các gói và quyền lợi tài khoản →</a></p>
   </div>
 </section>
 
@@ -252,6 +253,26 @@
 
   var D = { exams: [], levels: [], topics: [], materials: [], paths: [], items: [] };
   var user = null, isAdmin = false;
+
+  // Quyền gói trả phí của tài khoản đang đăng nhập. Phải lọc theo user_id vì tài khoản admin đọc được quyền của mọi người.
+  var ENT = [];
+  async function fetchEntitlements() {
+    if (!user) return [];
+    var r = await sb.from('entitlements').select('exam_id,level_id,khoi,tat_ca,het_han').eq('user_id', user.id);
+    return r.error ? [] : (r.data || []);
+  }
+  // lv là dòng bảng đề, ex là dòng kỳ thi chứa nó. Quyền theo khối chỉ mở bảng đề có ghi khối VÀ thuộc một "Chương trình"
+  // (không mở các kỳ thi Olympic). Quyền theo kỳ thi, theo bảng đề và Tất cả không phụ thuộc điều này.
+  function entitledForLevel(lv, ex) {
+    if (!lv) return false;
+    var now = new Date();
+    return ENT.some(function (e) {
+      if (e.het_han && new Date(e.het_han) <= now) return false;
+      return e.tat_ca || e.level_id === lv.id || e.exam_id === lv.exam_id ||
+        (e.khoi != null && lv.khoi_tu != null && lv.khoi_den != null && e.khoi >= lv.khoi_tu && e.khoi <= lv.khoi_den &&
+         !!ex && ex.loai === 'chuong_trinh');
+    });
+  }
   var sel = { exam: null, level: null };
   var loaded = false;
 
@@ -356,6 +377,11 @@
       : '<span class="empty">Kỳ thi này đang cập nhật. <span class="tag-soon">Sắp ra mắt</span></span>';
   }
 
+  function hasPaidForMaterial(m) {
+    var lid = m.level_id || (D.topics.find(function (t) { return t.id === m.topic_id; }) || {}).level_id;
+    var lv = D.levels.find(function (l) { return l.id === lid; });
+    return entitledForLevel(lv, lv && D.exams.find(function (e) { return e.id === lv.exam_id; }));
+  }
   function matRow(m) {
     var draft = m.trang_thai !== 'da_dang' ? ' <span class="tag nhap">Nháp</span>' : '';
     var action;
@@ -367,7 +393,7 @@
         ? '<button class="btn-dl" type="button" data-dl="' + esc(m.id) + '">Tải về</button>'
         : '<button class="btn-dl ghost" type="button" data-open="login">Đăng nhập để tải</button>';
     } else {
-      action = isAdmin
+      action = (isAdmin || hasPaidForMaterial(m))
         ? '<button class="btn-dl" type="button" data-dl="' + esc(m.id) + '">Tải về</button>'
         : '<button class="btn-dl ghost" type="button" disabled>Sắp mở</button>';
     }
@@ -465,6 +491,7 @@
       var r = await sb.rpc('is_admin');
       isAdmin = !r.error && r.data === true;
     }
+    ENT = await fetchEntitlements();
     if (!loaded) await loadData(); else { await refetchAfterAuth(); }
   }
   // Đổi tài khoản thì tải lại dữ liệu, vì admin thấy cả mục nháp còn khách thì không.
