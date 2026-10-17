@@ -112,6 +112,7 @@
     <div class="tabs" role="tablist">
       <button class="tab active" type="button" data-tab="materials">Tài liệu</button>
       <button class="tab" type="button" data-tab="topics">Chuyên đề</button>
+      <button class="tab" type="button" data-tab="exams">Kỳ thi</button>
       <button class="tab" type="button" data-tab="levels">Bảng đề</button>
       <button class="tab" type="button" data-tab="content">Nội dung</button>
     </div>
@@ -198,6 +199,31 @@
       </div>
     </div>
 
+    <!-- TAB KỲ THI -->
+    <div id="tab-exams" hidden>
+      <div class="card">
+        <h2>Kỳ thi và chương trình</h2>
+        <p class="hint">Cấp cao nhất của kho, ví dụ IKMC, SASMO, Toán tư duy. Mỗi kỳ thi chứa các bảng đề (khối), mỗi bảng đề chứa các chuyên đề.</p>
+        <div class="tablewrap"><table>
+          <thead><tr><th>STT</th><th>Mã</th><th>Tên hiển thị</th><th>Loại</th><th>Số bảng đề</th><th></th></tr></thead>
+          <tbody id="exams-body"></tbody>
+        </table></div>
+      </div>
+      <form id="form-exam" class="card">
+        <h2 id="ex-title">Thêm kỳ thi</h2>
+        <div class="grid2">
+          <div><label for="ex-ma">Mã ngắn (chữ, số, gạch dưới)</label><input type="text" id="ex-ma" required maxlength="30" placeholder="Ví dụ: APMOPS"></div>
+          <div><label for="ex-ten">Tên hiển thị</label><input type="text" id="ex-ten" required placeholder="Ví dụ: APMOPS"></div>
+        </div>
+        <div class="grid2">
+          <div><label for="ex-loai">Loại</label><select id="ex-loai"></select></div>
+          <div><label for="ex-order">Số thứ tự</label><input type="number" id="ex-order" min="0" value="0"></div>
+        </div>
+        <p class="hint" style="margin-top:8px;">Mã là tên gọi nội bộ, tự đổi thành chữ in hoa, không hiện cho học sinh. Kỳ thi chưa có bảng đề vẫn hiện ở trang kho với nhãn "Sắp ra mắt". Chưa có nút xoá vì xoá một kỳ thi sẽ xoá luôn các bảng đề, chuyên đề và bài bên trong.</p>
+        <p style="margin-top:14px;" class="row-actions"><button class="btn primary" type="submit" id="btn-save-exam">Thêm kỳ thi</button><button class="btn ghost" type="button" id="btn-cancel-exam" hidden>Huỷ sửa</button></p>
+      </form>
+    </div>
+
     <!-- TAB BẢNG ĐỀ -->
     <div id="tab-levels" hidden>
       <div class="card">
@@ -240,7 +266,7 @@
           </div>
           <p style="margin-top:16px;"><button class="btn primary" type="submit">Thêm bảng đề</button></p>
         </form>
-        <p class="hint" style="margin-top:10px;">Muốn thêm hoặc sửa tên kỳ thi, vào Table Editor của Supabase, bảng exams.</p>
+        <p class="hint" style="margin-top:10px;">Muốn thêm hoặc sửa tên kỳ thi, dùng tab Kỳ thi.</p>
       </div>
     </div>
 
@@ -456,6 +482,7 @@
     cascadeContentLevel();
     renderMaterials();
     renderLevels();
+    renderExams();
   }
 
   function fillStaticSelects() {
@@ -743,6 +770,49 @@
     toast('Đã lưu chuyên đề.', 'ok');
     $('form-topic-edit').hidden = true; ED.topicId = null;
     await reloadAll();
+  }
+
+
+  /* ---------- KỲ THI VÀ CHƯƠNG TRÌNH ---------- */
+  var EXM = { id: null };
+  var LOAI_KY_THI = { ky_thi: 'Kỳ thi', chuong_trinh: 'Chương trình' };
+
+  function nextExamOrder() { return S.exams.reduce(function (m, e) { return Math.max(m, e.thu_tu || 0); }, 0) + 1; }
+  function renderExams() {
+    if (!$('ex-loai').options.length) $('ex-loai').innerHTML = optionsFromMap(LOAI_KY_THI, 'ky_thi');
+    $('exams-body').innerHTML = S.exams.map(function (e) {
+      return '<tr><td>' + esc(e.thu_tu) + '</td><td><b>' + esc(e.ma) + '</b></td><td>' + esc(e.ten) + '</td>' +
+        '<td>' + esc(LOAI_KY_THI[e.loai] || e.loai) + '</td><td>' + levelsOfExam(e.id).length + '</td>' +
+        '<td><button class="btn ghost small" type="button" data-act="exam-edit" data-id="' + esc(e.id) + '">Sửa</button></td></tr>';
+    }).join('');
+    // Đang ở chế độ Thêm và chưa gõ gì thì gợi ý số thứ tự kế tiếp
+    if (EXM.id === null && !$('ex-ma').value && !$('ex-ten').value) $('ex-order').value = nextExamOrder();
+  }
+  function resetExamForm() {
+    EXM.id = null;
+    $('ex-ma').value = ''; $('ex-ten').value = ''; $('ex-loai').value = 'ky_thi'; $('ex-order').value = nextExamOrder();
+    $('ex-title').textContent = 'Thêm kỳ thi'; $('btn-save-exam').textContent = 'Thêm kỳ thi'; $('btn-cancel-exam').hidden = true;
+  }
+  function showExamEdit(id) {
+    var e = S.exams.find(function (x) { return x.id === id; });
+    if (!e) return;
+    EXM.id = id;
+    $('ex-ma').value = e.ma; $('ex-ten').value = e.ten; $('ex-loai').value = e.loai; $('ex-order').value = e.thu_tu == null ? 0 : e.thu_tu;
+    $('ex-title').textContent = 'Sửa kỳ thi: ' + e.ten; $('btn-save-exam').textContent = 'Lưu thay đổi'; $('btn-cancel-exam').hidden = false;
+    scrollTo($('form-exam')); $('ex-ten').focus();
+  }
+  async function saveExam(ev) {
+    ev.preventDefault();
+    var ma = $('ex-ma').value.trim().toUpperCase(), ten = $('ex-ten').value.trim();
+    if (!ma || !ten) { toast('Cần nhập cả mã và tên hiển thị.', 'err'); return; }
+    if (!/^[A-Z0-9_]+$/.test(ma)) { toast('Mã chỉ gồm chữ không dấu, số và gạch dưới, không có khoảng trắng.', 'err'); return; }
+    var row = { ma: ma, ten: ten, loai: $('ex-loai').value, thu_tu: numOrNull($('ex-order').value) || 0 };
+    var r = EXM.id ? await sb.from('exams').update(row).eq('id', EXM.id) : await sb.from('exams').insert(row);
+    if (r.error) { toast('Không lưu được: ' + friendlyError(r.error), 'err'); return; }
+    toast(EXM.id ? 'Đã lưu kỳ thi.' : 'Đã thêm kỳ thi.', 'ok');
+    resetExamForm();
+    await reloadAll();
+    resetExamForm();
   }
 
   /* ---------- NỘI DUNG CHUYÊN ĐỀ ---------- */
@@ -1059,7 +1129,7 @@
   document.querySelectorAll('.tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
       document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
-      ['materials', 'topics', 'levels', 'content'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
+      ['materials', 'topics', 'exams', 'levels', 'content'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
     });
   });
 
@@ -1072,6 +1142,8 @@
   $('form-topic').addEventListener('submit', addTopic);
   $('form-level').addEventListener('submit', addLevel);
   $('form-level-edit').addEventListener('submit', saveLevelEdit);
+  $('form-exam').addEventListener('submit', saveExam);
+  $('btn-cancel-exam').addEventListener('click', resetExamForm);
   $('btn-cancel-level-edit').addEventListener('click', function () { $('form-level-edit').hidden = true; ED.levelId = null; });
   $('form-topic-edit').addEventListener('submit', saveTopicEdit);
   $('btn-cancel-topic-edit').addEventListener('click', function () { $('form-topic-edit').hidden = true; ED.topicId = null; });
@@ -1100,6 +1172,7 @@
     if (b.dataset.act === 'delete') deleteMaterial(b.dataset.id);
     if (b.dataset.act === 'term-del') deleteTerm(b.dataset.id);
     if (b.dataset.act === 'level-edit') showLevelEdit(b.dataset.id);
+    if (b.dataset.act === 'exam-edit') showExamEdit(b.dataset.id);
     if (b.dataset.act === 'topic-edit') showTopicEdit(b.dataset.id);
     if (b.dataset.act === 'prob-del') deleteProblem(b.dataset.id);
     if (b.dataset.act === 'prob-edit') showProblemForm(C.problems.find(function (x) { return x.id === b.dataset.id; }));
