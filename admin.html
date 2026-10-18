@@ -68,6 +68,12 @@
   .toast{background:var(--navy); color:#FFF7E6; padding:11px 16px; border-radius:10px; box-shadow:0 10px 24px -8px rgba(0,0,0,0.35); max-width:360px; font-size:13.5px;}
   .toast.err{background:var(--coral);}
   .toast.ok{background:var(--green);}
+
+  .policy { margin-top:14px; padding:14px 18px; }
+  .policy summary { cursor:pointer; font-weight:700; font-size:14.5px; color:var(--navy); }
+  .policy-body { margin-top:12px; }
+  .policy-rules { margin:12px 0 0; padding-left:20px; font-size:13.5px; line-height:1.7; color:var(--navy); }
+  .policy-rules li { margin-bottom:4px; }
 </style>
 </head>
 <body>
@@ -108,6 +114,29 @@
   <!-- ỨNG DỤNG -->
   <section id="view-app" hidden>
     <div class="summary" id="summary"></div>
+
+    <details class="card policy" id="policy-box">
+      <summary>Quy tắc cấp quyền xem · đọc trước khi đăng nội dung</summary>
+      <div class="policy-body">
+        <div class="tablewrap"><table>
+          <thead><tr><th>Mức</th><th>Dùng cho</th><th>Ví dụ</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag cong_khai">Công khai</span></td><td>Học thử, thu hút người mới. Không cần đăng nhập.</td><td>Mindmap; 1 chuyên đề mẫu mỗi bảng đề; 1 đề thi thử mẫu mỗi kỳ thi hoặc khối; video giới thiệu; bản tóm tắt 1 trang</td></tr>
+            <tr><td><span class="tag thanh_vien">Thành viên</span></td><td>Nội dung miễn phí để người dùng tạo tài khoản.</td><td>2 đến 3 chuyên đề cơ bản mỗi bảng đề (lý thuyết, sổ tay, bài thực hành); đề luyện đề</td></tr>
+            <tr><td><span class="tag tra_phi">Trả phí</span></td><td>Nội dung của các gói.</td><td>Các chuyên đề còn lại, bài nâng cao, đề kiểm tra tuần, thi thử kỳ thi, video bài giảng chính, tài liệu đầy đủ</td></tr>
+          </tbody>
+        </table></div>
+        <ol class="policy-rules">
+          <li>Tài liệu, video và đề gắn vào chuyên đề nào thì dùng đúng mức của chuyên đề đó. Ngoại lệ duy nhất: bản tóm tắt 1 đến 2 trang của chuyên đề Trả phí được để mức Thành viên để học thử.</li>
+          <li>Trong mỗi bảng đề: chuyên đề số thứ tự 1 là Công khai, số 2 đến 4 là Thành viên, còn lại là Trả phí.</li>
+          <li>Mỗi kỳ thi hoặc khối có đúng 1 đề thi thử Công khai làm mẫu. Kiểm tra tuần và thi thử của kỳ thi là Trả phí. Luyện đề là Thành viên.</li>
+          <li>Không chắc thì để <b>Thành viên</b> (mức mặc định). Chỉ chọn Công khai khi cố ý, hệ thống sẽ hỏi lại để tránh nhầm.</li>
+          <li>File đã tải không đổi được mức tại chỗ vì nằm ở hai kho khác nhau. Muốn đổi, hãy xoá file rồi tải lại.</li>
+          <li>Gói theo khối dựa vào ô <b>Khối (từ–đến)</b> của bảng đề, không dựa vào tên. Đổi tên bảng đề thì nhớ đổi cả ô Khối.</li>
+        </ol>
+        <p class="hint" id="policy-counts"></p>
+      </div>
+    </details>
 
     <div class="tabs" role="tablist">
       <button class="tab active" type="button" data-tab="materials">Tài liệu</button>
@@ -539,9 +568,9 @@
   var QUYEN = { cong_khai:'Công khai', thanh_vien:'Thành viên', tra_phi:'Trả phí' };
   var TRANG_THAI = { nhap:'Nháp', da_dang:'Đã đăng' };
   var QUYEN_NOTE = {
-    cong_khai: 'Công khai: ai cũng tải được, kể cả người chưa đăng nhập. Chỉ dùng cho nội dung bạn tự viết hoặc được phép phát hành.',
-    thanh_vien: 'Thành viên: chỉ người đã đăng nhập tải được.',
-    tra_phi: 'Trả phí: hiện chỉ admin tải được. Việc mở cho người đã mua sẽ làm ở bước thanh toán.'
+    cong_khai: 'Công khai: ai cũng xem được, kể cả người chưa đăng nhập. Chỉ dùng cho nội dung học thử và nội dung bạn tự viết hoặc được phép phát hành.',
+    thanh_vien: 'Thành viên: người đã đăng nhập tài khoản miễn phí xem được. Đây là mức mặc định.',
+    tra_phi: 'Trả phí: chỉ tài khoản đã được cấp gói phù hợp (và admin) xem được.'
   };
 
   var S = { exams: [], levels: [], topics: [], materials: [] };
@@ -666,12 +695,13 @@
     renderMaterials();
     renderLevels();
     renderExams();
+    renderPolicyCounts();
   }
 
   function fillStaticSelects() {
     if (!$('up-loai').options.length) {
       $('up-loai').innerHTML = optionsFromMap(LOAI, 'tom_tat');
-      $('up-access').innerHTML = optionsFromMap(QUYEN, 'cong_khai');
+      $('up-access').innerHTML = optionsFromMap(QUYEN, 'thanh_vien');
       $('up-status').innerHTML = optionsFromMap(TRANG_THAI, 'nhap');
       $('nt-access').innerHTML = optionsFromMap(QUYEN, 'thanh_vien');
       $('nt-status').innerHTML = optionsFromMap(TRANG_THAI, 'nhap');
@@ -712,6 +742,44 @@
     renderTopics();
   }
 
+
+  /* ---------- QUY TẮC QUYỀN: XÁC NHẬN CÔNG KHAI VÀ ĐẾM ---------- */
+  function confirmPublic(what) {
+    return window.confirm('Công khai nghĩa là ' + what + ' ai cũng xem được, kể cả người chưa đăng nhập. Theo quy tắc cấp quyền, chỉ nên dùng cho nội dung học thử. Vẫn tiếp tục?');
+  }
+  // Đổi trạng thái hoặc mức quyền từ danh sách: chỉ hỏi khi nội dung sắp vừa "Đã đăng" vừa "Công khai".
+  function exposureOk(act, id, value) {
+    var access = null, status = null, what = '', x;
+    if (act === 'status' && value === 'da_dang') { x = S.materials.find(function (m) { return m.id === id; }); if (x) { access = x.access_level; status = value; what = 'file này'; } }
+    else if (act === 'topic-access') { x = S.topics.find(function (t) { return t.id === id; }); if (x) { access = value; status = x.trang_thai; what = 'chuyên đề này và các bài tập trong đó'; } }
+    else if (act === 'topic-status' && value === 'da_dang') { x = S.topics.find(function (t) { return t.id === id; }); if (x) { access = x.access_level; status = value; what = 'chuyên đề này và các bài tập trong đó'; } }
+    else if (act === 'video-status' && value === 'da_dang') { x = V.list.find(function (v) { return v.id === id; }); if (x) { access = x.access_level; status = value; what = 'video này'; } }
+    else if (act === 'paper-status' && value === 'da_dang') { x = PP.papers.find(function (q) { return q.id === id; }); if (x) { access = x.access_level; status = value; what = 'đề này'; } }
+    if (access === 'cong_khai' && status === 'da_dang') return confirmPublic(what);
+    return true;
+  }
+  function rerenderFor(act) {
+    if (act === 'status') renderMaterials();
+    else if (act === 'topic-access' || act === 'topic-status') renderTopics();
+    else if (act === 'video-status') renderVideos();
+    else if (act === 'paper-status') renderPapers();
+  }
+  // Cảnh báo khi tên bảng đề ghi "Khối N" hoặc "Lớp N" mà ô Khối không khớp. Gói theo khối dựa vào ô Khối, không dựa vào tên.
+  function levelKhoiWarning(name, from, to) {
+    var m = String(name || '').match(/(?:khối|lớp)\s*(\d{1,2})(?:\s*[-–]\s*(\d{1,2}))?/i);
+    if (!m) return '';
+    var a = parseInt(m[1], 10), b = m[2] ? parseInt(m[2], 10) : a;
+    if (from === a && to === b) return '';
+    var cur = (from == null && to == null) ? 'chưa điền' : (from == null ? '?' : from) + '–' + (to == null ? '?' : to);
+    return 'Tên bảng đề ghi "' + m[0] + '" nhưng ô Khối đang là ' + cur + '. Gói theo khối dựa vào ô Khối chứ không dựa vào tên, nên người mua gói khối ' + a + ' sẽ không mở được bảng đề này. Vẫn lưu?';
+  }
+  function renderPolicyCounts() {
+    function count(list) { var o = { cong_khai: 0, thanh_vien: 0, tra_phi: 0 }; list.forEach(function (x) { if (o[x.access_level] != null) o[x.access_level]++; }); return o; }
+    var t = count(S.topics), m = count(S.materials);
+    $('policy-counts').textContent = 'Hiện có. Chuyên đề: ' + t.cong_khai + ' công khai, ' + t.thanh_vien + ' thành viên, ' + t.tra_phi + ' trả phí. Tài liệu: ' +
+      m.cong_khai + ' công khai, ' + m.thanh_vien + ' thành viên, ' + m.tra_phi + ' trả phí. Video và đề thi xem ở tab riêng.';
+  }
+
   /* ---------- TÀI LIỆU ---------- */
   function materialContext(m) {
     var topic = m.topic_id ? S.topics.find(function (t) { return t.id === m.topic_id; }) : null;
@@ -748,6 +816,7 @@
     if (!file) { toast('Hãy chọn một file.', 'err'); return; }
     if (!levelId) { toast('Hãy chọn khối / bảng đề.', 'err'); return; }
     if (!title) { title = file.name.replace(/\.[^.]+$/, ''); $('up-title').value = title; }
+    if (access === 'cong_khai' && !confirmPublic('file này (sẽ nằm trong kho công khai)')) return;
 
     var bucket = access === 'cong_khai' ? BUCKET_PUBLIC : BUCKET_PRIVATE;
     var folder = topicId ? 't-' + topicId : 'l-' + levelId;
@@ -819,6 +888,7 @@
     toast('Đã cập nhật trạng thái.', 'ok');
     var m = S.materials.find(function (x) { return x.id === id; });
     if (m) m.trang_thai = value;
+    renderPolicyCounts();
   }
 
   /* ---------- CHUYÊN ĐỀ ---------- */
@@ -837,12 +907,14 @@
     if (r.error) { toast('Không cập nhật được: ' + friendlyError(r.error), 'err'); await reloadAll(); return; }
     var t = S.topics.find(function (x) { return x.id === id; });
     if (t) Object.assign(t, patch);
+    renderPolicyCounts();
     toast('Đã cập nhật chuyên đề.', 'ok');
   }
   async function addTopic(ev) {
     ev.preventDefault();
     var levelId = $('tp-level').value;
     if (!levelId) { toast('Hãy chọn khối / bảng đề trước.', 'err'); return; }
+    if ($('nt-access').value === 'cong_khai' && $('nt-status').value === 'da_dang' && !confirmPublic('chuyên đề này và các bài tập trong đó')) return;
     var r = await sb.from('topics').insert({
       level_id: levelId,
       ten: $('nt-name').value.trim(),
@@ -871,6 +943,8 @@
   }
   async function addLevel(ev) {
     ev.preventDefault();
+    var warn = levelKhoiWarning($('nl-name').value.trim(), numOrNull($('nl-from').value), numOrNull($('nl-to').value));
+    if (warn && !window.confirm(warn)) return;
     var r = await sb.from('exam_levels').insert({
       exam_id: $('nl-exam').value,
       ten: $('nl-name').value.trim(),
@@ -924,6 +998,8 @@
     if (!name) { toast('Cần nhập tên bảng đề.', 'err'); return; }
     if ((from != null && (from < 0 || from > 12)) || (to != null && (to < 0 || to > 12))) { toast('Khối phải nằm trong khoảng 0 đến 12.', 'err'); return; }
     if (from != null && to != null && from > to) { toast('Khối "từ" không được lớn hơn khối "đến".', 'err'); return; }
+    var warn = levelKhoiWarning(name, from, to);
+    if (warn && !window.confirm(warn)) return;
     var r = await sb.from('exam_levels').update({
       exam_id: $('le-exam').value, ten: name, khoi_tu: from, khoi_den: to,
       vong: nz($('le-round').value), thu_tu: numOrNull($('le-order').value) || 0
@@ -1168,6 +1244,7 @@
     var cur = PP.form ? PP.papers.find(function (x) { return x.id === PP.form; }) : null;
     if (status === 'da_dang' && (!cur || !cur.so_cau)) { toast('Đề chưa có câu hỏi nên chưa đăng được. Hãy lưu ở trạng thái Nháp, thêm câu rồi đăng.', 'err'); return; }
     if (access === 'tra_phi' && !examId && !levelId && !window.confirm('Đề Trả phí chưa gắn kỳ thi hay bảng đề: chỉ tài khoản Full mới làm được. Vẫn lưu?')) return;
+    if (access === 'cong_khai' && status === 'da_dang' && !confirmPublic('đề này')) return;
     var row = { ten: ten, loai: $('pp-loai').value, exam_id: examId, level_id: levelId, thoi_gian_phut: mins, access_level: access, trang_thai: status, thu_tu: numOrNull($('pp-order').value) || 0, mo_ta: nz($('pp-desc').value) };
     var r = PP.form ? await sb.from('papers').update(row).eq('id', PP.form) : await sb.from('papers').insert(row).select('id').single();
     if (r.error) { toast('Không lưu được đề: ' + friendlyError(r.error), 'err'); return; }
@@ -1461,6 +1538,7 @@
     if (mins != null && (mins < 1 || mins > 600)) { toast('Thời lượng phải từ 1 đến 600 phút.', 'err'); return; }
     var levelId = $('vd-level').value, topicId = $('vd-topic').value;
     if (!V.edit && !levelId) { toast('Hãy chọn khối / bảng đề.', 'err'); return; }
+    if ($('vd-access').value === 'cong_khai' && $('vd-status').value === 'da_dang' && !confirmPublic('video này')) return;
     var btn = $('btn-video'); btn.disabled = true;
     var r = await sb.rpc('admin_save_video', {
       p_id: V.edit || null, p_topic: V.edit ? null : (topicId || null), p_level: V.edit ? null : (topicId ? null : levelId),
@@ -1890,6 +1968,7 @@
     var s = ev.target.closest('select[data-act]');
     if (!s) return;
     var act = s.dataset.act, id = s.dataset.id;
+    if (!exposureOk(act, id, s.value)) { rerenderFor(act); return; }
     if (act === 'status') setMaterialStatus(id, s.value);
     if (act === 'topic-access') updateTopic(id, { access_level: s.value });
     if (act === 'topic-status') updateTopic(id, { trang_thai: s.value });
