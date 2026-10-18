@@ -1,13 +1,248 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Luyện tập — Toán Bác Long</title>
-<style>*,*::before,*::after{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#fbf6ec;color:#0c2050}.bar{display:flex;align-items:center;gap:18px;padding:12px 22px;background:#fff;border-bottom:1px solid #e4d9be;flex-wrap:wrap}.bar a{font-weight:bold;color:#0c2050;text-decoration:none}.bar h1{font-size:19px;margin:0;flex:1}.note{padding:12px 22px;background:#fff4d9;border-bottom:1px solid #efd39c;font-size:13px;line-height:1.5}.frame{width:100%;height:calc(100dvh - 66px);min-height:470px;border:0;background:#fff}.fallback{padding:14px 22px}.fallback a{color:#0c2050}button{border:1px solid #e4d9be;border-radius:7px;background:#f2e9d6;padding:8px;cursor:pointer}@media(max-width:600px){.frame{height:calc(100dvh - 90px)}.bar h1{font-size:16px}}</style></head><body>
-<header class="bar"><a href="/app/luyen-theo-khoi.html">← Chọn khối</a><h1 id="grade-title">Toán Bác Long · Luyện tập</h1><button onclick="location.reload()">Tải lại</button></header>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luyện tập Khối 1–2 | Toán Bác Long</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --paper:#FBF6EC;
+            --paper-2:#F6EFDD;
+            --ink:#0C2050;
+            --ink-2:#123069;
+            --ink-soft:#4A5573;
+            --gold:#E3A038;
+            --gold-dark:#B8850A;
+            --card-border: rgba(12,32,80,0.10);
+            --shadow-soft: 0 18px 40px -18px rgba(12,32,80,0.32);
+        }
+        body{
+            font-family:'Be Vietnam Pro', sans-serif;
+            background:var(--paper);
+            color:var(--ink);
+            line-height:1.5;
+        }
+        h1,h2,h3,h4{font-family:'Baloo 2', sans-serif; font-weight:700;}
+        .transition-all { transition: all 0.3s ease; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .animate-spin { animation: spin 1s linear infinite; }
 
-<iframe id="practice" class="frame" title="Luyện tập Toán Bác Long" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen"></iframe>
-<details class="fallback" id="fallback" style="font-size:12px"><summary>Không xem được bài tập?</summary></details>
-<script>
-const grade=Number(new URLSearchParams(location.search).get('khoi'));
-const source={1:'https://longmath.github.io/khoi_1/',2:'https://longmath.github.io/khoi_2/'}[grade];
-const frame=document.getElementById('practice');
-if(!source){frame.hidden=true;document.getElementById('fallback').textContent='Khối này chưa có luyện tập tương tác.';}
-else{document.getElementById('grade-title').textContent='Luyện tập Khối '+grade+' · Toán Bác Long';frame.src=source;document.getElementById('fallback').innerHTML='Nếu nội dung không hiển thị, <a href="'+source+'" target="_blank" rel="noopener noreferrer">mở bài luyện tập tại đây</a>.';}
-</script></body></html>
+        header{
+            position:sticky; top:0; z-index:100;
+            background:rgba(12,32,80,0.94);
+            backdrop-filter:blur(8px);
+            border-bottom:1px solid rgba(227,160,56,0.25);
+        }
+        .nav{
+            display:flex; align-items:center; justify-content:space-between;
+            padding:10px 24px; max-width:1180px; margin:0 auto;
+        }
+        
+        /* Style cho Logo dạng ảnh trực tiếp */
+        .logo-box {
+            display:flex; align-items:center; gap:12px; text-decoration:none;
+        }
+        .logo-img-file {
+            height: 64px; /* Tăng kích thước chiều cao từ 44px lên 64px cho to rõ */
+            width: auto; 
+            display: block; 
+            object-fit: contain;
+        }
+
+        .btn{
+            display:inline-flex; align-items:center; justify-content:center; gap:8px;
+            padding:10px 24px; border-radius:100px; font-weight:700; font-size:14px;
+            cursor:pointer; border:none; transition:transform .15s ease, box-shadow .15s ease;
+        }
+        .btn-primary{background:var(--gold); color:var(--ink); box-shadow:0 10px 24px -8px rgba(227,160,56,0.55);}
+        .btn-primary:hover{transform:translateY(-2px); box-shadow:0 14px 28px -8px rgba(227,160,56,0.65);}
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <!-- Header chuẩn trỏ ảnh logo gốc -->
+    <header>
+      <nav class="nav">
+        <a href="#" class="logo-box">
+          <!-- Trỏ trực tiếp vào file ảnh logo gốc trên GitHub (Ví dụ: logo.png) -->
+          <img src="./assets/logo.png" alt="Toán Bác Long" class="logo-img-file">
+        </a>
+        <a href="#selectionArea" class="btn btn-primary">Vào làm bài</a>
+      </nav>
+    </header>
+
+    <!-- Tiêu đề chính -->
+    <div class="max-w-3xl mx-auto mt-7 px-4"><a href="/app/luyen-theo-khoi.html" class="text-sm font-bold text-[#0C2050]">← Chọn khối</a><div class="flex flex-wrap gap-3 mt-4 items-center"><label for="gradeSelect" class="font-bold">Khối học:</label><select id="gradeSelect" class="bg-white border-2 border-amber-300 rounded-xl px-4 py-2 font-semibold"><option value="1">Khối 1</option><option value="2">Khối 2</option></select><span id="loadStatus" class="text-sm text-slate-600" role="status" aria-live="polite">Đang tải đề...</span></div></div>
+    <div class="max-w-3xl mx-auto mt-10 text-center px-4">
+        <span class="inline-block font-['JetBrains_Mono'] font-bold text-xs uppercase tracking-wider text-amber-800 bg-amber-500/15 px-3 py-1 rounded-full mb-3">🎯 HỆ THỐNG LUYỆN TẬP TRỰC TUYẾN</span>
+        <h1 class="text-3xl font-bold mb-2 font-['Baloo_2'] text-[#0C2050]">Luyện tập Toán Khối 1</h1>
+        <p class="text-slate-600">Chọn cấu hình bài thi, nhập tên của con và bắt đầu rèn luyện tư duy toán học.</p>
+    </div>
+
+    <!-- Khu vực Nhập Tên Học Sinh -->
+    <div id="selectionArea" class="max-w-3xl mx-auto mt-6 bg-white p-8 rounded-2xl shadow-sm border border-slate-200 transition-all opacity-50 pointer-events-none mx-4">
+        
+        <h2 class="text-slate-800 font-bold mb-6 text-2xl text-center font-['Baloo_2']">👨‍🎓 Thông tin làm bài:</h2>
+        
+        <div class="flex flex-col md:flex-row gap-4 justify-center items-center mb-8">
+            <input type="text" id="studentNameInput" placeholder="Nhập tên của con (VD: Linh Đan)..." class="w-full md:w-2/3 border-2 border-amber-300 rounded-xl px-4 py-3 text-lg focus:outline-none focus:border-amber-500 transition bg-[#FBF6EC] font-medium">
+            
+            <select id="questionCountSelect" class="w-full md:w-1/3 border-2 border-amber-300 rounded-xl px-4 py-3 text-lg focus:outline-none focus:border-amber-500 transition bg-[#FBF6EC] text-slate-700 font-medium">
+                <option value="3">Khởi động (3 câu)</option>
+                <option value="5">Thử thách (5 câu)</option>
+                <option value="10" selected>Olympic (10 câu)</option>
+                <option value="24">Đề thi thật (24 câu)</option>
+            </select>
+        </div>
+
+        <div class="text-center">
+            <button id="startBtn" onclick="startTest()" class="bg-amber-500 hover:bg-amber-600 text-[#0C2050] px-8 py-3.5 rounded-xl font-bold text-lg shadow-lg transition transform hover:scale-105 cursor-not-allowed" disabled>
+                🚀 Bắt đầu làm bài
+            </button>
+            <div class="mt-6">
+                <button onclick="resetAttempts()" class="text-sm text-slate-400 underline hover:text-red-500 transition">Xóa dữ liệu bộ đếm lịch sử</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Khu vực Hiển thị Câu hỏi -->
+    <main id="questionContainer" class="max-w-3xl mx-auto mt-6 grid grid-cols-1 gap-6 hidden transition-all px-4"></main>
+
+    <!-- Khu vực Nút Nộp Bài -->
+    <div id="submitArea" class="max-w-3xl mx-auto mt-8 text-center hidden transition-all px-4">
+        <button onclick="submitTest()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3.5 rounded-xl font-bold text-lg shadow-lg transition transform hover:scale-105">
+            Nộp bài & Xem kết quả
+        </button>
+    </div>
+
+    <!-- Khu vực Kết quả & Nhận xét -->
+    <div id="resultArea" class="max-w-3xl mx-auto mt-8 bg-white p-8 rounded-2xl shadow-lg border border-emerald-200 hidden transition-all mx-4">
+        <h2 class="text-2xl font-bold text-center text-slate-800 mb-4 border-b pb-4 font-['Baloo_2']">BẢNG KẾT QUẢ</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-[#FBF6EC] p-4 rounded-xl border border-amber-200">
+            <div class="text-lg text-center md:text-left"><span class="font-bold text-slate-600">Học sinh:</span> <span id="resStudentName" class="font-bold text-blue-700"></span></div>
+            <div class="text-lg text-center"><span class="font-bold text-slate-600">Lần làm bài:</span> <span id="resAttemptCount" class="font-bold text-purple-700"></span></div>
+            <div class="text-lg text-center md:text-right"><span class="font-bold text-slate-600">Điểm số:</span> <span id="resScore" class="font-bold text-red-600 text-2xl"></span></div>
+        </div>
+        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6">
+            <h3 class="font-bold text-blue-800 mb-2 font-['Baloo_2']">👨‍🏫 Bác Long nhận xét:</h3>
+            <p id="resComment" class="text-blue-900 italic text-base leading-relaxed"></p>
+        </div>
+        <div id="resDetails" class="space-y-3"></div>
+        
+        <!-- Khung Zalo QR -->
+        <div class="mt-6 p-6 bg-[#FBF6EC] rounded-xl border border-amber-200 text-center">
+            <p class="text-[#0C2050] font-bold mb-3 text-lg font-['Baloo_2']">💬 Tham gia Nhóm Zalo để Bác Long giải đáp thắc mắc cho con:</p>
+            <div class="mb-4">
+                <img src="QR_Khoi_2.jpg" alt="QR Zalo" class="w-36 h-36 mx-auto rounded-lg shadow border bg-white p-1">
+            </div>
+            <a href="https://zalo.me/g/ybsu5tpbmfsflpeeaalm" target="_blank" class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl shadow transition">
+                🔗 Vào nhóm Zalo
+            </a>
+        </div>
+        
+        <div class="mt-8 text-center">
+            <button onclick="location.reload()" class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-2.5 rounded-xl font-bold shadow transition">
+                Quay lại trang chủ
+            </button>
+        </div>
+    </div>
+
+    <!-- Hai kho dữ liệu Google Sheets gốc, chưa nhập vào Supabase. -->
+    <script>
+    'use strict';
+    const SHEETS = {"1": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSpYzMJVzQzvgLRyy9uhDkUhTquOYXADmbnuWRiiMpL_DSPFYMDDmO-wk9OYuameg93MnUmgXhOvsgL/pub?output=csv", "2": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSf9FiwOPuyT2hRnDKblMLwE4465cTTDyvKLTeANk3l4cM2RSmud8BExl-O4PkUHU9cBGCB9sQ6B_xE/pub?output=csv"};
+    const params = new URLSearchParams(window.location.search);
+    let grade = ['1','2'].includes(params.get('khoi')) ? params.get('khoi') : '1';
+    let onlineQuestionBank = [], currentQuestions = [], currentStudentName = '', currentStudentKey = '';
+    const $ = id => document.getElementById(id);
+    const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const cleanKey = n => n.normalize('NFC').toLowerCase().replace(/\s+/g,'_');
+    function parseCSV(text) {
+      // RFC4180 commas and quoted newlines; equivalent to original parser.
+      const rows=[]; let row=[],field='',quoted=false;
+      text=String(text||'').replace(/^\uFEFF/,'');
+      for(let i=0;i<text.length;i++) {
+        const c=text[i];
+        if(c==='"') { if(quoted && text[i+1]==='"'){field+='"';i++;} else quoted=!quoted; }
+        else if(c===','&&!quoted){row.push(field);field='';}
+        else if((c==='\r'||c==='\n')&&!quoted){if(c==='\r'&&text[i+1]==='\n')i++;row.push(field);rows.push(row);row=[];field='';}
+        else field+=c;
+      }
+      if(quoted)throw Error('CSV thiếu dấu đóng ngoặc kép');
+      if(field!==''||row.length){row.push(field);rows.push(row);}
+      return rows.filter(r=>r.some(x=>x.trim()!==''));
+    }
+    function shuffleArray(data){const xs=[...data];for(let i=xs.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[xs[i],xs[j]]=[xs[j],xs[i]];}return xs;}
+    function attemptsKey(){return `bac_long_attempts_khoi_${grade}`;}
+    function getAttempts(){try {return JSON.parse(localStorage.getItem(attemptsKey())||'{}')||{};}catch{return {};}}
+    function saveAttempts(d){try {localStorage.setItem(attemptsKey(),JSON.stringify(d));}catch(e){console.warn('Không lưu được lịch sử cục bộ',e);}}
+    function resetAttempts(){if(confirm('Xóa bộ đếm số lần làm bài trên thiết bị này cho Khối '+grade+'?')){localStorage.removeItem(attemptsKey());alert('Đã xóa bộ đếm Khối '+grade+'.');}}
+    async function loadGrade(next){
+       grade=next; $('gradeSelect').value=grade; history.replaceState(null,'','?khoi='+grade);
+       $('loadStatus').textContent='Đang tải câu hỏi Khối '+grade+'...';
+       $('selectionArea').classList.add('opacity-50','pointer-events-none');
+       $('startBtn').disabled=true; onlineQuestionBank=[];
+       $('questionContainer').classList.add('hidden');$('submitArea').classList.add('hidden');$('resultArea').classList.add('hidden');
+       $('selectionArea').classList.remove('hidden');
+       document.querySelector('h1').textContent='Luyện tập Toán Khối '+grade;
+       const requested=grade;
+       try {
+         const res=await fetch(SHEETS[grade],{cache:'no-store'});
+         if(!res.ok)throw Error('Không tải được Google Sheets: '+res.status);
+         const raw=await res.text(); const rows=parseCSV(raw);
+         if(rows.length<2)throw Error('Kho câu hỏi chưa có dữ liệu');
+         const headers=rows.shift().map(x=>x.trim());
+         if(!['content','correctAnswer'].every(x=>headers.includes(x)))throw Error('CSV thiếu cột content hoặc correctAnswer');
+         const bank=rows.map((r,idx)=>Object.fromEntries(headers.map((h,i)=>[h,(r[i]||'').trim()])))
+           .filter(q=>q.content && q.correctAnswer);
+         if(requested!==grade)return;
+         if(!bank.length)throw Error('Kho câu hỏi chưa có bài hợp lệ');
+         onlineQuestionBank=bank;
+         $('selectionArea').classList.remove('opacity-50','pointer-events-none');
+         $('startBtn').disabled=false;
+         $('loadStatus').textContent='Đã tải '+bank.length+' câu hỏi';
+       }catch(err){console.error(err);if(requested===grade)$('loadStatus').textContent='Không tải được đề. '+err.message+'; kiểm tra quyền xuất bản Google Sheets.';}
+    }
+    function startTest(){
+      const name=$('studentNameInput').value.trim();
+      if(!name){alert('Vui lòng nhập tên của con!');return;}
+      if(!onlineQuestionBank.length){alert('Kho đề chưa tải được.');return;}
+      currentStudentName=name;currentStudentKey=cleanKey(name);
+      const qty=parseInt($('questionCountSelect').value,10);
+      currentQuestions=shuffleArray(onlineQuestionBank).slice(0,Math.min(qty,onlineQuestionBank.length));
+      $('selectionArea').classList.add('hidden');
+      const container=$('questionContainer');container.innerHTML='';
+      currentQuestions.forEach((q,i)=>{
+        const card=document.createElement('div');card.className='bg-white rounded-xl p-6 shadow-sm border border-slate-200';
+        card.innerHTML=`<div class="flex justify-between items-center mb-4"><span class="bg-[#0C2050] text-white font-bold px-3 py-1 rounded-md text-sm">Câu ${i+1}</span><span class="text-sm text-slate-400 font-medium">${esc(q.title||'Câu hỏi tư duy')}</span></div><p class="text-slate-800 leading-relaxed text-lg mb-6">${esc(q.content)}</p><div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex items-center"><label for="ans_${i}" class="font-bold text-slate-700 mr-3">Đáp án:</label><input type="text" id="ans_${i}" class="w-full md:w-48 border-b-2 border-amber-500 bg-transparent px-2 py-1 text-lg font-bold text-center focus:outline-none focus:bg-white transition" placeholder="Nhập đáp án..."></div>`;
+        container.appendChild(card);
+      });
+      container.classList.remove('hidden');$('submitArea').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function submitTest(){
+      if(!currentQuestions.length||!confirm('Con đã hoàn thành và muốn nộp bài chưa?'))return;
+      const attempts=getAttempts(),count=(attempts[currentStudentKey]||0)+1;
+      attempts[currentStudentKey]=count;saveAttempts(attempts);
+      let correct=0,detail='';
+      currentQuestions.forEach((q,i)=>{
+        const ans=$('ans_'+i).value.trim();
+        const expected=String(q.correctAnswer||'');
+        const ok=expected.toLocaleLowerCase('vi').split(/[,|]/).map(x=>x.trim()).includes(ans.toLocaleLowerCase('vi')) && !!ans;
+        if(ok)correct++;
+        detail+=`<div class="p-4 rounded-xl mb-3 ${ok?'bg-emerald-50 border border-emerald-200':'bg-red-50 border border-red-200'}"><span class="font-bold ${ok?'text-emerald-700':'text-red-700'}">Câu ${i+1}: ${ok?'✅ CHÍNH XÁC':'❌ CHƯA CHÍNH XÁC'}</span>${ok?'':`<div class="mt-2 text-slate-700">Con chọn: <b>${esc(ans||'(Để trống)')}</b> | Đáp án chuẩn: <b>${esc(expected)}</b></div>`}</div>`;
+      });
+      const pct=correct/currentQuestions.length*100;
+      const comment=pct===100?'Quá tuyệt vời! Con nắm kiến thức rất vững chắc!':pct>=75?'Con làm rất tốt! Hãy xem lại một vài câu còn sai nhé.':pct>=50?'Con đã cố gắng. Hãy ôn lại các câu chưa đúng nhé.':'Đừng nản lòng! Hãy luyện lại từng câu và thử thêm lần nữa.';
+      $('resStudentName').textContent=currentStudentName;$('resAttemptCount').textContent='Lần '+count;
+      $('resScore').textContent=`${correct}/${currentQuestions.length} (${pct.toFixed(0)}%)`;
+      $('resComment').textContent=comment;$('resDetails').innerHTML=detail;
+      $('submitArea').classList.add('hidden');$('questionContainer').classList.add('hidden');$('resultArea').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});
+    }
+    $('gradeSelect').addEventListener('change',e=>loadGrade(e.target.value));
+    document.addEventListener('DOMContentLoaded',()=>loadGrade(grade));
+    </script>
+</body>
+</html>
