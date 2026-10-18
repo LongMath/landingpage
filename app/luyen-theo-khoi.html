@@ -156,8 +156,8 @@
           <li>Hình học cơ bản</li>
         </ul>
         <div class="khoi-cta">
-          <a class="btn-small" href="#">Đăng ký lộ trình</a>
-          <a class="btn-small" style="background:var(--gold); color:var(--navy);" href="https://longmath.github.io/khoi_1/" target="_blank" rel="noopener">⚡ Luyện tập ngay</a>
+          <button class="btn-small" type="button" onclick="registerTrack(1)" style="border:0;cursor:pointer;font-family:inherit;">Đăng ký lộ trình</button>
+          <a class="btn-small" style="background:var(--gold); color:var(--navy);" href="/luyentap/?khoi=1">⚡ Luyện tập ngay</a>
         </div>
       </div>
       <div class="khoi-card">
@@ -170,8 +170,8 @@
           <li>Đo lường cơ bản</li>
         </ul>
         <div class="khoi-cta">
-          <a class="btn-small" href="#">Đăng ký lộ trình</a>
-          <a class="btn-small" style="background:var(--gold); color:var(--navy);" href="https://longmath.github.io/khoi_2/" target="_blank" rel="noopener">⚡ Luyện tập ngay</a>
+          <button class="btn-small" type="button" onclick="registerTrack(2)" style="border:0;cursor:pointer;font-family:inherit;">Đăng ký lộ trình</button>
+          <a class="btn-small" style="background:var(--gold); color:var(--navy);" href="/luyentap/?khoi=2">⚡ Luyện tập ngay</a>
         </div>
       </div>
       <div class="khoi-card">
@@ -184,7 +184,7 @@
           <li>Toán có lời văn</li>
         </ul>
         <div class="khoi-cta">
-          <a class="btn-small" href="#">Đăng ký lộ trình</a>
+          <button class="btn-small" type="button" onclick="registerTrack(3)" style="border:0;cursor:pointer;font-family:inherit;">Đăng ký lộ trình</button>
           <div class="interactive-note">Luyện tập tương tác <span class="tag-soon">Sắp ra mắt</span></div>
         </div>
       </div>
@@ -198,7 +198,7 @@
           <li>Bài toán tư duy nâng cao</li>
         </ul>
         <div class="khoi-cta">
-          <a class="btn-small" href="#">Đăng ký lộ trình</a>
+          <button class="btn-small" type="button" onclick="registerTrack(4)" style="border:0;cursor:pointer;font-family:inherit;">Đăng ký lộ trình</button>
           <div class="interactive-note">Luyện tập tương tác <span class="tag-soon">Sắp ra mắt</span></div>
         </div>
       </div>
@@ -212,7 +212,7 @@
           <li>Ôn tập chuyển cấp</li>
         </ul>
         <div class="khoi-cta">
-          <a class="btn-small" href="#">Đăng ký lộ trình</a>
+          <button class="btn-small" type="button" onclick="registerTrack(5)" style="border:0;cursor:pointer;font-family:inherit;">Đăng ký lộ trình</button>
           <div class="interactive-note">Luyện tập tương tác <span class="tag-soon">Sắp ra mắt</span></div>
         </div>
       </div>
@@ -270,6 +270,17 @@
   </div>
 </footer>
 
+
+<div id="track-modal" role="dialog" aria-modal="true" aria-labelledby="track-heading" style="display:none;position:fixed;inset:0;z-index:105;align-items:center;justify-content:center;padding:20px;background:rgba(12,32,80,.6);">
+ <div style="background:white;border-radius:20px;padding:28px;max-width:430px;width:100%;position:relative;box-shadow:0 18px 60px #0c20504d;">
+  <button type="button" onclick="closeTrackModal()" aria-label="Đóng" style="position:absolute;right:14px;top:12px;border:0;background:transparent;font-size:22px;cursor:pointer">×</button>
+  <h2 id="track-heading" style="font-size:21px;margin-bottom:9px">Đăng ký lộ trình</h2>
+  <p id="track-message" style="margin-bottom:20px;font-size:14px">Lưu khối học vào tài khoản phụ huynh của bạn.</p>
+  <button id="track-confirm" type="button" class="btn-gold" onclick="confirmTrackRegistration()" style="width:100%;justify-content:center;border:0;cursor:pointer">Xác nhận đăng ký</button>
+  <p id="track-feedback" aria-live="polite" style="font-size:13px;margin-top:12px;"></p>
+ </div>
+</div>
+
 <div id="auth-modal" style="display:none; position:fixed; inset:0; background:rgba(12,32,80,0.55); z-index:100; align-items:center; justify-content:center; padding:20px;">
   <div style="background:#fff; border-radius:20px; padding:32px; max-width:400px; width:100%; position:relative;">
     <button onclick="closeAuthModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:20px; cursor:pointer; color:var(--navy-light);">✕</button>
@@ -321,6 +332,38 @@
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdHR4Z25kb3N1Y2pweXNkcnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMTE5NjcsImV4cCI6MjEwNDg4Nzk2N30.q79YcNPMQhhtOhp3ei1kWV03_TdORAx1PnJi3BgYXlU';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  let pendingGrade = null;
+  function closeTrackModal(){document.getElementById('track-modal').style.display='none';}
+  async function registerTrack(grade){
+    pendingGrade = grade;
+    const {data:{user},error}=await sb.auth.getUser();
+    if(error || !user){
+      openAuthModal('register');
+      document.getElementById('register-success').textContent='Đăng ký hoặc đăng nhập để tiếp tục chọn lộ trình Khối '+grade+'.';
+      document.getElementById('register-success').style.display='block';
+      return;
+    }
+    document.getElementById('track-heading').textContent='Đăng ký lộ trình Khối '+grade;
+    document.getElementById('track-message').textContent='Lưu lộ trình Khối '+grade+' vào tài khoản của bạn. Việc đăng ký không tự động cấp quyền xem nội dung trả phí.';
+    document.getElementById('track-feedback').textContent='';
+    const btn=document.getElementById('track-confirm'); btn.disabled=false;btn.style.display='inline-flex';
+    document.getElementById('track-modal').style.display='flex';
+  }
+  async function confirmTrackRegistration(){
+    if(!pendingGrade)return;
+    const btn=document.getElementById('track-confirm'),fb=document.getElementById('track-feedback');
+    btn.disabled=true;fb.textContent='Đang lưu đăng ký...';
+    const {data:{user},error:authError}=await sb.auth.getUser();
+    if(authError || !user){closeTrackModal();openAuthModal('login');return;}
+    const {error}=await sb.from('learning_enrollments').upsert({user_id:user.id,grade:pendingGrade},{onConflict:'user_id,grade'});
+    if(error){fb.textContent='Chưa lưu được: '+error.message;btn.disabled=false;return;}
+    fb.textContent='✓ Đã đăng ký lộ trình Khối '+pendingGrade+' thành công.';
+    btn.style.display='none';
+  }
+  document.getElementById('track-modal').addEventListener('click',function(e){if(e.target===this)closeTrackModal();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeTrackModal();});
+
+
   function openAuthModal(mode){
     document.getElementById('auth-modal').style.display = 'flex';
     switchAuthTab(mode);
@@ -351,6 +394,7 @@
       return;
     }
     closeAuthModal();
+    if(pendingGrade) await registerTrack(pendingGrade);
   }
 
   async function handleSignUp(e){
@@ -372,7 +416,9 @@
       errorEl.style.display = 'block';
       return;
     }
-    successEl.textContent = 'Tạo tài khoản thành công! Nếu cần xác nhận email, hãy kiểm tra hộp thư.';
+    successEl.textContent = 'Đã gửi yêu cầu tạo tài khoản. Nếu cần xác nhận email, hãy kiểm tra hộp thư, sau đó đăng nhập để xác nhận lộ trình' + (pendingGrade ? ' Khối '+pendingGrade : '') + '.';
+    const {data:{session:createdSession}}=await sb.auth.getSession();
+    if(createdSession && pendingGrade){closeAuthModal();await registerTrack(pendingGrade);return;}
     successEl.style.display = 'block';
   }
 
