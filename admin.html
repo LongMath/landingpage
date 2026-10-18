@@ -82,7 +82,7 @@
   <div class="wrap bar">
     <div class="brand">Toán Bác Long <span>· Quản trị</span></div>
     <div class="who" id="who" hidden>
-      <a href="https://longmath.github.io/landingpage/">← Về trang giới thiệu</a>
+      <a href="/">← Về trang giới thiệu</a>
       <span id="who-email"></span>
       <button class="btn ghost small" id="btn-logout" type="button">Đăng xuất</button>
     </div>
@@ -411,7 +411,12 @@
               <div><label for="pf-ans">Đáp số</label><input type="text" id="pf-ans"><p class="hint" style="margin-top:4px;">Nhiều đáp án chấp nhận thì ngăn cách bằng dấu |. Không dùng dấu chấm ngăn cách hàng nghìn (viết 1000, không viết 1.000).</p></div>
               <div><label for="pf-nguon">Nguồn (để ghi công)</label><input type="text" id="pf-nguon" placeholder="Ví dụ: IKMC 2019, câu 12"></div>
             </div>
-            <label for="pf-sol">Lời giải</label><textarea id="pf-sol"></textarea>
+             <label for="pf-sol">Lời giải</label><textarea id="pf-sol"></textarea>
+             <div class="note" style="margin-top:16px;">
+               <b>Gắn bài vào nhiều chuyên đề</b>
+               <p class="hint" style="margin:5px 0 8px;">Chuyên đề đang soạn là chuyên đề chính. Có thể chọn thêm các chuyên đề khác, kể cả thuộc khối hoặc kỳ thi khác. Câu hỏi chỉ lưu một lần.</p>
+               <div id="pf-extra-topics" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:7px;max-height:260px;overflow:auto;"></div>
+             </div>
             <p style="margin-top:14px;" class="row-actions"><button class="btn primary" type="submit">Lưu bài</button><button class="btn ghost" type="button" id="btn-cancel-problem">Huỷ</button></p>
           </form>
 
@@ -1304,7 +1309,12 @@
   async function loadPicker() {
     var tid = $('pk-topic').value; PP.picker = [];
     if (!tid) { renderPicker(); return; }
-    var r = await sb.from('problems').select('*').eq('topic_id', tid).order('so_thu_tu');
+    // Lấy cả câu hỏi có chuyên đề chính và câu hỏi được gắn thêm vào chuyên đề đang chọn.
+    var links = await sb.from('problem_topics').select('problem_id').eq('topic_id', tid);
+    if (links.error) { toast('Không tải được liên kết chuyên đề: ' + friendlyError(links.error), 'err'); return; }
+    var ids = (links.data || []).map(function (x) { return x.problem_id; });
+    if (!ids.length) { renderPicker(); return; }
+    var r = await sb.from('problems').select('*').in('id', ids).order('so_thu_tu');
     if (r.error) { toast('Không tải được bài: ' + friendlyError(r.error), 'err'); return; }
     var probs = r.data || [], has = {};
     if (probs.length) {
@@ -1585,7 +1595,7 @@
   }
 
   /* ---------- NỘI DUNG CHUYÊN ĐỀ ---------- */
-  var C = { topicId: null, problems: [], solutions: {}, terms: [], editingId: null, plan: null };
+  var C = { topicId: null, problems: [], solutions: {}, links: {}, terms: [], editingId: null, plan: null };
 
   function nz(v) { v = (v == null ? '' : String(v)).trim(); return v === '' ? null : v; }
 
@@ -1620,16 +1630,20 @@
       if (r[i].error) { toast('Không tải được nội dung: ' + friendlyError(r[i].error), 'err'); return; }
     }
     $('ct-theory').value = (r[0].data && r[0].data.ly_thuyet) || '';
-    $('ct-preview').href = 'https://longmath.github.io/landingpage/app/chuyen-de.html#' + encodeURIComponent(topicId);
+    $('ct-preview').href = '/app/chuyen-de.html#' + encodeURIComponent(topicId);
     C.terms = r[1].data || [];
     C.problems = r[2].data || [];
-    C.solutions = {};
+    C.solutions = {}; C.links = {};
     if (C.problems.length) {
       var ids = C.problems.map(function (p) { return p.id; });
       var sol = await sb.from('problem_solutions').select('*').in('problem_id', ids);
       if (C.topicId !== topicId) return;
       if (sol.error) { toast('Không tải được đáp số: ' + friendlyError(sol.error), 'err'); return; }
       (sol.data || []).forEach(function (x) { C.solutions[x.problem_id] = x; });
+      var linkRes = await sb.from('problem_topics').select('problem_id,topic_id').in('problem_id', ids);
+      if (C.topicId !== topicId) return;
+      if (linkRes.error) { toast('Không tải được liên kết chuyên đề: ' + friendlyError(linkRes.error), 'err'); return; }
+      (linkRes.data || []).forEach(function (x) { (C.links[x.problem_id] ||= []).push(x.topic_id); });
     }
     renderTerms(); renderProblems();
   }
@@ -1690,13 +1704,48 @@
       return '<tr><td>' + esc(p.so_thu_tu) + '</td>' +
         '<td>' + esc(snippet(p.de_vi || p.de_en)) + (p.de_vi && p.de_en ? ' <span class="tag cong_khai">Song ngữ</span>' : '') + '</td>' +
         '<td>' + (sol.dap_so ? esc(sol.dap_so) : '<span class="tag tra_phi">Thiếu</span>') + '</td>' +
-        '<td>' + hints + '/2</td>' +
+        '<td>' + hints + '/2' + ((C.links[p.id] || []).length > 1 ? ' · <span class="tag thanh_vien">' + (C.links[p.id].length) + ' chuyên đề</span>' : '') + '</td>' +
         '<td><select data-act="prob-status" data-id="' + esc(p.id) + '">' + optionsFromMap(TRANG_THAI, p.trang_thai) + '</select></td>' +
         '<td><div class="row-actions"><button class="btn ghost small" type="button" data-act="prob-edit" data-id="' + esc(p.id) + '">Sửa</button>' +
         '<button class="btn danger small" type="button" data-act="prob-del" data-id="' + esc(p.id) + '">Xoá</button></div></td></tr>';
     }).join('');
   }
   function nextProblemNo() { return C.problems.reduce(function (m, p) { return Math.max(m, p.so_thu_tu || 0); }, 0) + 1; }
+  function renderExtraTopics(p) {
+    var active = new Set(p ? (C.links[p.id] || [C.topicId]) : [C.topicId]);
+    var html = [];
+    S.exams.forEach(function (exam) {
+      levelsOfExam(exam.id).forEach(function (level) {
+        topicsOfLevel(level.id).forEach(function (t) {
+          if (t.id === C.topicId) return;
+          var checked = active.has(t.id) ? ' checked' : '';
+          html.push('<label style="margin:0;display:flex;gap:7px;align-items:flex-start;font-weight:500;">' +
+            '<input type="checkbox" class="pf-topic" value="' + esc(t.id) + '"' + checked + ' style="margin-top:2px;flex-shrink:0;">' +
+            '<span>' + esc(exam.ten) + ' › ' + esc(level.ten) + ' › ' + esc(t.ten) + '</span></label>');
+        });
+      });
+    });
+    $('pf-extra-topics').innerHTML = html.join('') || '<span class="hint">Chưa có chuyên đề khác.</span>';
+  }
+
+  async function saveExtraTopics(id) {
+    var chosen = [C.topicId];
+    document.querySelectorAll('#pf-extra-topics input.pf-topic:checked').forEach(function (el) { chosen.push(el.value); });
+    var res = await sb.from('problem_topics').select('topic_id').eq('problem_id', id);
+    if (res.error) throw res.error;
+    var current = (res.data || []).map(function (x) { return x.topic_id; });
+    var add = chosen.filter(function (x) { return current.indexOf(x) === -1; });
+    var remove = current.filter(function (x) { return chosen.indexOf(x) === -1 && x !== C.topicId; });
+    if (add.length) {
+      var ins = await sb.from('problem_topics').upsert(add.map(function (t) { return { problem_id: id, topic_id: t }; }), { onConflict: 'problem_id,topic_id' });
+      if (ins.error) throw ins.error;
+    }
+    if (remove.length) {
+      var del = await sb.from('problem_topics').delete().eq('problem_id', id).in('topic_id', remove);
+      if (del.error) throw del.error;
+    }
+  }
+
   function showProblemForm(p) {
     C.editingId = p ? p.id : null;
     var s = p ? (C.solutions[p.id] || {}) : {};
@@ -1708,6 +1757,7 @@
     $('pf-h1').value = s.goi_y_1 || ''; $('pf-h2').value = s.goi_y_2 || '';
     $('pf-ans').value = s.dap_so || ''; $('pf-sol').value = s.loi_giai || '';
     $('pf-nguon').value = p ? (p.nguon || '') : '';
+    renderExtraTopics(p);
     $('csv-card').hidden = true;
     $('form-problem').hidden = false;
     $('pf-vi').focus();
@@ -1734,7 +1784,14 @@
     }
     var sr = await sb.from('problem_solutions').upsert(Object.assign({ problem_id: id }, sol), { onConflict: 'problem_id' });
     if (sr.error) { toast('Lưu được bài nhưng chưa lưu được đáp số: ' + friendlyError(sr.error), 'err'); return; }
-    toast('Đã lưu bài ' + stt + '.', 'ok');
+    try {
+      await saveExtraTopics(id);
+    } catch (linkErr) {
+      toast('Đã lưu nội dung bài, nhưng liên kết chuyên đề chưa lưu được: ' + friendlyError(linkErr), 'err');
+      await loadContent(C.topicId);
+      return;
+    }
+    toast('Đã lưu bài ' + stt + ' và các chuyên đề liên kết.', 'ok');
     await loadContent(C.topicId);
   }
   async function deleteProblem(id) {
@@ -1833,7 +1890,7 @@
     if (!C.topicId) return;
     var text = $('csv-text').value;
     var plan = buildPlan(text, $('csv-publish').checked);
-    C.plan = plan.problems.length ? plan : null;
+    C.plan = (plan.problems.length && !plan.errors.length) ? plan : null;
     var box = $('csv-summary'); box.hidden = false;
     var msg = 'Hợp lệ: ' + plan.problems.length + ' bài.';
     if (plan.errors.length) msg += ' Lỗi: ' + plan.errors.length + ' (' + plan.errors.slice(0, 5).join(' ') + (plan.errors.length > 5 ? ' …' : '') + ')';
@@ -1843,7 +1900,7 @@
     }
     box.textContent = msg;
     box.className = 'note' + (plan.errors.length && !plan.problems.length ? ' warn' : '');
-    $('btn-csv-apply').disabled = !plan.problems.length;
+    $('btn-csv-apply').disabled = !C.plan;
   }
   async function applyCsv() {
     var plan = C.plan; if (!plan || !C.topicId) return;
@@ -1868,7 +1925,7 @@
       toast('Đã nhập ' + plan.problems.length + ' bài.', 'ok');
       $('csv-text').value = ''; $('csv-file').value = ''; $('csv-summary').hidden = true; $('csv-card').hidden = true;
       await loadContent(C.topicId);
-    } finally { btn.textContent = 'Nhập vào chuyên đề'; if (C.plan) btn.disabled = false; }
+    } finally { btn.textContent = 'Nhập vào chuyên đề'; btn.disabled = !C.plan; }
   }
   function downloadTemplate() {
     var q = function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; };
@@ -1953,6 +2010,13 @@
   $('btn-toggle-csv').addEventListener('click', function () { $('form-problem').hidden = true; $('csv-card').hidden = !$('csv-card').hidden; });
   $('btn-csv-template').addEventListener('click', downloadTemplate);
   $('btn-csv-check').addEventListener('click', checkCsv);
+  ['csv-text', 'csv-publish'].forEach(function (id) {
+    $(id).addEventListener(id === 'csv-text' ? 'input' : 'change', function () {
+      C.plan = null;
+      $('btn-csv-apply').disabled = true;
+      $('csv-summary').hidden = true;
+    });
+  });
   $('btn-csv-apply').addEventListener('click', applyCsv);
   $('csv-file').addEventListener('change', async function () {
     var f = this.files && this.files[0]; if (!f) return;
