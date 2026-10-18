@@ -476,11 +476,13 @@
         <p style="margin-top:10px;" class="row-actions"><button class="btn primary" type="button" id="btn-save-items">Lưu danh sách câu</button><button class="btn ghost" type="button" id="btn-dup-paper">Nhân bản đề để sửa</button></p>
 
         <h3 style="font-size:16px; margin-top:22px;">Thêm bài từ ngân hàng</h3>
+        <p class="hint">Câu hỏi của đề được chọn từ ngân hàng bài tập. Chỉ bài đã có <b>đáp số</b> mới thêm được. Muốn có câu mới, hãy nhập bài (kèm đáp số) ở tab Nội dung trước, rồi quay lại đây. Chọn kỳ thi, bảng đề, chuyên đề, bấm "Thêm vào đề", cuối cùng bấm "Lưu danh sách câu".</p>
         <div class="grid3">
           <div><label for="pk-exam">Kỳ thi</label><select id="pk-exam"></select></div>
           <div><label for="pk-level">Bảng đề</label><select id="pk-level"></select></div>
           <div><label for="pk-topic">Chuyên đề</label><select id="pk-topic"></select></div>
         </div>
+        <p class="hint" id="pk-summary" style="margin-top:10px; font-weight:600; color:var(--navy);"></p>
         <div class="tablewrap"><table>
           <thead><tr><th>Bài</th><th>Đề bài</th><th></th></tr></thead>
           <tbody id="pk-body"></tbody>
@@ -1272,7 +1274,8 @@
     PP.items = (r.data || []).map(function (x) { return { problem_id: x.problem_id, diem: Number(x.diem), de_vi: x.de_vi, de_en: x.de_en, topic_ten: x.topic_ten }; });
     $('pi-title').textContent = 'Câu hỏi của đề: ' + p.ten;
     $('pi-card').hidden = false; renderItems(); scrollTo($('pi-card'));
-    PP.picker = []; renderPicker();
+    PP.picker = [];
+    if ($('pk-topic').value) await loadPicker(); else renderPicker();
   }
   function renderItems() {
     var total = PP.items.reduce(function (t, x) { return t + (Number(x.diem) || 0); }, 0);
@@ -1314,11 +1317,25 @@
   }
   function inItems(id) { return PP.items.some(function (x) { return x.problem_id === id; }); }
   function renderPicker() {
-    $('pk-body').innerHTML = PP.picker.length ? PP.picker.map(function (p) {
+    var hasTopic = !!$('pk-topic').value, n = PP.picker.length, usable = PP.picker.filter(function (p) { return p.hasAns; }).length, sum = $('pk-summary');
+    if (!hasTopic) {
+      sum.textContent = '';
+      $('pk-body').innerHTML = '<tr><td colspan="3" class="muted">Chọn kỳ thi, bảng đề và chuyên đề ở trên để xem các bài.</td></tr>';
+      return;
+    }
+    if (!n) {
+      sum.textContent = '';
+      $('pk-body').innerHTML = '<tr><td colspan="3" class="muted">Chuyên đề này chưa có bài nào. Hãy nhập bài (kèm đáp số) ở tab Nội dung rồi quay lại tab này.</td></tr>';
+      return;
+    }
+    var missing = n - usable;
+    sum.textContent = 'Chuyên đề có ' + n + ' bài, ' + usable + ' bài có đáp số nên thêm được.' +
+      (missing ? ' ' + missing + ' bài chưa có đáp số: hãy nhập đáp số ở tab Nội dung (bấm Sửa ở bài đó) rồi quay lại tab này.' : '');
+    $('pk-body').innerHTML = PP.picker.map(function (p) {
       var added = inItems(p.id);
       return '<tr><td>Bài ' + esc(p.so) + (p.nhap ? ' <span class="tag nhap">Nháp</span>' : '') + '</td><td>' + esc(snippet(p.de_vi || p.de_en)) + '</td><td>' +
         (!p.hasAns ? '<span class="tag tra_phi">Thiếu đáp số</span>' : (added ? '<span class="tag cong_khai">Đã thêm</span>' : '<button class="btn ghost small" type="button" data-act="pk-add" data-id="' + esc(p.id) + '">Thêm vào đề</button>')) + '</td></tr>';
-    }).join('') : '<tr><td colspan="3" class="muted">Chọn chuyên đề để xem các bài.</td></tr>';
+    }).join('');
   }
   function addItem(id) {
     var p = PP.picker.find(function (x) { return x.id === id; });
@@ -1884,7 +1901,7 @@
       ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'papers', 'access'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
       if (tab.dataset.tab === 'videos') loadVideos();
       if (tab.dataset.tab === 'access') loadAccess();
-      if (tab.dataset.tab === 'papers') loadPapers();
+      if (tab.dataset.tab === 'papers') { loadPapers(); if ($('pk-topic').value) loadPicker(); }
     });
   });
 
