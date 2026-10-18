@@ -111,6 +111,7 @@
 
     <div class="tabs" role="tablist">
       <button class="tab active" type="button" data-tab="materials">Tài liệu</button>
+      <button class="tab" type="button" data-tab="videos">Video</button>
       <button class="tab" type="button" data-tab="topics">Chuyên đề</button>
       <button class="tab" type="button" data-tab="exams">Kỳ thi</button>
       <button class="tab" type="button" data-tab="levels">Bảng đề</button>
@@ -157,6 +158,44 @@
           <tbody id="materials-body"></tbody>
         </table></div>
         <p class="muted" id="materials-empty" hidden style="margin-top:12px;">Chưa có tài liệu nào.</p>
+      </div>
+    </div>
+
+    <!-- TAB VIDEO -->
+    <div id="tab-videos" hidden>
+      <div class="card">
+        <h2 id="vd-heading">Thêm video bài giảng (YouTube)</h2>
+        <p class="hint">Đăng video lên YouTube ở chế độ "Không công khai", rồi dán liên kết vào đây. Video chỉ hiện cho học sinh theo mức quyền bạn chọn. Nên để "Nháp" trước, xem thử rồi mới chuyển "Đã đăng". YouTube có thể yêu cầu khai báo video có dành cho trẻ em hay không, hãy làm theo hướng dẫn trong YouTube Studio.</p>
+        <form id="form-video">
+          <div class="grid3">
+            <div><label for="vd-exam">Kỳ thi</label><select id="vd-exam"></select></div>
+            <div><label for="vd-level">Khối / bảng đề</label><select id="vd-level"></select></div>
+            <div><label for="vd-topic">Chuyên đề</label><select id="vd-topic"></select></div>
+          </div>
+          <label for="vd-link">Liên kết YouTube</label>
+          <input type="text" id="vd-link" autocomplete="off" placeholder="https://youtu.be/... hoặc https://www.youtube.com/watch?v=...">
+          <p class="hint" id="vd-link-note" style="margin-top:4px;"></p>
+          <label for="vd-title">Tiêu đề hiển thị</label>
+          <input type="text" id="vd-title" placeholder="Ví dụ: Gà và thỏ — bài giảng phần 1">
+          <label for="vd-desc">Mô tả ngắn (không bắt buộc)</label>
+          <textarea id="vd-desc"></textarea>
+          <div class="grid3">
+            <div><label for="vd-min">Thời lượng (phút, không bắt buộc)</label><input type="number" id="vd-min" min="1" max="600"></div>
+            <div><label for="vd-order">Số thứ tự</label><input type="number" id="vd-order" min="0" value="0"></div>
+            <div><label for="vd-access">Ai được xem?</label><select id="vd-access"></select></div>
+          </div>
+          <div class="grid2"><div><label for="vd-status">Trạng thái</label><select id="vd-status"></select></div></div>
+          <p style="margin-top:16px;" class="row-actions"><button class="btn primary" type="submit" id="btn-video">Thêm video</button><button class="btn ghost" type="button" id="btn-cancel-video" hidden>Huỷ sửa</button></p>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Video đã thêm</h2>
+        <p class="hint">Nơi gắn video không đổi được khi sửa. Muốn đổi, hãy xoá rồi thêm lại.</p>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Tiêu đề</th><th>Gắn với</th><th>Ai xem được</th><th>Phút</th><th>Trạng thái</th><th></th></tr></thead>
+          <tbody id="videos-body"></tbody>
+        </table></div>
+        <p class="muted" id="videos-empty" hidden style="margin-top:12px;">Chưa có video nào.</p>
       </div>
     </div>
 
@@ -424,16 +463,41 @@
     <!-- TAB QUYỀN TRUY CẬP -->
     <div id="tab-access" hidden>
       <div class="card">
-        <h2>Cấp quyền gói trả phí</h2>
-        <p class="hint">Khi khách mua gói, nhập email tài khoản của họ (khách cần đăng ký tài khoản trên website trước), chọn phạm vi họ được học và ngày hết hạn (bỏ trống nếu không giới hạn). Gói "Tài khoản theo khối" chọn Một khối: chỉ mở chương trình theo khối (kỳ thi loại Chương trình như Toán tư duy), không mở các kỳ thi Olympic. Gói "Luyện thi theo kỳ thi" chọn Cả một kỳ thi và đặt hạn theo tháng. Gói Full chọn Tất cả. Cấp lại cho cùng tài khoản và cùng phạm vi sẽ cập nhật hạn, tức là gia hạn. Quyền chỉ mở các chuyên đề và tài liệu có mức "Trả phí".</p>
+        <h2>Cấp theo gói</h2>
+        <p class="hint">Chọn gói khách vừa mua, hệ thống cấp đủ các quyền trong một lần (lỗi thì không cấp dở). Khách cần đăng ký tài khoản trên website trước. Nếu tài khoản đã có quyền cùng phạm vi thì hạn mới được cộng nối tiếp vào hạn cũ, nên gia hạn sớm không bị mất ngày. Quyền đang không giới hạn thì giữ nguyên.</p>
+        <form id="form-package">
+          <div class="grid2">
+            <div><label for="pk2-email">Email tài khoản phụ huynh</label><input type="email" id="pk2-email" required autocomplete="off"></div>
+            <div><label for="pk2-pack">Gói khách mua</label><select id="pk2-pack"></select></div>
+          </div>
+          <div id="pk2-kid1" class="grid2">
+            <div id="pk2-k1-khoi-w"><label for="pk2-k1-khoi" id="pk2-k1-khoi-l">Khối</label><select id="pk2-k1-khoi"></select></div>
+            <div id="pk2-k1-exam-w"><label for="pk2-k1-exam" id="pk2-k1-exam-l">Kỳ thi</label><select id="pk2-k1-exam"></select></div>
+          </div>
+          <div id="pk2-kid2" class="grid2" hidden>
+            <div id="pk2-k2-khoi-w"><label for="pk2-k2-khoi">Khối của bé thứ hai</label><select id="pk2-k2-khoi"></select></div>
+            <div id="pk2-k2-exam-w"><label for="pk2-k2-exam">Kỳ thi của bé thứ hai</label><select id="pk2-k2-exam"></select></div>
+          </div>
+          <div class="grid2">
+            <div><label for="pk2-term">Kỳ hạn</label>
+              <select id="pk2-term"><option value="1">1 tháng</option><option value="3">3 tháng</option><option value="12">12 tháng</option><option value="0">Không giới hạn</option></select></div>
+            <div><label for="pk2-note">Ghi chú</label><input type="text" id="pk2-note" placeholder="Số Zalo, mã chuyển khoản..."></div>
+          </div>
+          <p class="hint" id="pk2-preview" style="margin-top:10px; font-weight:600; color:var(--navy);"></p>
+          <p style="margin-top:14px;"><button class="btn primary" type="submit" id="btn-pack">Cấp theo gói</button></p>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Cấp lẻ từng quyền (nâng cao)</h2>
+        <p class="hint">Dùng khi cần cấp một quyền riêng lẻ, cấp theo một bảng đề, hoặc đặt đúng một ngày hết hạn. Cấp lại cho cùng tài khoản và cùng phạm vi sẽ đặt lại hạn đúng theo ngày bạn chọn (khác với Cấp theo gói là cộng nối tiếp). Quyền theo khối chỉ mở chương trình theo khối (kỳ thi loại Chương trình như Toán tư duy), không mở các kỳ thi Olympic.</p>
         <form id="form-access">
           <div class="grid2">
             <div><label for="ac-email">Email tài khoản phụ huynh</label><input type="email" id="ac-email" required autocomplete="off"></div>
             <div><label for="ac-scope">Phạm vi quyền</label>
               <select id="ac-scope">
-                <option value="khoi">Một khối (Tài khoản theo khối)</option>
-                <option value="tat_ca">Tất cả (Tài khoản Full)</option>
-                <option value="exam">Cả một kỳ thi (Luyện thi theo kỳ thi)</option>
+                <option value="khoi">Một khối (chương trình theo khối)</option>
+                <option value="tat_ca">Tất cả (mọi khối, mọi kỳ thi)</option>
+                <option value="exam">Cả một kỳ thi</option>
                 <option value="level">Một bảng đề</option>
               </select></div>
           </div>
@@ -510,6 +574,14 @@
     if (/Diem phai lon hon 0/i.test(m)) return 'Điểm của mỗi câu phải lớn hơn 0.';
     if (/Chon dung mot pham vi/i.test(m)) return 'Hãy chọn đúng một phạm vi quyền.';
     if (/Khoi khong hop le/i.test(m)) return 'Khối không hợp lệ (chọn từ 1 đến 5).';
+    if (/Thieu tieu de/i.test(m)) return 'Cần nhập tiêu đề.';
+    if (/Ma video khong hop le/i.test(m)) return 'Mã video YouTube không hợp lệ.';
+    if (/Gan video vao dung mot noi/i.test(m)) return 'Hãy chọn đúng một nơi để gắn video.';
+    if (/Khong tim thay video/i.test(m)) return 'Không tìm thấy video (có thể đã bị xoá).';
+    if (/videos_phut_check/i.test(m)) return 'Thời lượng phải từ 1 đến 600 phút.';
+    if (/relation .*videos.* does not exist|video_sources/i.test(m)) return 'Chưa có bảng video. Hãy chạy SQL bản 9 trong Supabase trước.';
+    if (/Ky han khong hop le/i.test(m)) return 'Kỳ hạn không hợp lệ.';
+    if (/Danh sach quyen khong hop le/i.test(m)) return 'Danh sách quyền của gói không hợp lệ.';
     if (/row-level security|permission denied|Khong co quyen/i.test(m)) return 'Không đủ quyền thực hiện (tài khoản chưa phải admin?).';
     if (/check constraint/i.test(m)) return 'Giá trị chưa hợp lệ (ví dụ khối "từ" lớn hơn khối "đến", hoặc khối ngoài khoảng 0 đến 12).';
     if (/duplicate key|already exists/i.test(m)) return 'Đã tồn tại mục trùng (tên đã có trong cùng kỳ thi hoặc bảng đề, hoặc đường dẫn file bị trùng).';
@@ -589,6 +661,8 @@
     initPaperSelects();
     fillAccessKhoi();
     updateAccessScopeUI();
+    initPackageForm();
+    initVideoSelects();
     renderMaterials();
     renderLevels();
     renderExams();
@@ -1198,6 +1272,223 @@
     await loadPapers(); await openPaperItems(r.data);
   }
 
+
+  /* ---------- CẤP QUYỀN THEO GÓI ---------- */
+  var PACKS = {
+    nangcao:  { ten: 'Toán nâng cao', kids: 1, khoi: true,  exam: false },
+    luyenthi: { ten: 'Luyện thi Olympic', kids: 1, khoi: false, exam: true },
+    toandien: { ten: 'Toàn diện', kids: 1, khoi: true,  exam: true },
+    giadinh:  { ten: 'Gia đình Đồng hành', kids: 2, khoi: true, exam: true },
+    full:     { ten: 'Full (mọi khối, mọi kỳ thi)', kids: 0, khoi: false, exam: false }
+  };
+  var PACK_ORDER = ['nangcao', 'luyenthi', 'toandien', 'giadinh', 'full'];
+
+  function initPackageForm() {
+    var packSel = $('pk2-pack');
+    if (!packSel.options.length) {
+      packSel.innerHTML = PACK_ORDER.map(function (k) { return '<option value="' + k + '">' + esc(PACKS[k].ten) + '</option>'; }).join('');
+      packSel.value = 'toandien';
+    }
+    var khoiOpts = '<option value="">— chọn khối —</option>' + [1, 2, 3, 4, 5].map(function (k) { return '<option value="' + k + '">Khối ' + k + '</option>'; }).join('');
+    var examList = S.exams.filter(function (e) { return e.loai !== 'chuong_trinh'; });
+    var examOpts = '<option value="">— chọn kỳ thi —</option>' + examList.map(function (e) { return '<option value="' + esc(e.id) + '">' + esc(e.ten) + '</option>'; }).join('');
+    ['pk2-k1-khoi', 'pk2-k2-khoi'].forEach(function (id) { var el = $(id), keep = el.value; el.innerHTML = khoiOpts; el.value = keep; });
+    ['pk2-k1-exam', 'pk2-k2-exam'].forEach(function (id) {
+      var el = $(id), keep = el.value; el.innerHTML = examOpts;
+      if (keep && examList.some(function (e) { return e.id === keep; })) el.value = keep;
+    });
+    updatePackageUI();
+  }
+  function updatePackageUI() {
+    var pk = PACKS[$('pk2-pack').value] || PACKS.toandien, two = pk.kids === 2;
+    $('pk2-kid1').hidden = pk.kids === 0; $('pk2-kid2').hidden = !two;
+    $('pk2-k1-khoi-w').hidden = !pk.khoi; $('pk2-k1-exam-w').hidden = !pk.exam;
+    $('pk2-k2-khoi-w').hidden = !pk.khoi; $('pk2-k2-exam-w').hidden = !pk.exam;
+    $('pk2-k1-khoi-l').textContent = two ? 'Khối của bé thứ nhất' : 'Khối';
+    $('pk2-k1-exam-l').textContent = two ? 'Kỳ thi của bé thứ nhất' : 'Kỳ thi';
+    updatePackagePreview();
+  }
+  // Gom các quyền cần cấp từ các ô chọn. Trả về { items, labels } hoặc { err }.
+  function packageItems() {
+    var pk = PACKS[$('pk2-pack').value]; if (!pk) return { err: 'Hãy chọn gói.' };
+    if (pk.kids === 0) return { items: [{ tat_ca: true }], labels: ['tất cả các khối và kỳ thi'] };
+    var items = [], labels = [], seen = {};
+    for (var k = 1; k <= pk.kids; k++) {
+      var who = pk.kids === 2 ? (k === 1 ? ' của bé thứ nhất' : ' của bé thứ hai') : '';
+      if (pk.khoi) {
+        var kh = $('pk2-k' + k + '-khoi').value;
+        if (!kh) return { err: 'Hãy chọn khối' + who + '.' };
+        var ik = 'khoi:' + kh; if (!seen[ik]) { seen[ik] = 1; items.push({ khoi: parseInt(kh, 10) }); labels.push('Khối ' + kh); }
+      }
+      if (pk.exam) {
+        var ex = $('pk2-k' + k + '-exam').value;
+        if (!ex) return { err: 'Hãy chọn kỳ thi' + who + '.' };
+        var ie = 'exam:' + ex; if (!seen[ie]) { seen[ie] = 1; items.push({ exam: ex }); var e = S.exams.find(function (x) { return x.id === ex; }); labels.push('kỳ thi ' + (e ? e.ten : '')); }
+      }
+    }
+    return { items: items, labels: labels };
+  }
+  function packageTermText() {
+    var m = parseInt($('pk2-term').value, 10);
+    return m === 0 ? 'không giới hạn thời gian' : m + ' tháng';
+  }
+  function updatePackagePreview() {
+    var r = packageItems(), el = $('pk2-preview');
+    if (r.err) { el.textContent = ''; return; }
+    var m = parseInt($('pk2-term').value, 10), d = '';
+    if (m > 0) { var ds = addMonthsStr(m).split('-'); d = ' (quyền mới hết hạn ngày ' + ds[2] + '/' + ds[1] + '/' + ds[0] + ', quyền đã có được cộng nối tiếp)'; }
+    el.textContent = 'Sẽ cấp ' + r.items.length + ' quyền: ' + r.labels.join(', ') + ' · ' + packageTermText() + d + '.';
+  }
+  async function grantPackage(ev) {
+    ev.preventDefault();
+    var email = $('pk2-email').value.trim();
+    if (!email) { toast('Hãy nhập email tài khoản.', 'err'); return; }
+    var r = packageItems();
+    if (r.err) { toast(r.err, 'err'); return; }
+    var pk = PACKS[$('pk2-pack').value], months = parseInt($('pk2-term').value, 10);
+    var note = '[Gói: ' + pk.ten + ']' + ($('pk2-note').value.trim() ? ' ' + $('pk2-note').value.trim() : '');
+    var btn = $('btn-pack'); btn.disabled = true;
+    var res = await sb.rpc('admin_grant_package', { p_email: email, p_items: r.items, p_months: months, p_ghi_chu: note });
+    btn.disabled = false;
+    if (res.error) { toast('Không cấp được gói: ' + friendlyError(res.error), 'err'); return; }
+    toast('Đã cấp gói ' + pk.ten + ' cho ' + email + ': ' + res.data + ' quyền, kỳ hạn ' + packageTermText() + '.', 'ok');
+    $('pk2-email').value = ''; $('pk2-note').value = '';
+    await loadAccess();
+  }
+
+
+  /* ---------- VIDEO BÀI GIẢNG (YOUTUBE) ---------- */
+  var V = { list: [], src: {}, edit: null };
+  var YT_ID = /^[A-Za-z0-9_-]{11}$/;
+
+  // Nhận liên kết YouTube nhiều dạng (watch, youtu.be, embed, shorts, live) hoặc mã 11 ký tự. Không nhận danh sách phát.
+  function parseYouTubeId(v) {
+    v = String(v == null ? '' : v).trim();
+    if (!v) return null;
+    if (YT_ID.test(v)) return v;
+    var u;
+    try { u = new URL(/^https?:\/\//i.test(v) ? v : 'https://' + v); } catch (e) { return null; }
+    var host = u.hostname.toLowerCase().replace(/^(www|m)\./, ''), m;
+    if (host === 'youtu.be') { m = u.pathname.match(/^\/([A-Za-z0-9_-]{11})(?:$|\/)/); return m ? m[1] : null; }
+    if (host === 'youtube.com' || host === 'youtube-nocookie.com') {
+      if (u.pathname === '/watch') { var id = u.searchParams.get('v'); return id && YT_ID.test(id) ? id : null; }
+      m = u.pathname.match(/^\/(?:embed|shorts|live|v)\/([A-Za-z0-9_-]{11})(?:$|\/)/);
+      return m ? m[1] : null;
+    }
+    return null;
+  }
+  function initVideoSelects() {
+    if (!$('vd-access').options.length) {
+      $('vd-access').innerHTML = optionsFromMap(QUYEN, 'thanh_vien');
+      $('vd-status').innerHTML = optionsFromMap(TRANG_THAI, 'nhap');
+    }
+    fillExamSelect('vd-exam');
+    cascadeVideoLevel();
+  }
+  function cascadeVideoLevel() {
+    var el = $('vd-level'), keep = el.value, list = levelsOfExam($('vd-exam').value);
+    el.innerHTML = list.map(function (l) { return '<option value="' + esc(l.id) + '">' + esc(l.ten) + '</option>'; }).join('');
+    if (keep && list.some(function (l) { return l.id === keep; })) el.value = keep;
+    cascadeVideoTopic();
+  }
+  function cascadeVideoTopic() {
+    var el = $('vd-topic'), keep = el.value, list = topicsOfLevel($('vd-level').value);
+    el.innerHTML = '<option value="">(Gắn cho cả bảng đề này)</option>' + list.map(function (t) { return '<option value="' + esc(t.id) + '">' + esc(t.ten) + '</option>'; }).join('');
+    if (keep && list.some(function (t) { return t.id === keep; })) el.value = keep;
+  }
+  function updateVideoLinkNote() {
+    var raw = $('vd-link').value.trim(), el = $('vd-link-note');
+    if (!raw) { el.textContent = ''; el.style.color = ''; return; }
+    var id = parseYouTubeId(raw);
+    el.textContent = id ? 'Đã nhận video YouTube, mã ' + id + '.' : 'Chưa nhận ra liên kết YouTube. Hãy dán liên kết của một video (không phải danh sách phát).';
+    el.style.color = id ? 'var(--green)' : 'var(--coral)';
+  }
+  async function loadVideos() {
+    var r = await Promise.all([
+      sb.from('videos').select('*').order('created_at', { ascending: false }),
+      sb.from('video_sources').select('video_id,nguon,ma')
+    ]);
+    if (r[0].error || r[1].error) { toast('Chưa tải được video: ' + friendlyError(r[0].error || r[1].error), 'err'); return; }
+    V.list = r[0].data || []; V.src = {};
+    (r[1].data || []).forEach(function (x) { V.src[x.video_id] = x; });
+    renderVideos();
+  }
+  function renderVideos() {
+    $('videos-empty').hidden = V.list.length > 0;
+    $('videos-body').innerHTML = V.list.map(function (v) {
+      var src = V.src[v.id], link = (src && src.nguon === 'youtube' && YT_ID.test(src.ma || '')) ? 'https://youtu.be/' + src.ma : '';
+      return '<tr><td><b>' + esc(v.tieu_de) + '</b>' + (v.mo_ta ? '<div class="muted">' + esc(v.mo_ta) + '</div>' : '') + '</td>' +
+        '<td class="muted">' + materialContext(v) + '</td>' +
+        '<td><span class="tag ' + esc(v.access_level) + '">' + esc(QUYEN[v.access_level] || v.access_level) + '</span></td>' +
+        '<td>' + esc(v.phut == null ? '—' : v.phut) + '</td>' +
+        '<td><select data-act="video-status" data-id="' + esc(v.id) + '">' + optionsFromMap(TRANG_THAI, v.trang_thai) + '</select></td>' +
+        '<td><div class="row-actions">' + (link ? '<a class="btn ghost small" href="' + esc(link) + '" target="_blank" rel="noopener">Mở YouTube</a>' : '') +
+        '<button class="btn ghost small" type="button" data-act="video-edit" data-id="' + esc(v.id) + '">Sửa</button>' +
+        '<button class="btn danger small" type="button" data-act="video-del" data-id="' + esc(v.id) + '">Xoá</button></div></td></tr>';
+    }).join('');
+  }
+  function resetVideoForm() {
+    V.edit = null;
+    $('form-video').reset();
+    $('vd-access').value = 'thanh_vien'; $('vd-status').value = 'nhap'; $('vd-order').value = 0;
+    ['vd-exam', 'vd-level', 'vd-topic'].forEach(function (id) { $(id).disabled = false; });
+    $('vd-heading').textContent = 'Thêm video bài giảng (YouTube)'; $('btn-video').textContent = 'Thêm video'; $('btn-cancel-video').hidden = true;
+    updateVideoLinkNote();
+  }
+  function showVideoEdit(id) {
+    var v = V.list.find(function (x) { return x.id === id; }); if (!v) return;
+    V.edit = id;
+    var topic = v.topic_id ? S.topics.find(function (t) { return t.id === v.topic_id; }) : null;
+    var lvl = S.levels.find(function (l) { return l.id === (topic ? topic.level_id : v.level_id); });
+    if (lvl) { $('vd-exam').value = lvl.exam_id; cascadeVideoLevel(); $('vd-level').value = lvl.id; cascadeVideoTopic(); }
+    $('vd-topic').value = v.topic_id || '';
+    ['vd-exam', 'vd-level', 'vd-topic'].forEach(function (x) { $(x).disabled = true; });
+    var src = V.src[v.id];
+    $('vd-link').value = src ? src.ma : ''; $('vd-title').value = v.tieu_de; $('vd-desc').value = v.mo_ta || '';
+    $('vd-min').value = v.phut == null ? '' : v.phut; $('vd-order').value = v.thu_tu || 0;
+    $('vd-access').value = v.access_level; $('vd-status').value = v.trang_thai;
+    $('vd-heading').textContent = 'Sửa video: ' + v.tieu_de; $('btn-video').textContent = 'Lưu thay đổi'; $('btn-cancel-video').hidden = false;
+    updateVideoLinkNote(); scrollTo($('form-video')); $('vd-title').focus();
+  }
+  async function saveVideo(ev) {
+    ev.preventDefault();
+    var id = parseYouTubeId($('vd-link').value);
+    if (!$('vd-link').value.trim()) { toast('Hãy dán liên kết YouTube.', 'err'); return; }
+    if (!id) { toast('Chưa nhận ra liên kết YouTube. Hãy dán liên kết của một video (không phải danh sách phát).', 'err'); return; }
+    var title = $('vd-title').value.trim();
+    if (!title) { toast('Cần nhập tiêu đề.', 'err'); return; }
+    var mins = $('vd-min').value.trim() === '' ? null : numOrNull($('vd-min').value);
+    if (mins != null && (mins < 1 || mins > 600)) { toast('Thời lượng phải từ 1 đến 600 phút.', 'err'); return; }
+    var levelId = $('vd-level').value, topicId = $('vd-topic').value;
+    if (!V.edit && !levelId) { toast('Hãy chọn khối / bảng đề.', 'err'); return; }
+    var btn = $('btn-video'); btn.disabled = true;
+    var r = await sb.rpc('admin_save_video', {
+      p_id: V.edit || null, p_topic: V.edit ? null : (topicId || null), p_level: V.edit ? null : (topicId ? null : levelId),
+      p_tieu_de: title, p_mo_ta: nz($('vd-desc').value), p_phut: mins, p_access: $('vd-access').value, p_trang_thai: $('vd-status').value,
+      p_thu_tu: numOrNull($('vd-order').value) || 0, p_nguon: 'youtube', p_ma: id
+    });
+    btn.disabled = false;
+    if (r.error) { toast('Không lưu được video: ' + friendlyError(r.error), 'err'); return; }
+    toast(V.edit ? 'Đã lưu video.' : 'Đã thêm video. Nhớ chuyển sang "Đã đăng" khi đã xem thử.', 'ok');
+    resetVideoForm();
+    await loadVideos();
+  }
+  async function deleteVideo(id) {
+    var v = V.list.find(function (x) { return x.id === id; });
+    if (!v || !window.confirm('Xoá video "' + v.tieu_de + '"? Video trên YouTube không bị xoá.')) return;
+    var r = await sb.from('videos').delete().eq('id', id);
+    if (r.error) { toast('Không xoá được: ' + friendlyError(r.error), 'err'); return; }
+    toast('Đã xoá video.', 'ok');
+    if (V.edit === id) resetVideoForm();
+    await loadVideos();
+  }
+  async function setVideoStatus(id, value) {
+    var r = await sb.from('videos').update({ trang_thai: value }).eq('id', id);
+    if (r.error) { toast('Không cập nhật được: ' + friendlyError(r.error), 'err'); await loadVideos(); return; }
+    var v = V.list.find(function (x) { return x.id === id; }); if (v) v.trang_thai = value;
+    toast('Đã cập nhật trạng thái video.', 'ok');
+  }
+
   /* ---------- NỘI DUNG CHUYÊN ĐỀ ---------- */
   var C = { topicId: null, problems: [], solutions: {}, terms: [], editingId: null, plan: null };
 
@@ -1512,7 +1803,8 @@
   document.querySelectorAll('.tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
       document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
-      ['materials', 'topics', 'exams', 'levels', 'content', 'papers', 'access'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
+      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'papers', 'access'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
+      if (tab.dataset.tab === 'videos') loadVideos();
       if (tab.dataset.tab === 'access') loadAccess();
       if (tab.dataset.tab === 'papers') loadPapers();
     });
@@ -1529,6 +1821,14 @@
   $('form-level-edit').addEventListener('submit', saveLevelEdit);
   $('form-exam').addEventListener('submit', saveExam);
   $('form-access').addEventListener('submit', grantAccess);
+  $('form-package').addEventListener('submit', grantPackage);
+  $('form-video').addEventListener('submit', saveVideo);
+  $('btn-cancel-video').addEventListener('click', resetVideoForm);
+  $('vd-exam').addEventListener('change', cascadeVideoLevel);
+  $('vd-level').addEventListener('change', cascadeVideoTopic);
+  $('vd-link').addEventListener('input', updateVideoLinkNote);
+  $('pk2-pack').addEventListener('change', updatePackageUI);
+  ['pk2-k1-khoi', 'pk2-k1-exam', 'pk2-k2-khoi', 'pk2-k2-exam', 'pk2-term'].forEach(function (id) { $(id).addEventListener('change', updatePackagePreview); });
   $('btn-new-paper').addEventListener('click', function () { showPaperForm(null); });
   $('btn-cancel-paper').addEventListener('click', function () { $('form-paper').hidden = true; PP.form = null; });
   $('form-paper').addEventListener('submit', savePaper);
@@ -1573,6 +1873,8 @@
     if (b.dataset.act === 'level-edit') showLevelEdit(b.dataset.id);
     if (b.dataset.act === 'exam-edit') showExamEdit(b.dataset.id);
     if (b.dataset.act === 'access-revoke') revokeAccess(b.dataset.id);
+    if (b.dataset.act === 'video-edit') showVideoEdit(b.dataset.id);
+    if (b.dataset.act === 'video-del') deleteVideo(b.dataset.id);
     if (b.dataset.act === 'paper-items') openPaperItems(b.dataset.id);
     if (b.dataset.act === 'paper-edit') showPaperForm(PP.papers.find(function (x) { return x.id === b.dataset.id; }));
     if (b.dataset.act === 'pk-add') addItem(b.dataset.id);
@@ -1594,6 +1896,7 @@
     if (act === 'level-status') updateLevelStatus(id, s.value);
     if (act === 'prob-status') setProblemStatus(id, s.value);
     if (act === 'paper-status') setPaperStatus(id, s.value);
+    if (act === 'video-status') setVideoStatus(id, s.value);
   });
 
   // Không gọi tiếp Supabase ngay trong hàm này, nên chuyển sang lượt chạy sau để tránh kẹt.

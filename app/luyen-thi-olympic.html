@@ -131,6 +131,7 @@
     #greeting, #auth-greeting, .head-actions .tag-soon { display:none; }
   }
   @media (max-width:440px) { .brand span { display:none; } }
+  .vcount { font-size:12.5px; font-weight:700; color:var(--gold-deep); }
 </style>
 </head>
 <body>
@@ -251,7 +252,7 @@
   var QUYEN = { cong_khai:'Công khai', thanh_vien:'Thành viên', tra_phi:'Trả phí' };
   var $ = function (id) { return document.getElementById(id); };
 
-  var D = { exams: [], levels: [], topics: [], materials: [], paths: [], items: [] };
+  var D = { exams: [], levels: [], topics: [], materials: [], paths: [], items: [], videos: [] };
   var user = null, isAdmin = false;
 
   // Quyền gói trả phí của tài khoản đang đăng nhập. Phải lọc theo user_id vì tài khoản admin đọc được quyền của mọi người.
@@ -305,6 +306,10 @@
       if (r[i].error) { showState('Chưa tải được dữ liệu lúc này. Bạn thử tải lại trang sau ít phút.', true); return; }
     }
     D.exams = r[0].data || []; D.levels = r[1].data || []; D.topics = r[2].data || []; D.materials = r[3].data || [];
+
+    // Video là phần bổ sung: nếu chưa có bảng hoặc lỗi thì chỉ coi như không có video.
+    D.videos = [];
+    try { var vr = await sb.from('videos').select('id,topic_id'); if (!vr.error) D.videos = vr.data || []; } catch (e) { /* bỏ qua */ }
 
     // Lộ trình là phần bổ sung: nếu chưa có bảng hoặc lỗi thì chỉ cần ẩn mục này.
     D.paths = []; D.items = [];
@@ -416,9 +421,11 @@
     }
     $('topics').innerHTML = tps.map(function (t) {
       var ms = matsOfTopic(t.id);
+      var nv = D.videos.filter(function (v) { return v.topic_id === t.id; }).length;
       return '<div class="card topic-card"><div>' +
         (t.nhom ? '<div class="grp">Nhóm ' + esc(t.nhom) + '</div>' : '') +
         '<h4>' + esc(t.ten) + (t.trang_thai !== 'da_dang' ? ' <span class="tag nhap">Nháp</span>' : '') + '</h4></div>' +
+        (nv ? '<div class="vcount">▶ ' + nv + ' video bài giảng</div>' : '') +
         '<a class="btn-dl" style="align-self:flex-start;" href="chuyen-de.html#' + esc(t.id) + '">Học chuyên đề →</a>' +
         '<div class="mat-list">' + (ms.length ? ms.map(matRow).join('') : '<span class="empty">Tài liệu đang cập nhật. <span class="tag-soon">Sắp ra mắt</span></span>') + '</div></div>';
     }).join('');

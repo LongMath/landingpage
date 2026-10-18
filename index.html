@@ -528,6 +528,26 @@
   .term-grid em { font-style:normal; font-weight:700; color:var(--coral-dark); margin-left:8px; }
   .term-grid small { display:block; margin-top:4px; font-size:12.5px; color:var(--ink-soft); }
   .term-box p { margin:0; font-size:12.5px; color:var(--ink-soft); }
+
+  .pricing-grid.four .plan-list li b { color:var(--ink); }
+  .term-table { width:100%; border-collapse:collapse; font-size:14px; margin:12px 0 10px; }
+  .term-table th { text-align:center; font-size:12px; color:var(--ink-soft); padding:8px 6px; border-bottom:1.5px solid var(--card-border); }
+  .term-table th:first-child, .term-table td:first-child { text-align:left; }
+  .term-table td { text-align:center; padding:9px 6px; border-bottom:1px solid var(--card-border); font-variant-numeric:tabular-nums; }
+  .term-table td:first-child { font-weight:700; color:var(--ink); white-space:nowrap; }
+  .zalo-box { max-width:760px; margin:26px auto 0; display:flex; gap:22px; align-items:center; background:#fff; border:1px solid var(--card-border); border-radius:var(--radius-lg); padding:22px; box-shadow:var(--shadow-soft); }
+  .zalo-qr { flex:0 0 auto; border-radius:12px; border:1px solid var(--card-border); padding:6px; background:#fff; }
+  .zalo-text h3 { font-family:'Baloo 2'; font-size:19px; color:var(--ink); margin:0 0 6px; }
+  .zalo-text p { margin:0 0 6px; font-size:14px; color:var(--ink-soft); }
+  .zalo-text .zalo-sub { font-size:13px; }
+  .zalo-text a { font-weight:700; color:var(--coral-dark); text-decoration:none; }
+  @media (max-width:560px) { .zalo-box { flex-direction:column; text-align:center; } }
+  .class-card { max-width:760px; margin:20px auto 0; display:flex; gap:22px; align-items:center; justify-content:space-between; background:var(--paper-2); border:1px dashed var(--card-border); border-radius:var(--radius-lg); padding:20px 22px; }
+  .class-card p { margin:6px 0 0; font-size:14px; color:var(--ink-soft); }
+  .class-price { text-align:center; flex:0 0 auto; }
+  .class-price span { font-family:'Baloo 2'; font-weight:800; font-size:26px; color:var(--ink); display:block; line-height:1.1; }
+  .class-price small { display:block; font-size:12px; color:var(--ink-soft); margin-bottom:10px; }
+  @media (max-width:640px) { .class-card { flex-direction:column; align-items:stretch; text-align:left; } .class-price { text-align:left; } }
 </style>
 </head>
 <body class="grid-bg">
@@ -571,10 +591,10 @@
 
       <div class="price-card">
         <div class="price-row">
-          <span class="price-now">300.000đ</span>
-          <span class="price-tag">/ khối / tháng</span>
+          <span class="price-now">59.000đ</span>
+          <span class="price-tag">/ tháng</span>
         </div>
-        <div class="price-label">Tài khoản theo khối · Gói Đồng Hành — Mentor chữa bài, theo sát tiến độ mỗi tuần</div>
+        <div class="price-label">Gói Toán nâng cao · có Bác Long đồng hành giải đáp qua Zalo</div>
       </div>
 
       <div class="countdown-wrap">
@@ -826,67 +846,87 @@
     <div class="section-head" style="max-width:680px;">
       <span class="kicker">GÓI ĐỒNG HÀNH</span>
       <h2>Chọn cách đồng hành phù hợp với con</h2>
-      <p>Tất cả đều là Gói Đồng Hành: có người theo dõi tiến độ và chữa bài cho con. Con có thể bắt đầu miễn phí để làm quen trước khi đăng ký.</p>
+      <p>Chọn gói theo nhu cầu của con. Mọi gói đều có Bác Long đồng hành giải đáp qua Zalo, tặng kèm theo hạn mức mỗi tháng. Con có thể bắt đầu miễn phí trước.</p>
     </div>
     <div class="pricing-grid four">
       <div class="price-plan">
-        <div class="plan-name">Lớp học cùng giáo viên</div>
-        <div class="plan-desc">Học trực tiếp cùng giáo viên, lớp nhỏ, theo đúng chương trình từng khối lớp.</div>
-        <div class="plan-price">200.000đ<small>/ học sinh / buổi 2 giờ</small></div>
+        <div class="plan-name">Toán nâng cao</div>
+        <div class="plan-desc">Củng cố nền tảng và học Toán nâng cao theo một khối, cho con mới làm quen Toán Olympic.</div>
+        <div class="plan-price">59.000đ<small>/ học sinh / tháng</small></div>
         <ul class="plan-list">
-          <li>Giáo viên kèm sát trực tiếp</li>
-          <li>Lớp nhỏ tối đa 10–12 học sinh</li>
-          <li>Đánh giá năng lực & tư vấn lộ trình miễn phí</li>
-          <li>Lộ trình bài bản theo từng khối lớp</li>
-        </ul>
-        <a href="#dangky" class="plan-cta ghost">Đăng ký học ngay</a>
-      </div>
-      <div class="price-plan featured">
-        <span class="plan-badge">CHO CON MỚI LÀM QUEN</span>
-        <div class="plan-name">Tài khoản theo khối</div>
-        <div class="plan-desc">Toàn bộ chương trình Toán tư duy của một khối, dành cho con mới làm quen Toán Olympic.</div>
-        <div class="plan-price">300.000đ<small>/ khối / tháng</small></div>
-        <ul class="plan-list">
-          <li>Chuyên đề chủ đạo, bài thực hành, bài nâng cao và đề kiểm tra hằng tuần</li>
-          <li>Chữa bài chi tiết hàng tuần</li>
-          <li>Nhận xét tiến bộ định kỳ</li>
+          <li>Chuyên đề chủ đạo, bài thực hành, bài nâng cao và đề kiểm tra hằng tuần của 1 khối</li>
+          <li>Tự luyện, tự chấm điểm và xem lời giải</li>
+          <li><b>Bác Long đồng hành qua Zalo</b> (tặng kèm): 2 câu hỏi mỗi tháng</li>
           <li>Nội dung từng khối được bổ sung dần</li>
         </ul>
-        <a href="#dangky" class="plan-cta solid">Đăng ký theo khối</a>
+        <a href="#dangky" class="plan-cta ghost">Đăng ký Toán nâng cao</a>
       </div>
       <div class="price-plan">
-        <div class="plan-name">Luyện thi theo kỳ thi</div>
-        <div class="plan-desc">Chuyên đề, dạng bài, đề các năm và thi thử của một kỳ thi con đang luyện. Đăng ký theo từng tháng.</div>
-        <div class="plan-price">300.000đ<small>/ kỳ thi / tháng</small></div>
+        <div class="plan-name">Luyện thi Olympic</div>
+        <div class="plan-desc">Chuyên đề, dạng bài và thi thử của một kỳ thi con đang luyện.</div>
+        <div class="plan-price">79.000đ<small>/ học sinh / tháng</small></div>
         <ul class="plan-list">
-          <li>Chọn một kỳ thi: IKMC, SASMO, IMAS, AMO, TIMO, IMSO...</li>
+          <li>Chọn 1 kỳ thi: IKMC, SASMO, IMAS, AMO, TIMO, IMSO...</li>
+          <li>Chuyên đề, dạng bài và tài liệu của kỳ thi</li>
           <li>Thi thử song ngữ có tính giờ, chấm điểm tự động</li>
-          <li>Chữa bài chi tiết hàng tuần</li>
-          <li>Nhận xét tiến bộ định kỳ</li>
+          <li><b>Bác Long đồng hành qua Zalo</b> (tặng kèm): 2 câu hỏi mỗi tháng</li>
           <li>Nội dung từng kỳ thi được bổ sung dần</li>
         </ul>
-        <a href="#dangky" class="plan-cta ghost">Đăng ký theo kỳ thi</a>
+        <a href="#dangky" class="plan-cta ghost">Đăng ký Luyện thi</a>
+      </div>
+      <div class="price-plan featured">
+        <span class="plan-badge">TIẾT KIỆM HƠN MUA LẺ</span>
+        <div class="plan-name">Toàn diện</div>
+        <div class="plan-desc">Một khối và một kỳ thi trong cùng một gói, rẻ hơn mua lẻ hai gói (138.000đ).</div>
+        <div class="plan-price">109.000đ<small>/ học sinh / tháng</small></div>
+        <ul class="plan-list">
+          <li>Trọn gói Toán nâng cao của 1 khối</li>
+          <li>Trọn gói Luyện thi Olympic của 1 kỳ thi</li>
+          <li><b>Bác Long đồng hành qua Zalo</b> (tặng kèm): 4 câu hỏi mỗi tháng</li>
+        </ul>
+        <a href="#dangky" class="plan-cta solid">Đăng ký Toàn diện</a>
       </div>
       <div class="price-plan">
-        <div class="plan-name">Tài khoản Full</div>
-        <div class="plan-desc">Mọi khối và mọi kỳ thi trong một tài khoản, phù hợp khi con học nhiều nội dung cùng lúc.</div>
-        <div class="plan-price">900.000đ<small>/ tháng / tất cả</small></div>
+        <div class="plan-name">Gia đình Đồng hành</div>
+        <div class="plan-desc">Một tài khoản dùng chung cho tối đa 2 bé trong gia đình.</div>
+        <div class="plan-price">179.000đ<small>/ tháng / 2 bé</small></div>
         <ul class="plan-list">
-          <li>Mở mọi khối từ Lớp 1 đến Lớp 5</li>
-          <li>Mở mọi kỳ thi Olympic</li>
-          <li>Chữa bài chi tiết hàng tuần</li>
-          <li>Nhận xét tiến bộ định kỳ</li>
+          <li>Mỗi bé có nội dung như gói Toàn diện (1 khối và 1 kỳ thi)</li>
+          <li>Báo cáo luyện tập chung của cả gia đình</li>
+          <li><b>Bác Long đồng hành qua Zalo</b> (tặng kèm): 6 câu hỏi mỗi tháng (dùng chung)</li>
         </ul>
-        <a href="#dangky" class="plan-cta ghost">Đăng ký tài khoản Full</a>
+        <a href="#dangky" class="plan-cta ghost">Đăng ký Gia đình</a>
       </div>
     </div>
+    <p class="price-note" style="margin-top:14px;">Học nhiều kỳ thi cùng lúc? Hỏi Bác Long qua Zalo để được tư vấn gói phù hợp.</p>
     <div class="term-box">
       <b>Đăng ký dài hạn tiết kiệm hơn</b>
-      <div class="term-grid">
-        <div><span>3 tháng</span><em>giảm 10%</em><small>Tài khoản 300.000đ/tháng: 810.000đ. Tài khoản Full: 2.430.000đ.</small></div>
-        <div><span>12 tháng</span><em>giảm 20%</em><small>Tài khoản 300.000đ/tháng: 2.880.000đ. Tài khoản Full: 8.640.000đ.</small></div>
+      <div class="tablewrap"><table class="term-table">
+        <thead><tr><th>Gói</th><th>1 tháng</th><th>3 tháng</th><th>12 tháng</th></tr></thead>
+        <tbody>
+          <tr><td>Toán nâng cao</td><td>59.000đ</td><td>159.000đ</td><td>549.000đ</td></tr>
+          <tr><td>Luyện thi Olympic</td><td>79.000đ</td><td>209.000đ</td><td>729.000đ</td></tr>
+          <tr><td>Toàn diện</td><td>109.000đ</td><td>289.000đ</td><td>999.000đ</td></tr>
+          <tr><td>Gia đình Đồng hành</td><td>179.000đ</td><td>479.000đ</td><td>1.649.000đ</td></tr>
+        </tbody>
+      </table></div>
+      <p>Đăng ký 3 tháng tiết kiệm từ 10%, 12 tháng tiết kiệm từ 22% so với trả từng tháng. Mỗi tháng có hạn mức câu hỏi riêng, không cộng dồn sang tháng sau.</p>
+    </div>
+    <div class="zalo-box">
+      <img class="zalo-qr" alt="Mã QR Zalo của Bác Long" width="132" height="132" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMTYiIGhlaWdodD0iMTE2IiBjbGFzcz0ic2Vnbm8iPjxnIHRyYW5zZm9ybT0ic2NhbGUoNCkiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0wIDBoMjl2MjloLTI5eiIvPjxwYXRoIGNsYXNzPSJxcmxpbmUiIHN0cm9rZT0iIzBjMjA1MCIgZD0iTTIgMi41aDdtMSAwaDNtMiAwaDJtMyAwaDdtLTI1IDFoMW01IDBoMW0xIDBoMm0yIDBoMW0xIDBoMW0zIDBoMW01IDBoMW0tMjUgMWgxbTEgMGgzbTEgMGgxbTMgMGgxbTEgMGgzbTEgMGgxbTEgMGgxbTEgMGgzbTEgMGgxbS0yNSAxaDFtMSAwaDNtMSAwaDFtMSAwaDFtMSAwaDRtMSAwaDJtMSAwaDFtMSAwaDNtMSAwaDFtLTI1IDFoMW0xIDBoM20xIDBoMW0yIDBoMW0yIDBoMW0yIDBoMW0yIDBoMW0xIDBoM20xIDBoMW0tMjUgMWgxbTUgMGgxbTIgMGgxbTEgMGgybTUgMGgxbTUgMGgxbS0yNSAxaDdtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDFtMSAwaDdtLTE3IDFoMm01IDBoMm0tMTcgMWgxbTEgMGgybTEgMGgzbTIgMGgzbTIgMGgybTEgMGgxbTIgMGgxbTEgMGgybS0yNSAxaDRtMyAwaDFtMiAwaDNtMSAwaDFtNCAwaDFtMyAwaDFtLTIyIDFoNm0xIDBoMW0yIDBoMW0zIDBoMm0tMTggMWgybTIgMGgybTIgMGgzbTEgMGgzbTIgMGgxbTEgMGg0bS0yMyAxaDFtMSAwaDFtMSAwaDFtMSAwaDNtMSAwaDFtMSAwaDJtMSAwaDFtMSAwaDRtMSAwaDNtLTI0IDFoM20xIDBoMW0xIDBoMW0xIDBoMW0xIDBoMW0zIDBoNm0zIDBoMW0tMjQgMWgxbTQgMGgybTQgMGgybTMgMGgybTEgMGgxbTEgMGgybS0yNCAxaDFtMSAwaDFtNCAwaDFtMiAwaDFtMSAwaDFtMSAwaDNtMSAwaDNtMyAwaDFtLTIzIDFoM20xIDBoMW0xIDBoMW0yIDBoMTRtLTE3IDFoMW0yIDBoMW0xIDBoMm0xIDBoMW0zIDBoMW0xIDBoMW0xIDBoMW0tMjUgMWg3bTEgMGgzbTEgMGgxbTMgMGgxbTEgMGgxbTEgMGgxbTEgMGgzbS0yNSAxaDFtNSAwaDFtMSAwaDFtMiAwaDFtMyAwaDJtMyAwaDFtMiAwaDJtLTI1IDFoMW0xIDBoM20xIDBoMW0yIDBoNG0zIDBoNm0yIDBoMW0tMjUgMWgxbTEgMGgzbTEgMGgxbTEgMGgxbTIgMGgybTEgMGg1bTEgMGg1bS0yNSAxaDFtMSAwaDNtMSAwaDFtMSAwaDVtMSAwaDVtMSAwaDFtMSAwaDJtLTI0IDFoMW01IDBoMW0zIDBoMW0yIDBoMW0zIDBoMm0xIDBoMW0xIDBoMW0tMjMgMWg3bTEgMGgybTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGg2Ii8+PC9nPjwvc3ZnPg==">
+      <div class="zalo-text">
+        <h3>Bác Long đồng hành cùng con</h3>
+        <p>Mọi gói đều có Bác Long giải đáp qua Zalo, tặng kèm theo hạn mức mỗi tháng. Con vướng bài nào, chụp ảnh bài làm gửi qua Zalo bất kỳ lúc nào, Bác Long phản hồi trong 24 giờ.</p>
+        <p class="zalo-sub">Quét mã hoặc nhắn Zalo: <a href="https://zalo.me/0935110981" target="_blank" rel="noopener">0935 110 981</a></p>
+        <p class="zalo-sub">Một câu hỏi là một bài hoặc một vấn đề kèm ảnh bài làm. Hết hạn mức, Bác Long vẫn hướng dẫn cách học tiếp, và có thể mua thêm câu hỏi lẻ.</p>
       </div>
-      <p>Áp dụng cho các tài khoản theo khối, theo kỳ thi và Full. Lớp học cùng giáo viên tính theo buổi.</p>
+    </div>
+    <div class="class-card">
+      <div>
+        <div class="plan-name">Lớp học cùng giáo viên</div>
+        <p>Muốn học trực tiếp cùng giáo viên? Lớp nhỏ tối đa 10–12 học sinh, theo đúng chương trình từng khối lớp, có đánh giá năng lực và tư vấn lộ trình miễn phí. Bán riêng, không nằm trong các gói tài khoản ở trên.</p>
+      </div>
+      <div class="class-price"><span>200.000đ</span><small>/ học sinh / buổi 2 giờ</small><a href="#dangky" class="plan-cta ghost">Đăng ký học ngay</a></div>
     </div>
     <p class="price-note">Mức giá đang áp dụng tạm thời và có thể điều chỉnh. Nhắn Zalo hoặc đăng ký đánh giá năng lực để được tư vấn gói phù hợp với con.</p>
     <p class="price-note" style="margin-top:4px;"><a href="danhgia.html" style="font-weight:700; color:var(--coral-dark); text-decoration:none;">🎁 Chưa biết con phù hợp gói nào? Đăng ký đánh giá năng lực miễn phí →</a></p>
@@ -1045,7 +1085,7 @@
 </section>
 <section class="final-cta" id="dangky">
   <h2>Cho con bắt đầu hành trình yêu Toán ngay hôm nay</h2>
-  <p>Tài khoản từ 300.000đ/tháng — đánh giá năng lực & tư vấn lộ trình miễn phí.</p>
+  <p>Gói từ 59.000đ/tháng — đánh giá năng lực & tư vấn lộ trình miễn phí.</p>
 
   <div class="reg-card">
     <div class="reg-success" id="regSuccess">
@@ -1087,10 +1127,11 @@
       <div class="reg-field">
         <label for="plan">Gói quan tâm</label>
         <select id="plan" name="Gói quan tâm">
+          <option>Toán nâng cao (59k/tháng)</option>
+          <option>Luyện thi Olympic (79k/tháng)</option>
+          <option>Toàn diện (109k/tháng)</option>
+          <option>Gia đình Đồng hành (179k/tháng)</option>
           <option>Lớp học cùng giáo viên (200k/buổi)</option>
-          <option>Tài khoản theo khối (300k/khối/tháng)</option>
-          <option>Luyện thi theo kỳ thi (300k/kỳ thi/tháng)</option>
-          <option>Tài khoản Full (900k/tháng)</option>
           <option>Chưa rõ — cần tư vấn</option>
         </select>
       </div>

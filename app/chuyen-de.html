@@ -147,6 +147,18 @@
     #greeting, #auth-greeting, .head-actions .tag-soon { display:none; }
   }
   @media (max-width:440px) { .brand span { display:none; } }
+
+  /* ----- Bài giảng: video và tài liệu ----- */
+  .lesson-group h3 { font-size:15px; margin:18px 0 10px; } .lesson-group:first-child h3 { margin-top:0; }
+  .lesson { border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px; background:#fff; }
+  .lesson-top { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .lesson b { font-size:15px; } .lesson .sub { display:block; font-size:12.5px; color:var(--navy-light); margin-top:2px; }
+  .lesson .desc { font-size:13.5px; margin-top:6px; }
+  .lesson .lock { font-size:13px; color:var(--navy-light); } .lesson .lock a { color:var(--gold-deep); font-weight:700; text-decoration:none; }
+  .lesson-btn { border:none; background:linear-gradient(180deg,#F3B85A,var(--gold)); color:var(--navy); font:inherit; font-weight:700; font-size:13.5px; padding:8px 16px; border-radius:10px; cursor:pointer; box-shadow:0 3px 0 var(--gold-deep); }
+  .lesson-btn.alt { background:var(--paper-deep); box-shadow:none; } .lesson-btn:disabled { opacity:.6; cursor:wait; }
+  .vframe { position:relative; padding-top:56.25%; border-radius:12px; overflow:hidden; background:#000; margin-top:12px; }
+  .vframe iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
 </style>
 </head>
 <body>
@@ -196,6 +208,7 @@
     <div class="toolbar">
       <div class="tabs" role="tablist">
         <button class="tab" type="button" data-tab="ly-thuyet">Lý thuyết</button>
+        <button class="tab" type="button" data-tab="bai-giang">Bài giảng <small id="n-lessons"></small></button>
         <button class="tab" type="button" data-tab="so-tay">Sổ tay <small id="n-terms"></small></button>
         <button class="tab" type="button" data-tab="bai-tap">Bài tập <small id="n-probs"></small></button>
       </div>
@@ -207,6 +220,7 @@
     </div>
 
     <section id="pane-ly-thuyet" class="card rich"></section>
+    <section id="pane-bai-giang" class="card" hidden></section>
     <section id="pane-so-tay" class="card" hidden></section>
     <section id="pane-bai-tap" hidden></section>
   </div>
@@ -344,7 +358,7 @@
     var topic = t.data;
     var lv = await sb.from('exam_levels').select('*').eq('id', topic.level_id).maybeSingle();
     var ex = lv.data ? await sb.from('exams').select('*').eq('id', lv.data.exam_id).maybeSingle() : { data: null };
-    T = { topic: topic, level: lv.data, exam: ex.data, theory: '', terms: [], problems: [], locked: null };
+    T = { topic: topic, level: lv.data, exam: ex.data, theory: '', terms: [], problems: [], locked: null, videos: [], mats: [], lvVideos: [], lvMats: [] };
 
     if (topic.access_level !== 'cong_khai' && !user) { T.locked = 'login'; renderAll(); return; }
     if (topic.access_level === 'tra_phi' && !isAdmin && !entitledForLevel(lv.data, ex.data)) { T.locked = 'paid'; renderAll(); return; }
@@ -358,11 +372,23 @@
     T.theory = (r[0].data && r[0].data.ly_thuyet) || '';
     T.terms = r[1].data || []; T.problems = r[2].data || [];
     T.problems.forEach(function (p) { ST[p.id] = { hints: 0, solved: false, revealed: false }; });
+    // Video và tài liệu là phần bổ sung: nếu chưa có bảng hoặc lỗi thì chỉ coi như trống, không làm hỏng trang.
+    try {
+      var lr = await Promise.all([
+        sb.from('videos').select('*').eq('topic_id', topicId).order('thu_tu'),
+        sb.from('materials').select('*').eq('topic_id', topicId).order('thu_tu'),
+        sb.from('videos').select('*').eq('level_id', topic.level_id).order('thu_tu'),
+        sb.from('materials').select('*').eq('level_id', topic.level_id).order('thu_tu')
+      ]);
+      T.videos = lr[0].error ? [] : (lr[0].data || []); T.mats = lr[1].error ? [] : (lr[1].data || []);
+      T.lvVideos = lr[2].error ? [] : (lr[2].data || []); T.lvMats = lr[3].error ? [] : (lr[3].data || []);
+    } catch (e) { /* bỏ qua */ }
     if (user && T.problems.length) {
       var lg = await sb.from('practice_log').select('problem_id,correct,revealed').eq('topic_id', topicId);
       if (!lg.error) (lg.data || []).forEach(function (x) { if (ST[x.problem_id] && x.correct) ST[x.problem_id].solved = true; });
     }
     if (!T.theory.trim() && T.problems.length) tab = 'bai-tap';
+    else if (!T.theory.trim() && !T.problems.length && (T.videos.length + T.mats.length + T.lvVideos.length + T.lvMats.length)) tab = 'bai-giang';
     renderAll();
   }
 
@@ -378,6 +404,8 @@
       (tp.trang_thai !== 'da_dang' ? '<span class="tag nhap">Nháp</span>' : '');
     $('n-terms').textContent = T.terms.length ? '(' + T.terms.length + ')' : '';
     $('n-probs').textContent = T.problems.length ? '(' + T.problems.length + ')' : '';
+    var nl = (T.videos || []).length + (T.mats || []).length + (T.lvVideos || []).length + (T.lvMats || []).length;
+    $('n-lessons').textContent = nl ? '(' + nl + ')' : '';
     renderLangs(); renderProgress(); renderPanes(); setTab(tab);
   }
 
@@ -402,7 +430,7 @@
     return '';
   }
   function renderPanes() {
-    if (T.locked) { ['ly-thuyet', 'so-tay', 'bai-tap'].forEach(function (k) { $('pane-' + k).innerHTML = lockedHtml(); }); return; }
+    if (T.locked) { ['ly-thuyet', 'bai-giang', 'so-tay', 'bai-tap'].forEach(function (k) { $('pane-' + k).innerHTML = lockedHtml(); }); return; }
     $('pane-ly-thuyet').innerHTML = T.theory.trim() ? renderRich(T.theory) : '<p class="muted">Lý thuyết của chuyên đề này đang được cập nhật. <span class="tag-soon">Sắp ra mắt</span></p>';
     $('pane-so-tay').innerHTML = T.terms.length
       ? '<table><thead><tr><th>English</th><th>Tiếng Việt</th><th></th></tr></thead><tbody>' + T.terms.map(function (m) {
@@ -410,6 +438,7 @@
         }).join('') + '</tbody></table>'
       : '<p>Sổ tay từ khoá của chuyên đề này đang được cập nhật. <span class="tag-soon">Sắp ra mắt</span></p>';
     renderProblems();
+    renderLessons();
   }
 
   function stmtHtml(p) {
@@ -454,7 +483,7 @@
   function setTab(name) {
     tab = name;
     document.querySelectorAll('.tab').forEach(function (b) { b.classList.toggle('active', b.dataset.tab === name); });
-    ['ly-thuyet', 'so-tay', 'bai-tap'].forEach(function (k) { $('pane-' + k).hidden = (k !== name); });
+    ['ly-thuyet', 'bai-giang', 'so-tay', 'bai-tap'].forEach(function (k) { $('pane-' + k).hidden = (k !== name); });
     $('langs').hidden = (name !== 'bai-tap');
   }
 
@@ -508,8 +537,78 @@
   }
 
   /* ---------- SỰ KIỆN ---------- */
+
+  /* ---------- BÀI GIẢNG: VIDEO VÀ TÀI LIỆU ---------- */
+  var LOAI_TL = { ly_thuyet_day_du: 'Lý thuyết đầy đủ', tom_tat: 'Tóm tắt', vi_du: 'Ví dụ', bai_tap_thuc_hanh: 'Bài tập thực hành', bai_ve_nha: 'Bài tập về nhà', khac: 'Khác' };
+  var QUYEN_TL = { cong_khai: 'Công khai', thanh_vien: 'Thành viên', tra_phi: 'Trả phí' };
+  function canSee(access) {
+    if (access === 'cong_khai') return true;
+    if (access === 'thanh_vien') return !!user;
+    return isAdmin || entitledForLevel(T.level, T.exam);
+  }
+  function lockNote(access) {
+    if (access === 'thanh_vien') return '<span class="lock"><a href="#" data-open="login">Đăng nhập</a> để xem.</span>';
+    return '<span class="lock">Dành cho gói trả phí. <a href="../index.html#hocphi">Xem các gói</a></span>';
+  }
+  function lessonErr(e) {
+    var m = (e && e.message) || '';
+    if (/Khong co quyen xem video/i.test(m)) return 'Bạn chưa có quyền xem video này.';
+    if (/chua co nguon phat/i.test(m)) return 'Video này chưa sẵn sàng.';
+    return 'Chưa mở được video lúc này. Bạn thử lại sau ít phút.';
+  }
+  function videoCard(v) {
+    var ok = canSee(v.access_level);
+    return '<div class="lesson"><div class="lesson-top"><div><b>▶ ' + esc(v.tieu_de) + '</b><span class="sub">Video' + (v.phut ? ' · ' + esc(v.phut) + ' phút' : '') + ' · ' + esc(QUYEN_TL[v.access_level] || v.access_level) + (v.trang_thai !== 'da_dang' ? ' · Nháp' : '') + '</span></div>' +
+      (ok ? '<button class="lesson-btn" type="button" data-vid="' + esc(v.id) + '">▶ Xem video</button>' : lockNote(v.access_level)) + '</div>' +
+      (v.mo_ta ? '<p class="desc">' + esc(v.mo_ta) + '</p>' : '') + '<div class="vplayer" data-for="' + esc(v.id) + '"></div></div>';
+  }
+  function docCard(m) {
+    var ok = canSee(m.access_level);
+    return '<div class="lesson"><div class="lesson-top"><div><b>📄 ' + esc(m.tieu_de) + '</b><span class="sub">' + esc(LOAI_TL[m.loai] || m.loai) + (m.so_trang ? ' · ' + esc(m.so_trang) + ' trang' : '') + ' · ' + esc(QUYEN_TL[m.access_level] || m.access_level) + '</span></div>' +
+      (ok ? '<button class="lesson-btn alt" type="button" data-doc="' + esc(m.id) + '">Mở / Tải về</button>' : lockNote(m.access_level)) + '</div>' +
+      (m.mo_ta ? '<p class="desc">' + esc(m.mo_ta) + '</p>' : '') + '</div>';
+  }
+  function renderLessons() {
+    var pane = $('pane-bai-giang');
+    var own = (T.videos || []).map(videoCard).concat((T.mats || []).map(docCard));
+    var lvl = (T.lvVideos || []).map(videoCard).concat((T.lvMats || []).map(docCard));
+    if (!own.length && !lvl.length) { pane.innerHTML = '<p class="muted">Video và tài liệu bài giảng của chuyên đề này đang được cập nhật. <span class="tag-soon">Sắp ra mắt</span></p>'; return; }
+    pane.innerHTML = (own.length ? '<div class="lesson-group"><h3>Của chuyên đề này</h3>' + own.join('') + '</div>' : '') +
+      (lvl.length ? '<div class="lesson-group"><h3>Dành cho cả ' + esc(T.level ? T.level.ten : 'bảng đề') + '</h3>' + lvl.join('') + '</div>' : '');
+  }
+  async function playVideo(id, btn) {
+    var box = document.querySelector('.vplayer[data-for="' + id + '"]'); if (!box) return;
+    if (box.firstChild) { box.textContent = ''; btn.textContent = '▶ Xem video'; return; }
+    btn.disabled = true;
+    var r = await sb.rpc('get_video', { p_video: id });
+    btn.disabled = false;
+    if (r.error) { toast(lessonErr(r.error), 'err'); return; }
+    var d = r.data || {};
+    // Chỉ nhúng YouTube và chỉ khi mã đúng dạng 11 ký tự, để không bao giờ chèn địa chỉ lạ.
+    if (d.nguon !== 'youtube' || !/^[A-Za-z0-9_-]{11}$/.test(d.ma || '')) { toast('Video này chưa phát được lúc này.', 'err'); return; }
+    var wrap = document.createElement('div'); wrap.className = 'vframe';
+    var f = document.createElement('iframe');
+    f.src = 'https://www.youtube-nocookie.com/embed/' + d.ma + '?rel=0&modestbranding=1';
+    f.title = 'Video bài giảng'; f.loading = 'lazy'; f.referrerPolicy = 'strict-origin-when-cross-origin'; f.allowFullscreen = true;
+    f.setAttribute('allow', 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen');
+    wrap.appendChild(f); box.appendChild(wrap); btn.textContent = '✕ Đóng video';
+  }
+  async function openDoc(id) {
+    var m = (T.mats || []).concat(T.lvMats || []).find(function (x) { return x.id === id; }); if (!m) return;
+    var w = window.open('about:blank', '_blank'), url = null;
+    if (m.bucket === 'tai-lieu-cong-khai') url = sb.storage.from(m.bucket).getPublicUrl(m.file_path).data.publicUrl;
+    else {
+      var r = await sb.storage.from(m.bucket).createSignedUrl(m.file_path, 120);
+      if (r.error) { if (w) w.close(); toast('Chưa mở được tài liệu. Bạn thử lại sau ít phút.', 'err'); return; }
+      url = r.data.signedUrl;
+    }
+    if (w) w.location = url; else window.location.href = url;
+  }
+
   document.addEventListener('click', function (ev) {
-    var open = ev.target.closest('[data-open]'); if (open) { openModal(open.dataset.open); return; }
+    var vb = ev.target.closest('[data-vid]'); if (vb) { playVideo(vb.dataset.vid, vb); return; }
+    var db = ev.target.closest('[data-doc]'); if (db) { openDoc(db.dataset.doc); return; }
+    var open = ev.target.closest('[data-open]'); if (open) { ev.preventDefault(); openModal(open.dataset.open); return; }
     var tb = ev.target.closest('.tab'); if (tb) { setTab(tb.dataset.tab); return; }
     var lb = ev.target.closest('[data-lang]');
     if (lb) { lang = lb.dataset.lang; lsSet('lm-lang', lang); renderLangs(); renderProblems(); return; }
