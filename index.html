@@ -76,13 +76,23 @@
     border-bottom:1px solid rgba(227,160,56,0.25);
   }
   .nav{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:14px 24px; max-width:1180px; margin:0 auto;
+    display:flex; align-items:center; justify-content:flex-start;
+    padding:12px 24px; max-width:1320px; margin:0 auto; gap:0;
   }
-  .logo{display:flex; align-items:center; text-decoration:none; cursor:pointer;}
-  .logo-img{height:46px; width:auto; display:block;}
-  .nav-links{display:flex; gap:clamp(10px,1.5vw,22px); font-weight:600; font-size:14px; color:rgba(255,255,255,0.82);}
+  .logo{display:flex; align-items:center; text-decoration:none; cursor:pointer; flex:0 0 auto;}
+  .logo-img{height:42px; width:auto; display:block;}
+  .nav-links{display:flex; align-items:center; flex:0 1 auto; justify-content:flex-start; gap:clamp(13px,1.45vw,21px); margin-left:18px; font-weight:600; font-size:13px; color:rgba(255,255,255,0.84); white-space:nowrap;}
+  .nav-links a{display:inline-flex; align-items:center; line-height:1.1;}
   .nav-links a:hover{color:var(--gold);}
+  /* Header desktop nhỏ: đủ chỗ cho 7 mục không dính nhau */
+  @media(min-width:961px) and (max-width:1200px){
+    .nav{padding:12px 18px;}
+    .logo-img{height:38px;}
+    .nav-links{font-size:12px; gap:clamp(8px,1vw,12px); margin-left:15px;}
+    .nav-right{padding-left:8px;}
+    .nav .btn{font-size:12px; padding:9px 13px;}
+  }
+
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:8px;
     padding:13px 26px; border-radius:100px; font-weight:700; font-size:15px;
@@ -92,7 +102,7 @@
   .btn-ghost-light{background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,0.55);}
   .btn-ghost-light:hover{background:rgba(255,255,255,0.1); border-color:#fff;}
   .btn-primary:hover{transform:translateY(-2px); box-shadow:0 14px 28px -8px rgba(227,160,56,0.65);}
-  .nav .btn{padding:11px 22px; font-size:14px;}
+  .nav .btn{padding:10px 18px; font-size:13px;}
   .burger{display:none; flex-direction:column; gap:5px; cursor:pointer;}
   .burger span{width:24px; height:2px; background:#fff;}
 
@@ -437,7 +447,7 @@
   .reg-success.show{display:block;}
   .reg-success .check{font-size:44px; margin-bottom:12px;}
 
-  @media(max-width:940px){
+  @media(max-width:1150px){
     .hero-inner{grid-template-columns:1fr;}
     .hero-art{height:320px; order:-1;}
     .why-grid, .teacher-grid{grid-template-columns:repeat(2,1fr);}
@@ -445,6 +455,8 @@
     .practice-grid{grid-template-columns:repeat(3,1fr);}
     .exam-resource-grid{grid-template-columns:repeat(3,1fr); gap:14px;}
     .path::before{left:35px;}
+  }
+  @media(max-width:960px){
     .nav-links{display:none;}
     .burger{display:flex;}
   }
@@ -464,7 +476,8 @@
   }
 
   /* ---------- MENU TRÊN ĐIỆN THOẠI ---------- */
-  .nav-right { display:flex; align-items:center; gap:14px; }
+  .nav-right { display:flex; align-items:center; gap:10px; flex:0 0 auto; margin-left:auto; padding-left:18px; }
+  @media(min-width:961px) and (max-width:1200px){.nav-right{padding-left:8px;}}
   .burger { background:none; border:0; padding:10px 6px; margin:0; }
   .burger span { transition:transform .2s ease, opacity .2s ease; }
   .burger.on span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
@@ -472,16 +485,16 @@
   .burger.on span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
   .burger:focus-visible { outline:2px solid var(--gold); outline-offset:2px; border-radius:6px; }
   .mobile-menu { display:none; }
-  @media(max-width:940px){
+  @media(max-width:960px){
     .mobile-menu.open { display:block; position:absolute; left:0; right:0; top:100%; background:rgba(12,32,80,0.98); border-top:1px solid rgba(227,160,56,0.25); border-bottom:1px solid rgba(227,160,56,0.25); padding:6px 24px 14px; max-height:calc(100vh - 76px); overflow-y:auto; box-shadow:0 18px 30px -12px rgba(0,0,0,0.45); }
     .mobile-menu a { display:block; padding:14px 4px; color:rgba(255,255,255,0.92); font-weight:600; font-size:16px; text-decoration:none; border-bottom:1px solid rgba(255,255,255,0.08); }
     .mobile-menu a:last-child { border-bottom:0; }
     .mobile-menu a:hover, .mobile-menu a:active { color:var(--gold); }
   }
   @media(max-width:560px){
-    .nav { padding:12px 14px; }
-    .logo-img { height:38px; }
-    .nav .btn { padding:9px 14px; font-size:13px; }
+    .nav { padding:11px 14px; gap:8px; }
+    .logo-img { height:36px; }
+    .nav .btn { padding:8px 13px; font-size:12.5px; }
     .nav-right { gap:8px; }
   }
   @media(max-width:380px){ .logo-img { height:32px; } }
@@ -548,6 +561,36 @@
   .class-price span { font-family:'Baloo 2'; font-weight:800; font-size:26px; color:var(--ink); display:block; line-height:1.1; }
   .class-price small { display:block; font-size:12px; color:var(--ink-soft); margin-bottom:10px; }
   @media (max-width:640px) { .class-card { flex-direction:column; align-items:stretch; text-align:left; } .class-price { text-align:left; } }
+
+/* Header chuẩn v4 — bố cục cân đối theo Luyện theo khối */
+header .nav{max-width:1360px; width:100%; padding:12px 24px; display:flex; align-items:center; gap:20px; justify-content:space-between;}
+header .logo{flex:0 0 auto; margin:0;}
+header .logo-img{height:41px; width:auto;}
+header .nav-links{display:flex; flex:1 1 auto; align-items:center; justify-content:center; margin:0; padding:0; gap:clamp(10px,1.15vw,18px); font-size:12.7px; font-weight:600; white-space:nowrap; min-width:0;}
+header .nav-links li{margin:0; padding:0; list-style:none;}
+header .nav-links a{white-space:nowrap; line-height:1.4; padding:6px 0;}
+header .nav-right{margin:0; padding:0; flex:0 0 auto; gap:10px;}
+header .nav .btn{font-size:12.7px; padding:10px 16px; white-space:nowrap;}
+header .burger{display:none;}
+/* Laptop nhỏ / cửa sổ xem trước: tab xuống một hàng riêng, KHÔNG biến mất */
+@media (min-width:761px) and (max-width:1020px){
+  header .nav{display:grid; grid-template-columns:1fr auto; grid-template-rows:auto auto; column-gap:16px; row-gap:8px; padding:12px 20px 10px;}
+  header .logo{grid-column:1; grid-row:1; justify-self:start;}
+  header .nav-right{grid-column:2; grid-row:1; justify-self:end;}
+  header .nav-links{grid-column:1 / -1; grid-row:2; justify-content:center; gap:clamp(13px,2vw,28px); width:100%; font-size:13px; border-top:1px solid rgba(255,255,255,.12); padding:7px 0 0;}
+  header .burger{display:none;}
+}
+@media (max-width:760px){
+  header .nav{display:flex; padding:10px 14px; gap:12px;}
+  header .logo-img{height:37px; max-width:49vw;}
+  header .nav-links{display:none;}
+  header .burger{display:flex;}
+  header .nav-right{margin-left:auto; padding:0; gap:8px;}
+  header .nav .btn{padding:9px 13px; font-size:12px;}
+  header .mobile-menu.open{display:block; position:absolute; left:0; right:0; top:100%; background:#0C2050; padding:8px 20px 16px; max-height:calc(100vh - 72px); overflow:auto; box-shadow:0 16px 24px rgba(12,32,80,.2);}
+}
+@media (max-width:390px){header .logo-img{height:33px;max-width:43vw;} header .nav .btn{padding:8px 10px;font-size:11px;}}
+
 </style>
 </head>
 <body class="grid-bg">
@@ -559,7 +602,6 @@
     </a>
     <ul class="nav-links">
       <li><a href="#roadmap">Lộ trình</a></li>
-      <li><a href="#tuhoc">Mindmap</a></li>
       <li><a href="/app/luyen-theo-khoi.html">Luyện theo khối</a></li>
       <li><a href="#luyen-thi">Luyện thi Olympic</a></li>
       <li><a href="#hocphi">Gói đồng hành</a></li>
