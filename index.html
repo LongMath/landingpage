@@ -1372,8 +1372,9 @@ header .burger {display:none;}
   var grid=document.getElementById('olh-event-grid');
   if(!grid)return;
   function el(tag,cls,text){var x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x;}
-  fetch('/ky-thi/ky-thi.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('Data not found');return r.json();}).then(function(items){
+  fetch('https://vmttxgndosucjpysdrzg.supabase.co/rest/v1/olympic_competitions?select=*&order=exam_date.asc.nullslast&limit=200',{cache:'no-store',headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdHR4Z25kb3N1Y2pweXNkcnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMTE5NjcsImV4cCI6MjEwNDg4Nzk2N30.q79YcNPMQhhtOhp3ei1kWV03_TdORAx1PnJi3BgYXlU','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdHR4Z25kb3N1Y2pweXNkcnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMTE5NjcsImV4cCI6MjEwNDg4Nzk2N30.q79YcNPMQhhtOhp3ei1kWV03_TdORAx1PnJi3BgYXlU'}}).then(function(r){if(!r.ok)throw new Error('Data not found');return r.json();}).then(function(items){
     if(!Array.isArray(items))return;
+    items=items.map(function(row){return Object.assign({},row.data||{},row,{data:undefined});});
     var now=new Date();now.setHours(0,0,0,0);
     var live=items.filter(function(e){return e.published===true && e.verified===true && e.name && e.slug && /^[-a-z0-9]+$/.test(e.slug) && (e.exam_date ? new Date(e.exam_date+'T23:59:59')>=now : true);});
     live.sort(function(a,b){return (a.exam_date||'9999').localeCompare(b.exam_date||'9999');});
