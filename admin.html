@@ -148,6 +148,32 @@
       <button class="tab" type="button" data-tab="papers">Đề thi</button>
       <button class="tab" type="button" data-tab="access">Quyền truy cập</button>
       <button class="tab" type="button" data-tab="olympic-info">Thông tin Olympic</button>
+      <button class="tab" type="button" data-tab="analytics">Thống kê truy cập</button>
+    </div>
+
+
+    <!-- DASHBOARD THỐNG KÊ — CHỈ ADMIN -->
+    <div id="tab-analytics" hidden>
+      <div class="card" style="margin-top:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div><h2 style="margin:0 0 5px">Thống kê truy cập</h2><p class="hint" style="margin:0">Chỉ thống kê sau khi gắn mã theo dõi lên từng trang. Giờ Việt Nam (UTC+7).</p></div>
+          <div style="display:flex;gap:8px;align-items:center"><label for="analytics-days" style="margin:0">Khoảng thời gian</label><select id="analytics-days" style="min-width:125px"><option value="7">7 ngày</option><option value="30">30 ngày</option><option value="90">90 ngày</option></select><button class="btn ghost" type="button" id="analytics-reload">Làm mới</button></div>
+        </div>
+        <p id="analytics-status" class="hint" role="status">Mở tab để tải số liệu.</p>
+        <div id="analytics-panel" hidden>
+          <div class="grid3" style="margin:12px 0 18px;gap:12px">
+            <div class="card" style="margin:0"><p class="hint">Lượt xem trang</p><h2 id="analytics-views">0</h2></div>
+            <div class="card" style="margin:0"><p class="hint">Khách ước tính theo phiên tab</p><h2 id="analytics-visitors">0</h2></div>
+            <div class="card" style="margin:0"><p class="hint">Xem nội dung / Nhấn luyện thi</p><h2 id="analytics-actions">0 / 0</h2></div>
+          </div>
+          <h3>Lượt xem theo ngày</h3><div id="analytics-chart" style="display:flex;align-items:end;gap:7px;min-height:175px;overflow-x:auto;padding:10px 4px 4px"></div>
+          <div class="grid2" style="margin-top:22px;gap:18px">
+            <div><h3>Trang được xem nhiều nhất</h3><div class="tablewrap"><table><thead><tr><th>Trang</th><th>Lượt xem</th></tr></thead><tbody id="analytics-pages"></tbody></table></div></div>
+            <div><h3>Nội dung Olympic được xem</h3><div class="tablewrap"><table><thead><tr><th>Mã nội dung</th><th>Lượt xem</th></tr></thead><tbody id="analytics-contents"></tbody></table></div></div>
+          </div>
+        </div>
+        <p class="hint">Không thu email, địa chỉ IP hay nội dung bài làm. Một người mở nhiều tab hoặc đổi thiết bị có thể được đếm nhiều lần; số khách là ước tính, không phải số người duy nhất chính xác. Có thể có bot truy cập.</p>
+      </div>
     </div>
 
     <!-- TAB TÀI LIỆU -->
@@ -504,7 +530,7 @@
        <div class="row-actions"><button class="btn ghost" type="button" id="oc-refresh">Tải danh sách</button><button class="btn primary" type="button" id="oc-new">+ Tạo kỳ thi</button><a href="/ky-thi/" target="_blank" rel="noopener" class="btn ghost">Xem trang công khai ↗</a></div>
        <div class="tablewrap" style="margin-top:16px"><table><thead><tr><th>Kỳ thi</th><th>Ngày thi</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="oc-rows"></tbody></table></div><p id="oc-count" class="hint"></p>
       </div>
-      <div class="card" id="oc-editor" hidden><h2 id="oc-editor-title">Thông tin kỳ thi</h2><form id="oc-form"><div class="grid2"><div><label>Slug (không dấu, dùng trong URL)</label><input id="oc-slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="sasmo-2027"></div><div><label>Tên kỳ thi chính thức</label><input id="oc-name" required></div><div><label>Viết tắt</label><input id="oc-abbr"></div><div><label>Khối lớp</label><input id="oc-grades" placeholder="1–5"></div><div><label>Ngày thi</label><input type="date" id="oc-exam_date"></div><div><label>Hạn đăng ký</label><input type="date" id="oc-registration_deadline"></div><div><label>Link nguồn thông báo chính thức</label><input type="url" id="oc-source_url" placeholder="https://..."></div><div><label>Ngày xác minh cuối</label><input type="date" id="oc-verified_at"></div></div><h3>Nội dung chi tiết</h3><div class="grid2"><div><label for="oc-tagline">Khẩu hiệu / tagline</label><input id="oc-tagline" type="text"></div><div><label for="oc-mode">Hình thức thi</label><input id="oc-mode" type="text"></div><div><label for="oc-organizer">Đơn vị tổ chức</label><input id="oc-organizer" type="text"></div><div><label for="oc-international_founder">Sáng lập / bảo trợ quốc tế</label><input id="oc-international_founder" type="text"></div><div><label for="oc-vietnam_coordinator">Điều phối Việt Nam</label><input id="oc-vietnam_coordinator" type="text"></div><div><label for="oc-history">Quy mô và lịch sử</label><textarea id="oc-history" rows="2"></textarea></div><div><label for="oc-educational_goals">Mục tiêu giáo dục</label><textarea id="oc-educational_goals" rows="2"></textarea></div><div><label for="oc-divisions">Phân bảng thi đấu</label><textarea id="oc-divisions" rows="2"></textarea></div><div><label for="oc-eligibility">Điều kiện dự thi</label><textarea id="oc-eligibility" rows="2"></textarea></div><div><label for="oc-exam_format">Dạng đề / quy chế</label><input id="oc-exam_format" type="text"></div><div><label for="oc-question_count">Số câu hỏi</label><input id="oc-question_count" type="text"></div><div><label for="oc-duration_minutes">Số phút làm bài</label><input id="oc-duration_minutes" type="number" min="0"></div><div><label for="oc-language">Ngôn ngữ đề thi</label><input id="oc-language" type="text"></div><div><label for="oc-negative_marking">Quy định trừ điểm</label><input id="oc-negative_marking" type="text"></div><div><label for="oc-topics">Phạm vi kiến thức</label><textarea id="oc-topics" rows="2"></textarea></div><div><label for="oc-awards">Huy chương, chứng nhận</label><textarea id="oc-awards" rows="2"></textarea></div><div><label for="oc-international_round">Vòng quốc tế tiếp theo</label><textarea id="oc-international_round" rows="2"></textarea></div><div><label for="oc-result_analysis">Báo cáo kết quả</label><textarea id="oc-result_analysis" rows="2"></textarea></div><div><label for="oc-fee_vnd">Lệ phí (VNĐ)</label><input id="oc-fee_vnd" type="number" min="0"></div><div><label for="oc-fee_includes">Lệ phí bao gồm</label><textarea id="oc-fee_includes" rows="2"></textarea></div><div><label for="oc-official_registration_url">Link đăng ký BTC</label><input id="oc-official_registration_url" type="url"></div><div><label for="oc-official_logo_url">Logo chính thức (URL)</label><input id="oc-official_logo_url" type="url"></div><div><label for="oc-sample_paper_url">Link đề mẫu</label><input id="oc-sample_paper_url" type="url"></div><div><label for="oc-terms_url">Link thuật ngữ</label><input id="oc-terms_url" type="url"></div><div><label for="oc-hotline">Hotline / Zalo BTC</label><input id="oc-hotline" type="text"></div><div><label for="oc-support_email">Email BTC</label><input id="oc-support_email" type="email"></div><div><label for="oc-community_url">Link cộng đồng</label><input id="oc-community_url" type="url"></div><div><label for="oc-registration_status">Tình trạng đăng ký</label><input id="oc-registration_status" type="text"></div><div><label for="oc-editorial_note">Ghi chú nội bộ</label><textarea id="oc-editorial_note" rows="2"></textarea></div><div><label for="oc-timeline">Timeline (JSON mảng)</label><textarea id="oc-timeline" rows="3" placeholder='[ {"date":"2027-01-01","title":"Mốc thời gian"} ]'></textarea></div><div><label for="oc-registration_steps">Các bước đăng ký (JSON mảng)</label><textarea id="oc-registration_steps" rows="3" placeholder='["Điền form","Chuyển khoản","Nhận email"]'></textarea></div><div><label for="oc-faq">FAQ (JSON mảng)</label><textarea id="oc-faq" rows="3" placeholder='[ {"q":"Hỏi?","a":"Trả lời"} ]'></textarea></div></div><div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:18px"><label><input type="checkbox" id="oc-verified"> Đã đối chiếu nguồn chính thức</label><label><input type="checkbox" id="oc-published"> Công khai trên website</label></div><p class="hint">Bật công khai yêu cầu đồng thời: đã xác minh, có ngày xác minh và URL nguồn chính thức. Supabase còn kiểm tra điều kiện này tại cơ sở dữ liệu.</p><p class="row-actions"><button class="btn primary" type="submit" id="oc-save">Lưu thông tin</button><button class="btn ghost" type="button" id="oc-cancel">Hủy</button></p></form></div>
+      <div class="card" id="oc-editor" hidden><h2 id="oc-editor-title">Thông tin kỳ thi</h2><form id="oc-form"><div class="grid2"><div><label>Slug (không dấu, dùng trong URL)</label><input id="oc-slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="sasmo-2027"></div><div><label>Tên kỳ thi chính thức</label><input id="oc-name" required></div><div><label>Viết tắt</label><input id="oc-abbr"></div><div><label>Khối lớp</label><input id="oc-grades" placeholder="1–5"></div><div><label>Ngày thi</label><input type="date" id="oc-exam_date"></div><div><label>Hạn đăng ký</label><input type="date" id="oc-registration_deadline"></div></div><h3>Nội dung chi tiết</h3><div class="grid2"><div><label for="oc-tagline">Khẩu hiệu / tagline</label><input id="oc-tagline" type="text"></div><div><label for="oc-mode">Hình thức thi</label><input id="oc-mode" type="text"></div><div><label for="oc-organizer">Đơn vị tổ chức</label><input id="oc-organizer" type="text"></div><div><label for="oc-international_founder">Sáng lập / bảo trợ quốc tế</label><input id="oc-international_founder" type="text"></div><div><label for="oc-vietnam_coordinator">Điều phối Việt Nam</label><input id="oc-vietnam_coordinator" type="text"></div><div><label for="oc-history">Quy mô và lịch sử</label><textarea id="oc-history" rows="2"></textarea></div><div><label for="oc-educational_goals">Mục tiêu giáo dục</label><textarea id="oc-educational_goals" rows="2"></textarea></div><div><label for="oc-divisions">Phân bảng thi đấu</label><textarea id="oc-divisions" rows="2"></textarea></div><div><label for="oc-eligibility">Điều kiện dự thi</label><textarea id="oc-eligibility" rows="2"></textarea></div><div><label for="oc-exam_format">Dạng đề / quy chế</label><input id="oc-exam_format" type="text"></div><div><label for="oc-question_count">Số câu hỏi</label><input id="oc-question_count" type="text"></div><div><label for="oc-duration_minutes">Số phút làm bài</label><input id="oc-duration_minutes" type="number" min="0"></div><div><label for="oc-language">Ngôn ngữ đề thi</label><input id="oc-language" type="text"></div><div><label for="oc-negative_marking">Quy định trừ điểm</label><input id="oc-negative_marking" type="text"></div><div><label for="oc-topics">Phạm vi kiến thức</label><textarea id="oc-topics" rows="2"></textarea></div><div><label for="oc-awards">Huy chương, chứng nhận</label><textarea id="oc-awards" rows="2"></textarea></div><div><label for="oc-international_round">Vòng quốc tế tiếp theo</label><textarea id="oc-international_round" rows="2"></textarea></div><div><label for="oc-result_analysis">Báo cáo kết quả</label><textarea id="oc-result_analysis" rows="2"></textarea></div><div><label for="oc-fee_vnd">Lệ phí (VNĐ)</label><input id="oc-fee_vnd" type="number" min="0"></div><div><label for="oc-fee_includes">Lệ phí bao gồm</label><textarea id="oc-fee_includes" rows="2"></textarea></div><div><label for="oc-official_registration_url">Link đăng ký BTC</label><input id="oc-official_registration_url" type="url"></div><div><label for="oc-official_logo_url">Logo chính thức (URL)</label><input id="oc-official_logo_url" type="url"></div><div><label for="oc-sample_paper_url">Link đề mẫu</label><input id="oc-sample_paper_url" type="url"></div><div><label for="oc-terms_url">Link thuật ngữ</label><input id="oc-terms_url" type="url"></div><div><label for="oc-hotline">Hotline / Zalo BTC</label><input id="oc-hotline" type="text"></div><div><label for="oc-support_email">Email BTC</label><input id="oc-support_email" type="email"></div><div><label for="oc-community_url">Link cộng đồng</label><input id="oc-community_url" type="url"></div><div><label for="oc-registration_status">Tình trạng đăng ký</label><input id="oc-registration_status" type="text"></div><div><label for="oc-editorial_note">Ghi chú nội bộ</label><textarea id="oc-editorial_note" rows="2"></textarea></div><div><label for="oc-timeline">Timeline (JSON mảng)</label><textarea id="oc-timeline" rows="3" placeholder='[ {"date":"2027-01-01","title":"Mốc thời gian"} ]'></textarea></div><div><label for="oc-registration_steps">Các bước đăng ký (JSON mảng)</label><textarea id="oc-registration_steps" rows="3" placeholder='["Điền form","Chuyển khoản","Nhận email"]'></textarea></div><div><label for="oc-faq">FAQ (JSON mảng)</label><textarea id="oc-faq" rows="3" placeholder='[ {"q":"Hỏi?","a":"Trả lời"} ]'></textarea></div></div><section id="oc-publication-check" style="margin-top:22px;padding:20px;border:1px solid #dec99e;border-radius:14px;background:#fffcf5"><h3 style="margin:0 0 6px;color:#102449">Xác minh nguồn và công khai kỳ thi</h3><p class="hint" style="margin:0 0 14px">Chỉ cần điền hai trường sau khi muốn công khai. Đối chiếu các thông tin với thông báo của ban tổ chức, rồi tích hai ô bên dưới.</p><div class="grid2" style="margin-bottom:14px"><div><label for="oc-source_url">Link nguồn chính thức (https://) <strong style="color:#b45309">*</strong></label><input type="url" id="oc-source_url" placeholder="https://website-ban-to-chuc/..." autocomplete="url"></div><div><label for="oc-verified_at">Ngày xác minh <strong style="color:#b45309">*</strong></label><input type="date" id="oc-verified_at"></div></div><div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:18px"><label><input type="checkbox" id="oc-verified"> Đã đối chiếu nguồn chính thức</label><label><input type="checkbox" id="oc-published"> Công khai trên website</label></div></section><p class="hint">Bật công khai yêu cầu đồng thời: đã xác minh, có ngày xác minh và URL nguồn chính thức. Supabase còn kiểm tra điều kiện này tại cơ sở dữ liệu.</p><p class="row-actions"><button class="btn primary" type="submit" id="oc-save">Lưu thông tin</button><button class="btn ghost" type="button" id="oc-cancel">Hủy</button></p></form></div>
     </div>
 
     <!-- TAB QUYỀN TRUY CẬP -->
@@ -1966,13 +1992,45 @@
   document.querySelectorAll('.tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
       document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
-      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'papers', 'access', 'olympic-info'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
+      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'papers', 'access', 'olympic-info', 'analytics'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
       if (tab.dataset.tab === 'olympic-info') loadOlympicCompetitions();
+      if (tab.dataset.tab === 'analytics') loadSiteAnalytics();
       if (tab.dataset.tab === 'videos') loadVideos();
       if (tab.dataset.tab === 'access') loadAccess();
       if (tab.dataset.tab === 'papers') { loadPapers(); if ($('pk-topic').value) loadPicker(); }
     });
   });
+
+
+  /* ---------- THỐNG KÊ TRUY CẬP, ADMIN ONLY ---------- */
+  async function loadSiteAnalytics(){
+    var st=$('analytics-status'),panel=$('analytics-panel');
+    if(!st||!panel)return;
+    st.textContent='Đang tải số liệu từ Supabase…';panel.hidden=true;
+    try{
+      var r=await sb.rpc('site_analytics_summary',{p_days:Number($('analytics-days').value)});
+      if(r.error)throw r.error;
+      var x=r.data||{};panel.hidden=false;
+      var fmt=function(v){return Number(v||0).toLocaleString('vi-VN')};
+      $('analytics-views').textContent=fmt(x.page_views);
+      $('analytics-visitors').textContent=fmt(x.visits_estimate);
+      $('analytics-actions').textContent=fmt(x.content_views)+' / '+fmt(x.cta_clicks);
+      st.textContent='Dữ liệu ghi nhận từ khi triển khai mã theo dõi; không có thống kê ngược về trước.';
+      var series=Array.isArray(x.daily)?x.daily:[];
+      var max=Math.max(1,...series.map(function(d){return Number(d.views)||0}));
+      $('analytics-chart').innerHTML=series.map(function(d){
+        var v=Math.max(0,Number(d.views)||0),pct=Math.max(2,Math.round(v/max*115));
+        var day=String(d.day||'').slice(5);
+        return '<div title="'+esc(day+': '+fmt(v))+' lượt" style="min-width:29px;flex:1;display:flex;align-items:center;flex-direction:column;justify-content:end;gap:4px"><span style="font-size:11px">'+fmt(v)+'</span><div style="width:78%;max-width:36px;background:#D9A441;border-radius:5px 5px 2px 2px;height:'+pct+'px"></div><span style="font-size:10px;white-space:nowrap">'+esc(day)+'</span></div>';
+      }).join('')||'<p>Chưa có dữ liệu</p>';
+      var pages=Array.isArray(x.pages)?x.pages:[];
+      $('analytics-pages').innerHTML=pages.map(function(p){return '<tr><td>'+esc(p.path)+'</td><td>'+fmt(p.views)+'</td></tr>'}).join('')||'<tr><td colspan="2">Chưa có lượt xem</td></tr>';
+      var contents=Array.isArray(x.contents)?x.contents:[];
+      $('analytics-contents').innerHTML=contents.map(function(p){return '<tr><td>'+esc(p.content_id||p.path)+'</td><td>'+fmt(p.views)+'</td></tr>'}).join('')||'<tr><td colspan="2">Chưa có lượt xem nội dung</td></tr>';
+    }catch(e){st.textContent='Không tải được thống kê: '+((e&&e.message)||'Lỗi kết nối');}
+  }
+  $('analytics-days').addEventListener('change',loadSiteAnalytics);
+  $('analytics-reload').addEventListener('click',loadSiteAnalytics);
 
   $('up-exam').addEventListener('change', cascadeUploadLevel);
   $('up-level').addEventListener('change', cascadeUploadTopic);
@@ -2110,7 +2168,13 @@
       obj[k]=v;
     }
     var verified=ocEl('verified').checked,published=ocEl('published').checked,src=ocVal('source_url'),at=ocVal('verified_at');
-    if(published&&(!verified||!at||!/^https:\/\//.test(src))){toast('Muốn công khai cần xác minh, ngày xác minh và link https:// nguồn chính thức.','err');return}
+    if(published&&(!verified||!at||!/^https:\/\//.test(src))){
+      toast('Cần điền link nguồn https://, ngày xác minh và đánh dấu đã đối chiếu trước khi công khai.','err');
+      var target=!/^https:\/\//.test(src)?ocEl('source_url'):(!at?ocEl('verified_at'):ocEl('verified'));
+      $('oc-publication-check').scrollIntoView({behavior:'smooth',block:'center'});
+      target.focus({preventScroll:true});
+      return;
+    }
     var row={slug:slug,name:ocVal('name'),abbr:ocVal('abbr'),grades:ocVal('grades'),exam_date:ocVal('exam_date')||null,registration_deadline:ocVal('registration_deadline')||null,source_url:src,verified_at:at||null,verified:verified,published:published,data:obj};
     if(!row.name){toast('Chưa nhập tên kỳ thi','err');return}
     var btn=$('oc-save');btn.disabled=true;
