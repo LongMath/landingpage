@@ -7,3 +7,11 @@
 .brand{font-family:Inter,"Be Vietnam Pro",system-ui,sans-serif;font-size:17px;font-weight:700;gap:10px;white-space:nowrap}
 .brand-logo{width:40px;height:40px;object-fit:contain;display:block;flex-shrink:0}
 @media(max-width:620px){.brand{font-size:14px}.brand-logo{width:36px;height:36px}}
+
+/* 19-10-2026: căn chỉnh nhận diện thương hiệu và chiều cao top banner */
+.topin{min-height:68px;align-items:center}
+.brand{display:inline-flex;align-items:center;justify-content:flex-start;gap:10px;line-height:1;min-height:44px;font-size:16px;font-weight:750;vertical-align:middle}
+.brand-logo{width:40px;height:40px;display:block;object-fit:contain;flex:0 0 40px}
+.brand>span{display:block;line-height:1.25;white-space:nowrap}
+.toplinks{align-self:center}
+@media(max-width:620px){.topin{min-height:62px}.brand{min-height:40px;font-size:14px;gap:8px}.brand-logo{width:36px;height:36px;flex-basis:36px}}
