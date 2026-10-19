@@ -609,6 +609,41 @@ header .burger {display:none;}
   header .logo-img {height:33px; max-width:42vw;}
   header .nav .btn {padding:8px 10px; font-size:11.5px;}
 }
+
+/* Olympic Hub - isolated styles, do not modify existing landing styles */
+.olh-section{background:#f7f9fc;padding:76px 22px 82px;position:relative;border-bottom:1px solid #e5eaf2;color:#102449;font-family:'Be Vietnam Pro',sans-serif}
+.olh-wrap{max-width:1180px;margin:auto}
+.olh-section *{box-sizing:border-box}
+.olh-kicker{display:inline-flex;gap:8px;align-items:center;text-transform:uppercase;letter-spacing:.14em;font-weight:800;font-size:11px;color:#967026}
+.olh-kicker::before{content:'';width:22px;height:2px;background:#d9a441}
+.olh-heading{display:flex;align-items:end;justify-content:space-between;gap:28px;margin:14px 0 26px}
+.olh-heading h2{margin:0 0 8px;color:#102449;font-family:'Baloo 2',sans-serif;font-size:clamp(30px,3vw,43px);font-weight:800;line-height:1.15;letter-spacing:-.025em}
+.olh-heading p{color:#64748b;font-size:14px;line-height:1.75;margin:0;max-width:630px}
+.olh-all{border:1px solid #cbd5e1;background:white;padding:11px 16px;color:#102449;border-radius:12px;font-size:13px;font-weight:750;text-decoration:none;white-space:nowrap;box-shadow:0 3px 12px rgba(15,23,42,.04)}
+.olh-all:hover{border-color:#d9a441;color:#102449}
+.olh-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}
+.olh-card{border-radius:20px;border:1px solid #e2e8f0;box-shadow:0 10px 34px rgba(16,36,73,.055);background:#fff;padding:27px;min-width:0}
+.olh-primary{background:linear-gradient(130deg,#102449,#1e3f75);color:#fff;border:1px solid #1b3767;position:relative;overflow:hidden;min-height:247px}
+.olh-primary:after{content:'∑';position:absolute;right:-14px;bottom:-71px;font:bold 235px 'Baloo 2',sans-serif;color:rgba(255,255,255,.055);pointer-events:none}
+.olh-status{display:inline-block;border-radius:50px;background:rgba(217,164,65,.2);color:#f6d48d;padding:7px 11px;font-weight:750;font-size:11px;letter-spacing:.05em}
+.olh-primary h3{font:800 clamp(23px,2.5vw,33px)/1.23 'Baloo 2',sans-serif;margin:17px 0 8px;position:relative}
+.olh-primary p{font-size:13px;color:#d5e0f2;line-height:1.85;max-width:465px;margin:0 0 20px;position:relative}
+.olh-actions{display:flex;flex-wrap:wrap;gap:10px;position:relative;z-index:1}
+.olh-action{display:inline-flex;align-items:center;justify-content:center;background:#e5ad47;border-radius:10px;padding:11px 17px;color:#102449;text-decoration:none;font-weight:800;font-size:13px}
+.olh-action:hover{background:#f1c26a}
+.olh-secondary{display:flex;flex-direction:column;justify-content:space-between}
+.olh-card-icon{height:42px;width:42px;background:#f4f0e6;color:#9f741f;border-radius:12px;display:grid;place-items:center;font-size:23px;margin-bottom:15px}
+.olh-secondary h3{font:800 24px 'Baloo 2',sans-serif;color:#102449;margin:0 0 7px}
+.olh-secondary p{color:#64748b;font-size:13px;line-height:1.8;margin:0 0 18px}
+.olh-link{color:#102449;text-decoration:none;font-weight:800;font-size:13px;display:inline-flex;gap:7px;align-items:center}
+.olh-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.olh-event{background:white;border:1px solid #e2e8f0;border-radius:16px;padding:20px;min-width:0}
+.olh-event__title{font:800 22px 'Baloo 2',sans-serif;color:#102449;margin:8px 0}
+.olh-event__meta{color:#64748b;font-size:12px;line-height:1.8;margin:0 0 18px}
+.olh-event__tag{font-size:11px;font-weight:800;color:#986d19;background:#fff5d9;padding:5px 9px;border-radius:30px}
+.olh-note{font-size:11px;color:#74849a;margin:17px 0 0;line-height:1.7}
+@media(max-width:760px){.olh-section{padding:50px 16px 58px}.olh-heading{align-items:flex-start;flex-direction:column;gap:15px}.olh-grid,.olh-list{grid-template-columns:1fr}.olh-card{padding:22px}.olh-primary{min-height:232px}}
+
 </style>
 </head>
 <body class="grid-bg">
@@ -691,6 +726,22 @@ header .burger {display:none;}
     </svg>
   </div>
 </section>
+
+<section class="olh-section" id="ky-thi-olympic" aria-labelledby="olh-title">
+  <div class="olh-wrap">
+    <div class="olh-kicker">Olympic Math • Trung tâm kỳ thi</div>
+    <div class="olh-heading">
+      <div><h2 id="olh-title">Chinh phục những kỳ thi Toán Olympic</h2><p>Cập nhật lịch thi dành cho học sinh tiểu học, tìm hiểu thể lệ chính thức và chọn lộ trình ôn luyện phù hợp với con.</p></div>
+      <a class="olh-all" href="/ky-thi/">Xem lịch thi Olympic ↗</a>
+    </div>
+    <div id="olh-event-grid" class="olh-grid">
+      <article class="olh-card olh-primary"><span class="olh-status">LỊCH THI ĐANG ĐƯỢC XÁC MINH</span><h3>Một điểm đến cho mọi hành trình Olympic</h3><p>Lịch đăng ký, thời gian thi, thể lệ và đề mẫu được tập hợp tại một nơi. Thông tin chính thức sẽ hiển thị khi đã kiểm chứng.</p><div class="olh-actions"><a class="olh-action" href="/ky-thi/">Khám phá lịch thi →</a></div></article>
+      <article class="olh-card olh-secondary"><div><div class="olh-card-icon" aria-hidden="true">✦</div><h3>Con đã sẵn sàng chưa?</h3><p>Khởi động với bài luyện theo khối, từ tư duy logic cơ bản đến chuẩn bị cho sân chơi Olympic.</p></div><a class="olh-link" href="/app/luyen-theo-khoi.html">Bắt đầu ôn luyện →</a></article>
+    </div>
+    <p class="olh-note">Lịch thi và quy chế có thể thay đổi theo thông báo của ban tổ chức. Toán Bác Long cung cấp thông tin tham khảo, không đại diện ban tổ chức kỳ thi.</p>
+  </div>
+</section>
+
 <section class="section" id="loi-vao" style="padding:34px 0 6px;">
   <div class="wrap">
     <div class="entry-grid">
@@ -1314,5 +1365,32 @@ header .burger {display:none;}
     .catch(function () {});
 })();
 </script>
+
+<script>
+/* Olympic Hub: render only published AND verified items. No changes to existing landing scripts. */
+(function(){
+  var grid=document.getElementById('olh-event-grid');
+  if(!grid)return;
+  function el(tag,cls,text){var x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x;}
+  fetch('/ky-thi/ky-thi.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('Data not found');return r.json();}).then(function(items){
+    if(!Array.isArray(items))return;
+    var now=new Date();now.setHours(0,0,0,0);
+    var live=items.filter(function(e){return e.published===true && e.verified===true && e.name && e.slug && /^[-a-z0-9]+$/.test(e.slug) && (e.exam_date ? new Date(e.exam_date+'T23:59:59')>=now : true);});
+    live.sort(function(a,b){return (a.exam_date||'9999').localeCompare(b.exam_date||'9999');});
+    if(!live.length)return;
+    grid.textContent='';grid.className='olh-list';
+    live.slice(0,2).forEach(function(e){
+      var card=el('article','olh-event');
+      card.appendChild(el('span','olh-event__tag',e.registration_deadline?'HẠN ĐĂNG KÝ '+new Date(e.registration_deadline+'T12:00:00').toLocaleDateString('vi-VN'):'THÔNG TIN ĐÃ XÁC MINH'));
+      card.appendChild(el('h3','olh-event__title',e.name+(e.abbr?' ('+e.abbr+')':'')));
+      var meta='Khối '+(e.grades||'theo thể lệ');meta+=' · '+(e.mode||'Xem thể lệ');
+      if(e.exam_date)meta+=' · Thi '+new Date(e.exam_date+'T12:00:00').toLocaleDateString('vi-VN');
+      card.appendChild(el('p','olh-event__meta',meta));
+      var a=el('a','olh-link','Xem lịch và thể lệ →');a.href='/ky-thi/chi-tiet.html?id='+encodeURIComponent(e.slug);card.appendChild(a);grid.appendChild(card);
+    });
+  }).catch(function(){ /* Keep useful default callout if JSON is unavailable */ });
+})();
+</script>
+
 </body>
 </html>
