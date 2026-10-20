@@ -526,7 +526,7 @@
         </section>
 
         <h3 style="font-size:16px; margin-top:22px;">Thêm bài từ ngân hàng</h3>
-        <p class="hint">Câu hỏi của đề được chọn từ ngân hàng bài tập. Chỉ bài đã có <b>đáp số</b> mới thêm được. Hoặc nhập CSV + ZIP ảnh trực tiếp vào đề ở khung phía trên. Muốn có câu mới, hãy nhập bài (kèm đáp số) ở tab Nội dung trước, rồi quay lại đây. Chọn kỳ thi, bảng đề, chuyên đề, bấm "Thêm vào đề", cuối cùng bấm "Lưu danh sách câu".</p>
+        <p class="hint">Hai cách riêng biệt: <b>(1) CSV + ZIP:</b> bấm Kiểm tra dữ liệu → Nhập câu vào đề (lưu nháp), hệ thống tự gắn câu vào đề, KHÔNG cần bấm Thêm vào đề ở dưới. <b>(2) Ngân hàng bài cũ:</b> chọn chuyên đề → Thêm vào đề → Lưu danh sách câu. Lưu ý đề đã có lượt làm bài thì không thể thay bộ câu, hãy tạo đề mới.</p>
         <div class="grid3">
           <div><label for="pk-exam">Kỳ thi</label><select id="pk-exam"></select></div>
           <div><label for="pk-level">Bảng đề</label><select id="pk-level"></select></div>
@@ -2143,6 +2143,11 @@
     EI.busy=true;$('ei-import').disabled=true;
     var created=[],errors=[],paperId=PP.sel;
     try{
+      // Không tạo câu hỏi mới nếu đề đã có lượt thi: RPC lưu bộ câu sẽ từ chối.
+      // Kiểm tra TRƯỚC khi insert để tránh sinh bản ghi mồ côi.
+      var used=await sb.from('attempts').select('id',{count:'exact',head:true}).eq('paper_id',paperId);
+      if(used.error)throw new Error('Không kiểm tra được lượt thi của đề: '+used.error.message);
+      if((used.count||0)>0)throw new Error('Đề đã có '+used.count+' lượt làm bài nên không thể thêm câu CSV. Hãy tạo một đề thi MỚI hoàn toàn ở trạng thái Nháp rồi nhập vào đó.');
       var existing=await sb.from('paper_items').select('problem_id').eq('paper_id',paperId);
       if(existing.error)throw existing.error;
       var currentIds=(existing.data||[]).map(function(x){return x.problem_id;});
@@ -2172,7 +2177,7 @@
       var items=PP.items.map(function(x){return {problem_id:x.problem_id,diem:Number(x.diem)};});
       created.forEach(function(x){items.push({problem_id:x.id,diem:x.score});});
       var saved=await sb.rpc('admin_save_paper_items',{p_paper:paperId,p_items:items});if(saved.error)throw saved.error;
-      eiStatus('Đã nhập '+created.length+' câu nháp và gắn vào đề. Hãy rà soát từng câu và đáp án trước khi xuất bản.');
+      eiStatus('THÀNH CÔNG: Đã tạo và gắn '+created.length+' câu CSV vào đề. Xem mục Câu hỏi của đề phía trên để thấy các câu mới. Những câu này còn ở trạng thái Nháp; cần duyệt/xuất bản trước khi học sinh làm bài.');
       eiReset();$('ei-csv').value='';$('ei-zip').value='';
       await loadPapers();await openPaperItems(paperId);
     }catch(e){eiStatus('Đã tạo '+created.length+' câu trước khi gặp lỗi: '+e.message+'. KHÔNG tự động nhập lại ngay vì có thể tạo câu trùng. Cần rà soát câu nháp trên Supabase và thử lại phần còn thiếu.');}
