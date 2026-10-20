@@ -79,6 +79,12 @@
   .mark-btn.on{background:#FFF7E6; border-color:var(--gold); color:var(--gold-deep);}
   .q-vi{font-family:'Space Grotesk',sans-serif; font-size:clamp(18px,2.4vw,22px); font-weight:600; color:var(--navy); margin-top:18px; white-space:pre-wrap; line-height:1.5;}
   .q-en{margin-top:8px; font-size:14.5px; color:var(--navy-light); white-space:pre-wrap; line-height:1.6;}
+  .q-illustration{display:block;max-width:100%;max-height:390px;object-fit:contain;margin:16px auto;border-radius:12px;background:white;cursor:zoom-in;}
+  .q-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px;margin:17px 0 4px;}
+  .q-choice{background:#fff;border:2px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;font:inherit;text-align:left;color:var(--navy);display:flex;align-items:center;gap:10px;}
+  .q-choice.selected{border-color:var(--blue);background:#eaf1fb;}
+  .q-choice img{max-width:150px;max-height:135px;object-fit:contain;}
+  .q-choice:focus-visible{outline:3px solid var(--gold);}
   .q-pts{margin-top:10px; font-size:12.5px; color:var(--navy-light);}
   .ans-label{display:block; font-size:12.5px; font-weight:700; color:var(--navy-light); margin:22px 0 6px;}
   .ans{width:100%; font:inherit; font-size:20px; font-weight:600; padding:14px 16px; border:2px dashed var(--line); border-radius:14px; background:var(--paper); color:var(--navy);}
@@ -210,6 +216,8 @@
             <div class="q-top"><span class="q-no" id="q-no"></span><span class="q-topic" id="q-topic"></span><button class="mark-btn" type="button" id="btn-mark">Đánh dấu xem lại</button></div>
             <div class="q-vi" id="q-vi"></div>
             <div class="q-en" id="q-en"></div>
+            <img class="q-illustration" id="q-illustration" alt="Hình minh họa cho câu hỏi" hidden>
+            <div class="q-options" id="q-options" hidden></div>
             <div class="q-pts" id="q-pts"></div>
             <label class="ans-label" for="q-ans">Đáp số của con</label>
             <input class="ans" id="q-ans" type="text" autocomplete="off" maxlength="200" placeholder="Nhập đáp số rồi sang câu tiếp">
@@ -238,7 +246,7 @@
         <button class="btn ghost" type="button" id="btn-back">← Về danh sách đề</button>
         <button class="btn primary" type="button" id="btn-retry">Làm lại đề này</button>
       </div>
-      <div class="guest-note" id="res-guest" hidden>Con đang làm với tư cách khách nên kết quả chưa được lưu vào tài khoản. Hãy giữ lại đường dẫn của trang này nếu muốn xem lại, hoặc đăng ký tài khoản để lưu lịch sử. <a href="../index.html#hocphi" style="color:var(--gold-deep); font-weight:700;">Xem các gói →</a></div>
+      <div class="guest-note" id="res-guest" hidden>Con đang làm với tư cách khách nên kết quả chưa được lưu vào tài khoản. Kết quả khách chỉ xem lại được trong phiên trình duyệt này; hãy đăng nhập để lưu lịch sử lâu dài. <a href="../index.html#hocphi" style="color:var(--gold-deep); font-weight:700;">Xem các gói →</a></div>
     </div>
     <div class="card" style="margin-top:18px;"><div class="tablewrap"><table>
       <thead><tr><th>Câu</th><th>Đáp số của con</th><th>Kết quả</th><th>Đáp số đúng</th><th>Lời giải</th></tr></thead>
@@ -300,6 +308,8 @@
   var QUYEN = { cong_khai: 'Công khai', thanh_vien: 'Thành viên', tra_phi: 'Trả phí' };
 
   var user = null, lastUid;
+
+  function tbt22Token(id) { try { return sessionStorage.getItem('tbt22-guest-' + id) || null; } catch(e) { return null; } }
   var S = { papers: [], exams: [], levels: [], attempts: [], loaded: false, loai: 'all', exam: '', run: null, pending: null, timer: null };
 
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -417,12 +427,50 @@
   }
   async function startPaper(id, btn) {
     if (btn) btn.disabled = true;
-    var r = await sb.rpc('start_attempt', { p_paper: id });
+    var r = await sb.rpc('tbt22_start', { p_paper: id });
     if (btn) btn.disabled = false;
     if (r.error) { toast(rpcMsg(r.error), 'err'); return; }
+    if (r.data && r.data.guest_secret) sessionStorage.setItem('tbt22-guest-' + r.data.attempt_id, r.data.guest_secret);
     S.pending = r.data;
     location.hash = '#lam/' + r.data.attempt_id;
   }
+
+
+   /* Anh de thi luu trong bucket private. Khong tai bang public URL. */
+   var examAssetCache={};
+   async function examSignedImage(path) {
+     if(!path)return '';
+     if(examAssetCache[path] && examAssetCache[path].expires>Date.now())return examAssetCache[path].url;
+     var res=await sb.storage.from('hinh-cau-hoi').createSignedUrl(path,120);
+     if(res.error)throw res.error;
+     examAssetCache[path]={url:res.data.signedUrl,expires:Date.now()+100000};return res.data.signedUrl;
+   }
+   function examOptions(q) {
+     var data=q.phuong_an;
+     if(typeof data==='string'){try{data=JSON.parse(data);}catch(e){data=null;}}
+     if(Array.isArray(data))return data;
+     if(data&&typeof data==='object')return Object.keys(data).sort().map(function(k){return {key:k,text:data[k]};});
+     return [];
+   }
+   function examRenderMedia(q) {
+     var image=$('q-illustration'),choices=$('q-options');
+     image.hidden=true;image.removeAttribute('src');choices.hidden=true;choices.innerHTML='';
+     var pid=q.problem_id,run=S.run;
+     if(q.hinh_anh){examSignedImage(q.hinh_anh).then(function(url){if(S.run===run&&S.run.qs[S.run.idx].problem_id===pid){image.src=url;image.hidden=false;}}).catch(function(){toast('Chưa xem được hình câu hỏi. Vui lòng báo quản trị viên.', 'err');});}
+     if(q.loai!=='trac_nghiem'){$('q-ans').hidden=false;document.querySelector('label[for="q-ans"]').hidden=false;return;}
+     var opts=examOptions(q);if(!opts.length){$('q-ans').hidden=false;document.querySelector('label[for="q-ans"]').hidden=false;return;}
+     $('q-ans').hidden=true;document.querySelector('label[for="q-ans"]').hidden=true;choices.hidden=false;
+     var selected=(run.answers[pid]||{}).tra_loi||'';
+     opts.forEach(function(op,i){
+       var key=String(op.key||'ABCDE'[i]||'').toUpperCase();if(!key)return;
+       var btn=document.createElement('button');btn.type='button';btn.className='q-choice'+(selected===key?' selected':'');btn.dataset.answer=key;
+       var strong=document.createElement('strong');strong.textContent=key+'.';btn.appendChild(strong);
+       if(op.text){var span=document.createElement('span');span.textContent=op.text;btn.appendChild(span);}
+       if(op.image){var img=document.createElement('img');img.alt='Phương án '+key;btn.appendChild(img);examSignedImage(op.image).then(function(url){if(S.run===run&&S.run.qs[S.run.idx].problem_id===pid)img.src=url;}).catch(function(){toast('Không tải được ảnh phương án '+key,'err');});}
+       btn.addEventListener('click',function(){if(!S.run||S.run.qs[S.run.idx].problem_id!==pid)return;setAnswer(key);choices.querySelectorAll('.q-choice').forEach(function(b){b.classList.toggle('selected',b.dataset.answer===key);});});
+       choices.appendChild(btn);
+     });
+   }
 
   /* ---------- LÀM BÀI ---------- */
   function stopTimer() { if (S.timer) { clearInterval(S.timer); S.timer = null; } }
@@ -430,7 +478,7 @@
     showState('Đang mở bài làm...');
     var payload = (S.pending && S.pending.attempt_id === id) ? S.pending : null; S.pending = null;
     if (!payload) {
-      var r = await sb.rpc('get_attempt', { p_attempt: id });
+      var r = await sb.rpc('tbt22_get', { p_attempt: id, p_guest_secret: tbt22Token(id) });
       if (r.error) { showState('<h2>Không mở được bài làm</h2><p>' + esc(rpcMsg(r.error)) + '</p><p style="margin-top:14px;"><a class="btn primary" href="#">Về danh sách đề</a></p>', true); return; }
       payload = r.data;
     }
@@ -464,6 +512,7 @@
     $('q-vi').textContent = q.de_vi || q.de_en || '';
     $('q-en').textContent = (q.de_vi && q.de_en) ? q.de_en : ''; $('q-en').hidden = !(q.de_vi && q.de_en);
     $('q-pts').textContent = 'Câu này ' + fmt(q.diem) + ' điểm';
+    examRenderMedia(q);
     var inp = $('q-ans'); if (document.activeElement !== inp || inp.dataset.pid !== q.problem_id) { inp.value = a.tra_loi || ''; }
     inp.dataset.pid = q.problem_id;
     var mk = $('btn-mark'); mk.classList.toggle('on', !!a.danh_dau); mk.textContent = a.danh_dau ? 'Đã đánh dấu xem lại' : 'Đánh dấu xem lại';
@@ -490,7 +539,7 @@
   async function flush(pid) {
     var r = S.run; if (!r || !r.dirty[pid]) return;
     var a = r.answers[pid] || {}; delete r.dirty[pid]; r.inflight++;
-    var res = await sb.rpc('save_answer', { p_attempt: r.id, p_problem: pid, p_tra_loi: a.tra_loi || '', p_danh_dau: !!a.danh_dau });
+    var res = await sb.rpc('tbt22_save', { p_attempt: r.id, p_problem: pid, p_tra_loi: a.tra_loi || '', p_danh_dau: !!a.danh_dau, p_guest_secret: tbt22Token(r.id) });
     r.inflight--;
     if (!S.run || S.run !== r) return;
     if (res.error) {
@@ -532,7 +581,7 @@
     $('btn-submit').disabled = true;
     if (auto) toast('Hết giờ. Bài của con được nộp tự động.');
     await flushAll();
-    var res = await sb.rpc('submit_attempt', { p_attempt: r.id });
+    var res = await sb.rpc('tbt22_submit', { p_attempt: r.id, p_guest_secret: tbt22Token(r.id) });
     if (res.error) {
       r.submitting = false; $('btn-submit').disabled = false; S.timer = setInterval(tick, 250);
       toast('Chưa nộp được: ' + rpcMsg(res.error) + ' Bạn thử bấm Nộp bài lại.', 'err'); return;
@@ -546,7 +595,7 @@
   async function openResult(id) {
     if (S.resultCache && S.resultCache.attempt_id === id) { var c = S.resultCache; S.resultCache = null; showResult(c, id); return; }
     showState('Đang tải kết quả...');
-    var r = await sb.rpc('get_result', { p_attempt: id });
+    var r = await sb.rpc('tbt22_result', { p_attempt: id, p_guest_secret: tbt22Token(id) });
     if (r.error) {
       showState('<h2>Chưa xem được kết quả</h2><p>' + esc(rpcMsg(r.error)) + '</p><p style="margin-top:14px;"><a class="btn primary" href="#">Về danh sách đề</a>' +
         (/Chua nop/.test(r.error.message || '') ? ' <a class="btn ghost" href="#lam/' + esc(id) + '">Làm tiếp</a>' : '') + '</p>', true); return;
