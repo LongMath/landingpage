@@ -322,6 +322,7 @@
     var m = (e && e.message) || '';
     if (/Khong co quyen lam de nay/i.test(m)) return 'Bạn chưa có quyền làm đề này. Hãy đăng nhập hoặc xem các gói tại trang giới thiệu.';
     if (/De chua co cau hoi/i.test(m)) return 'Đề này chưa có câu hỏi.';
+    if (/De co cau hoi chua xuat ban/i.test(m)) return 'Đề có câu hỏi đang ở trạng thái Nháp. Quản trị viên cần duyệt và xuất bản các câu CSV trong Admin → Đề thi → Soạn câu.';
     if (/Khong tim thay luot lam bai/i.test(m)) return 'Không tìm thấy lượt làm bài. Đường dẫn có thể đã cũ hoặc bài thuộc tài khoản khác.';
     if (/het gio|da nop/i.test(m)) return 'Đã hết giờ hoặc bài đã được nộp.';
     if (/Chua nop bai/i.test(m)) return 'Bài này chưa được nộp.';
