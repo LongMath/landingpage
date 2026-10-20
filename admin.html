@@ -507,8 +507,26 @@
         <p style="margin-top:10px; font-weight:700;" id="pi-total"></p>
         <p style="margin-top:10px;" class="row-actions"><button class="btn primary" type="button" id="btn-save-items">Lưu danh sách câu</button><button class="btn ghost" type="button" id="btn-dup-paper">Nhân bản đề để sửa</button></p>
 
+
+        <section id="exam-import" class="card" style="margin:20px 0 0;background:#f7fafc;box-shadow:none;border:2px solid #c6d8e9;">
+          <h3 style="font-size:17px;">Nhập câu hỏi trực tiếp vào đề thi (CSV + hình ảnh)</h3>
+          <p class="hint">Không cần nhập câu hỏi vào chuyên đề. Chỉ áp dụng khi đã chọn một đề ở trên. Nhập CSV UTF-8; nếu đề có hình thì chọn thêm ZIP chứa PNG/JPG/WebP theo đúng tên file khai báo trong CSV. Tất cả câu mới mặc định ở trạng thái <b>Nháp</b> đến khi duyệt.</p>
+          <div class="grid2">
+            <div><label for="ei-csv">File CSV câu hỏi</label><input type="file" id="ei-csv" accept=".csv,text/csv"></div>
+            <div><label for="ei-zip">File ZIP hình ảnh (không bắt buộc)</label><input type="file" id="ei-zip" accept=".zip,application/zip"></div>
+          </div>
+          <p class="hint">Cột: <code>ma_cau,loai,de_vi,de_en,diem,dap_so,loi_giai,goi_y_1,goi_y_2,nguon,hinh_de,A,B,C,D,E,hinh_A,hinh_B,hinh_C,hinh_D,hinh_E</code>. Loại: <code>trac_nghiem</code> hoặc <code>tu_luan</code>; đáp số trắc nghiệm là một chữ A–E.</p>
+          <div class="row-actions" style="margin-top:10px;">
+            <button class="btn ghost small" type="button" id="ei-template">Tải CSV mẫu</button>
+            <button class="btn ghost small" type="button" id="ei-validate">Kiểm tra và xem trước</button>
+            <button class="btn primary small" type="button" id="ei-import" disabled>Nhập câu vào đề (lưu nháp)</button>
+          </div>
+          <p id="ei-summary" class="note" style="margin-top:10px;white-space:pre-wrap" aria-live="polite">Chưa chọn file.</p>
+          <div id="ei-preview" class="tablewrap" style="margin-top:10px"></div>
+        </section>
+
         <h3 style="font-size:16px; margin-top:22px;">Thêm bài từ ngân hàng</h3>
-        <p class="hint">Câu hỏi của đề được chọn từ ngân hàng bài tập. Chỉ bài đã có <b>đáp số</b> mới thêm được. Muốn có câu mới, hãy nhập bài (kèm đáp số) ở tab Nội dung trước, rồi quay lại đây. Chọn kỳ thi, bảng đề, chuyên đề, bấm "Thêm vào đề", cuối cùng bấm "Lưu danh sách câu".</p>
+        <p class="hint">Câu hỏi của đề được chọn từ ngân hàng bài tập. Chỉ bài đã có <b>đáp số</b> mới thêm được. Hoặc nhập CSV + ZIP ảnh trực tiếp vào đề ở khung phía trên. Muốn có câu mới, hãy nhập bài (kèm đáp số) ở tab Nội dung trước, rồi quay lại đây. Chọn kỳ thi, bảng đề, chuyên đề, bấm "Thêm vào đề", cuối cùng bấm "Lưu danh sách câu".</p>
         <div class="grid3">
           <div><label for="pk-exam">Kỳ thi</label><select id="pk-exam"></select></div>
           <div><label for="pk-level">Bảng đề</label><select id="pk-level"></select></div>
@@ -599,6 +617,7 @@
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
   // Trang này chỉ là giao diện tiện dụng. Bảo vệ thật nằm ở phân quyền (RLS) trong Supabase:
   // người không phải admin có mở trang này cũng không đọc hay sửa được gì.
@@ -2051,6 +2070,120 @@
   $('vd-link').addEventListener('input', updateVideoLinkNote);
   $('pk2-pack').addEventListener('change', updatePackageUI);
   ['pk2-k1-khoi', 'pk2-k1-exam', 'pk2-k2-khoi', 'pk2-k2-exam', 'pk2-term'].forEach(function (id) { $(id).addEventListener('change', updatePackagePreview); });
+
+  /* --------- IMPORT DE THI DOC LAP: CSV + ZIP ANH --------- */
+  var EI = { plan: null, busy: false };
+  function eiCsvParse(txt) {
+    txt = String(txt || '').replace(/^\uFEFF/, '');
+    var rows=[], cur=[], field='', quote=false;
+    for (var i=0;i<txt.length;i++) {
+      var c=txt[i];
+      if (c==='"') { if (quote && txt[i+1]==='"') { field+='"';i++; } else quote=!quote; }
+      else if (c===',' && !quote) {cur.push(field);field='';}
+      else if ((c==='\n'||c==='\r')&&!quote) {cur.push(field);if(cur.some(function(x){return x.trim();})) rows.push(cur);cur=[];field='';if(c==='\r'&&txt[i+1]==='\n')i++;}
+      else field+=c;
+    }
+    if(quote)throw new Error('CSV có dấu nháy kép chưa đóng.');
+    cur.push(field);if(cur.some(function(x){return x.trim();}))rows.push(cur);
+    if(!rows.length)throw new Error('CSV trống.');
+    var headers=rows.shift().map(function(x){return x.trim().toLowerCase();});
+    if(new Set(headers).size!==headers.length)throw new Error('CSV có tên cột trùng nhau.');
+    return rows.map(function(a,idx){if(a.length!==headers.length)throw new Error('Dòng '+(idx+2)+' lệch số cột.');var o={};headers.forEach(function(k,j){o[k]=a[j].trim();});return o;});
+  }
+  function eiFileName(name) {return String(name||'').trim().replace(/\\/g,'/').split('/').pop();}
+  function eiStatus(msg) { $('ei-summary').textContent=msg; }
+  function eiReset() { EI.plan=null; $('ei-import').disabled=true; $('ei-preview').innerHTML=''; }
+  function eiSample() {
+    var h=['ma_cau','loai','de_vi','de_en','diem','dap_so','loi_giai','goi_y_1','goi_y_2','nguon','hinh_de','A','B','C','D','E','hinh_A','hinh_B','hinh_C','hinh_D','hinh_E'];
+    var rows=[h,['Q01','trac_nghiem','Hình tiếp theo là hình nào?','','3','B','Các hình lặp theo cặp.','','','Tự biên soạn','Q01.png','Hình vuông','Hình tròn','Tam giác','Ngôi sao','','','','','',''],['Q02','tu_luan','5 + 7 = ?','','3','12','5 + 7 = 12','','','Tự biên soạn','','','','','','','','','','','']];
+    var quote=function(v){v=String(v||'');return /[,"\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+    var blob=new Blob(['\uFEFF'+rows.map(function(r){return r.map(quote).join(',');}).join('\r\n')],{type:'text/csv;charset=utf-8'});
+    var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='mau-nhap-de-co-hinh.csv';a.click();setTimeout(function(){URL.revokeObjectURL(u);},2000);
+  }
+  async function eiValidate() {
+    eiReset();
+    if (!PP.sel) {eiStatus('Hãy chọn một đề trước.');return;}
+    var cf=$('ei-csv').files[0], zf=$('ei-zip').files[0];
+    if(!cf){eiStatus('Hãy chọn CSV.');return;}
+    try {
+      var rows=eiCsvParse(await cf.text());
+      if(rows.length>100)throw new Error('Mỗi lần chỉ nhập tối đa 100 câu để dễ kiểm tra.');
+      var zip=null, files={};
+      if(zf){if(!window.JSZip)throw new Error('Thư viện ZIP chưa tải xong.');zip=await JSZip.loadAsync(zf);Object.keys(zip.files).forEach(function(k){if(!zip.files[k].dir){var n=eiFileName(k).toLowerCase();if(files[n])throw new Error('Hai ảnh trùng tên trong ZIP: '+n);files[n]=zip.files[k];}});}
+      var seen=new Set(), plan=[], countImages=0;
+      for(var i=0;i<rows.length;i++){
+        var r=rows[i], code=(r.ma_cau||'').trim(), type=r.loai||'tu_luan';
+        if(!/^[a-zA-Z0-9_-]{1,50}$/.test(code))throw new Error('Câu '+(i+1)+': mã câu chỉ gồm A–Z, số, _, -; tối đa 50 ký tự.');
+        if(seen.has(code))throw new Error('Mã câu trùng: '+code);seen.add(code);
+        if(!['trac_nghiem','tu_luan'].includes(type))throw new Error('Câu '+code+': loại không hợp lệ.');
+        if(!(r.de_vi||r.de_en))throw new Error('Câu '+code+': thiếu đề bài.');
+        var ans=(r.dap_so||'').trim();if(!ans)throw new Error('Câu '+code+': thiếu đáp số.');
+        if(type==='trac_nghiem'){
+          if(!/^[A-E]$/i.test(ans))throw new Error('Câu '+code+': đáp án trắc nghiệm phải là A–E.');
+          var activeOpts='ABCDE'.split('').filter(function(k){return !!(r[k.toLowerCase()]||r['hinh_'+k.toLowerCase()]);});
+          if(activeOpts.length<2)throw new Error('Câu '+code+': trắc nghiệm phải có ít nhất 2 phương án.');
+          if(!activeOpts.includes(ans.toUpperCase()))throw new Error('Câu '+code+': đáp án không thuộc các phương án đã khai báo.');
+          for(var j=0;j<5;j++){var key='ABCDE'[j];if(!(r[key.toLowerCase()]||r['hinh_'+key.toLowerCase()])){if(key===ans.toUpperCase())throw new Error('Câu '+code+': phương án đúng '+key+' chưa có nội dung/hình.');}}
+        }
+        var imgs=[];
+        ['hinh_de','hinh_a','hinh_b','hinh_c','hinh_d','hinh_e'].forEach(function(key){var n=eiFileName(r[key]);if(!n)return;if(!/\.(png|jpe?g|webp)$/i.test(n))throw new Error('Câu '+code+': ảnh phải là PNG/JPG/WebP.');if(!files[n.toLowerCase()])throw new Error('Không tìm thấy trong ZIP: '+n);imgs.push({key:key,name:n,zipFile:files[n.toLowerCase()]});});
+        countImages+=imgs.length;
+        var score=Number(r.diem||1);if(!Number.isFinite(score)||score<=0||score>100)throw new Error('Câu '+code+': điểm không hợp lệ.');
+        plan.push({code:code,type:type,score:score,raw:r,imgs:imgs});
+      }
+      EI.plan={items:plan};
+      $('ei-preview').innerHTML='<table><thead><tr><th>Câu</th><th>Loại</th><th>Nội dung</th><th>Ảnh</th><th>Đáp án</th></tr></thead><tbody>'+plan.map(function(x){return '<tr><td>'+esc(x.code)+'</td><td>'+esc(x.type)+'</td><td>'+esc((x.raw.de_vi||x.raw.de_en).slice(0,130))+'</td><td>'+x.imgs.length+'</td><td>'+esc(x.raw.dap_so)+'</td></tr>';}).join('')+'</tbody></table>';
+      eiStatus('Hợp lệ: '+plan.length+' câu, '+countImages+' ảnh. Sẽ thêm câu mới ở trạng thái Nháp vào đề đang chọn. Hãy kiểm tra bảng trước khi nhập.');
+      $('ei-import').disabled=false;
+    }catch(e){eiStatus('Lỗi kiểm tra: '+e.message);}
+  }
+  async function eiImport() {
+    if(EI.busy||!EI.plan||!PP.sel)return;
+    if(!window.confirm('Xác nhận thêm '+EI.plan.items.length+' câu vào đề hiện tại? Các câu sẽ ở trạng thái Nháp để rà soát.'))return;
+    EI.busy=true;$('ei-import').disabled=true;
+    var created=[],errors=[],paperId=PP.sel;
+    try{
+      var existing=await sb.from('paper_items').select('problem_id').eq('paper_id',paperId);
+      if(existing.error)throw existing.error;
+      var currentIds=(existing.data||[]).map(function(x){return x.problem_id;});
+      var oldIds=PP.items.map(function(x){return x.problem_id;});
+      if(currentIds.length!==oldIds.length || currentIds.some(function(x){return !oldIds.includes(x)}))throw new Error('Danh sách câu đã thay đổi. Hãy tải lại đề trước khi nhập.');
+      for(var i=0;i<EI.plan.items.length;i++){
+        var item=EI.plan.items[i],r=item.raw;
+        eiStatus('Đang nhập '+(i+1)+'/'+EI.plan.items.length+': '+item.code);
+        var opts=null;
+        if(item.type==='trac_nghiem')opts='ABCDE'.split('').filter(function(letter){var k=letter.toLowerCase();return !!(r[k]||r['hinh_'+k]);}).map(function(letter){var k=letter.toLowerCase();return {key:letter,text:r[k]||'',image:''};});
+        var problem={topic_id:null,so_thu_tu:i+1,de_vi:r.de_vi||null,de_en:r.de_en||null,diem:Math.ceil(item.score),nguon:r.nguon||null,ma_cu:'DE-'+paperId.slice(0,8)+'-'+item.code,trang_thai:'nhap',loai:item.type,phuong_an:opts};
+        var ins=await sb.from('problems').insert(problem).select('id').single();if(ins.error)throw ins.error;
+        var pid=ins.data.id;created.push({id:pid,score:item.score,raw:r});
+        for(var z=0;z<item.imgs.length;z++){
+          var a=item.imgs[z],bytes=await a.zipFile.async('uint8array');
+          if(bytes.length>5*1024*1024)throw new Error('Ảnh '+a.name+' vượt 5MB.');
+          var ext=a.name.split('.').pop().toLowerCase();if(ext==='jpeg')ext='jpg';
+          var path=pid+'/'+a.key+'.'+ext;
+          var mime=ext==='jpg'?'image/jpeg':'image/'+ext;
+          var up=await sb.storage.from('hinh-cau-hoi').upload(path,new Blob([bytes],{type:mime}),{contentType:mime,upsert:false});if(up.error)throw up.error;
+          if(a.key==='hinh_de'){var imageSave=await sb.from('problems').update({hinh_anh:path}).eq('id',pid);if(imageSave.error)throw imageSave.error;}
+          else {var letter=a.key.slice(-1).toUpperCase();opts.find(function(x){return x.key===letter;}).image=path;}
+        }
+        if(opts){var op=await sb.from('problems').update({phuong_an:opts}).eq('id',pid);if(op.error)throw op.error;}
+        var sol=await sb.from('problem_solutions').upsert({problem_id:pid,dap_so:item.type==='trac_nghiem'?r.dap_so.toUpperCase():r.dap_so,loi_giai:r.loi_giai||null,goi_y_1:r.goi_y_1||null,goi_y_2:r.goi_y_2||null},{onConflict:'problem_id'});if(sol.error)throw sol.error;
+      }
+      var items=PP.items.map(function(x){return {problem_id:x.problem_id,diem:Number(x.diem)};});
+      created.forEach(function(x){items.push({problem_id:x.id,diem:x.score});});
+      var saved=await sb.rpc('admin_save_paper_items',{p_paper:paperId,p_items:items});if(saved.error)throw saved.error;
+      eiStatus('Đã nhập '+created.length+' câu nháp và gắn vào đề. Hãy rà soát từng câu và đáp án trước khi xuất bản.');
+      eiReset();$('ei-csv').value='';$('ei-zip').value='';
+      await loadPapers();await openPaperItems(paperId);
+    }catch(e){eiStatus('Đã tạo '+created.length+' câu trước khi gặp lỗi: '+e.message+'. KHÔNG tự động nhập lại ngay vì có thể tạo câu trùng. Cần rà soát câu nháp trên Supabase và thử lại phần còn thiếu.');}
+    finally{EI.busy=false;}
+  }
+  $('ei-template').addEventListener('click',eiSample);
+  $('ei-validate').addEventListener('click',eiValidate);
+  $('ei-import').addEventListener('click',eiImport);
+  $('ei-csv').addEventListener('change',eiReset);
+  $('ei-zip').addEventListener('change',eiReset);
+
   $('btn-new-paper').addEventListener('click', function () { showPaperForm(null); });
   $('btn-cancel-paper').addEventListener('click', function () { $('form-paper').hidden = true; PP.form = null; });
   $('form-paper').addEventListener('submit', savePaper);
