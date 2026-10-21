@@ -594,14 +594,14 @@
     successEl.style.display = 'none';
     const { error } = await sb.auth.signUp({
       email, password,
-      options: { data: { ho_ten, so_dien_thoai } }
+      options: { emailRedirectTo: (/^https?:$/.test(location.protocol) ? location.origin + '/app/toanbaclong-platform.html' : undefined), data: { ho_ten, so_dien_thoai } }
     });
     if(error){
       errorEl.textContent = 'Đăng ký thất bại: ' + error.message;
       errorEl.style.display = 'block';
       return;
     }
-    successEl.textContent = 'Tạo tài khoản thành công! Nếu cần xác nhận email, hãy kiểm tra hộp thư.';
+    successEl.textContent = 'Tài khoản đã được tạo. Hãy mở email xác nhận và bấm liên kết MỘT lần (có hiệu lực khoảng 1 giờ) để kích hoạt. Không thấy email thì kiểm tra thư mục Spam.';
     successEl.style.display = 'block';
   }
 
@@ -654,6 +654,29 @@
   document.addEventListener('click', function (e) { if (!menu.contains(e.target) && !burger.contains(e.target)) setOpen(false); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
   window.addEventListener('resize', function () { if (window.innerWidth > 920) setOpen(false); });
+})();
+</script>
+<script>
+// Hiển thị lời nhắn dễ hiểu khi liên kết xác nhận email bị lỗi (đã dùng, hết hạn). Không in nội dung lỗi thô ra màn hình.
+(function () {
+  var h = location.hash || '';
+  if (h.indexOf('error_code=') < 0 && h.indexOf('error=') < 0) return;
+  var p = new URLSearchParams(h.replace(/^#/, ''));
+  if (!p.get('error') && !p.get('error_code')) return;
+  var msg = p.get('error_code') === 'otp_expired'
+    ? 'Liên kết xác nhận email đã hết hạn hoặc đã được dùng. Bạn thử đăng nhập bằng email và mật khẩu đã đăng ký. Nếu chưa vào được, hãy nhắn Zalo cho Bác Long để được hỗ trợ.'
+    : 'Chưa xác nhận được email. Bạn thử đăng nhập, hoặc nhắn Zalo cho Bác Long để được hỗ trợ.';
+  var box = document.createElement('div');
+  box.setAttribute('role', 'alert');
+  box.style.cssText = 'position:fixed;left:12px;right:12px;top:12px;z-index:99999;max-width:560px;margin:0 auto;background:#FFF7E6;border:1px solid #F1DDAE;border-radius:12px;padding:12px 44px 12px 16px;font:14px/1.55 sans-serif;color:#0C2050;box-shadow:0 12px 30px -12px rgba(12,32,80,.35);';
+  box.textContent = msg;
+  var x = document.createElement('button');
+  x.type = 'button'; x.setAttribute('aria-label', 'Đóng'); x.textContent = '✕';
+  x.style.cssText = 'position:absolute;top:8px;right:10px;border:0;background:none;font-size:18px;cursor:pointer;color:#0C2050;';
+  x.onclick = function () { box.remove(); };
+  box.appendChild(x);
+  document.body.appendChild(box);
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* bỏ qua */ }
 })();
 </script>
 </body>

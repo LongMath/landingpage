@@ -407,9 +407,9 @@
   $('form-register').addEventListener('submit', async function (ev) {
     ev.preventDefault(); var err = $('register-error'), ok = $('register-success'); err.hidden = true; ok.hidden = true;
     var r = await sb.auth.signUp({ email: $('reg-email').value.trim(), password: $('reg-password').value,
-      options: { data: { ho_ten: $('reg-hoten').value.trim(), so_dien_thoai: $('reg-phone').value.trim() } } });
+      options: { emailRedirectTo: (/^https?:$/.test(location.protocol) ? location.origin + '/app/bao-cao.html' : undefined), data: { ho_ten: $('reg-hoten').value.trim(), so_dien_thoai: $('reg-phone').value.trim() } } });
     if (r.error) { err.textContent = 'Đăng ký chưa được: ' + r.error.message; err.hidden = false; return; }
-    ok.textContent = 'Tạo tài khoản thành công. Nếu được yêu cầu xác nhận email, hãy kiểm tra hộp thư.'; ok.hidden = false;
+    ok.textContent = 'Tài khoản đã được tạo. Hãy mở email xác nhận và bấm liên kết MỘT lần (có hiệu lực khoảng 1 giờ) để kích hoạt. Không thấy email thì kiểm tra thư mục Spam.'; ok.hidden = false;
   });
   $('btn-logout').addEventListener('click', function () { sb.auth.signOut(); });
   $('btn-print').addEventListener('click', function () { window.print(); });

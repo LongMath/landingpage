@@ -409,14 +409,14 @@
     successEl.style.display = 'none';
     const { error } = await sb.auth.signUp({
       email, password,
-      options: { data: { ho_ten, so_dien_thoai } }
+      options: { emailRedirectTo: (/^https?:$/.test(location.protocol) ? location.origin + '/app/luyen-theo-khoi.html' : undefined), data: { ho_ten, so_dien_thoai } }
     });
     if(error){
       errorEl.textContent = 'Đăng ký thất bại: ' + error.message;
       errorEl.style.display = 'block';
       return;
     }
-    successEl.textContent = 'Đã gửi yêu cầu tạo tài khoản. Nếu cần xác nhận email, hãy kiểm tra hộp thư, sau đó đăng nhập để xác nhận lộ trình' + (pendingGrade ? ' Khối '+pendingGrade : '') + '.';
+    successEl.textContent = 'Đã gửi yêu cầu tạo tài khoản. Hãy mở email xác nhận và bấm liên kết MỘT lần (có hiệu lực khoảng 1 giờ, kiểm tra cả thư mục Spam), sau đó đăng nhập để xác nhận lộ trình' + (pendingGrade ? ' Khối '+pendingGrade : '') + '.';
     const {data:{session:createdSession}}=await sb.auth.getSession();
     if(createdSession && pendingGrade){closeAuthModal();await registerTrack(pendingGrade);return;}
     successEl.style.display = 'block';
