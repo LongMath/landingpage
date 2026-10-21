@@ -208,12 +208,36 @@
 
       <div class="card">
         <h2>Tài liệu đã tải</h2>
-        <p class="hint">Muốn đổi mức truy cập của một tài liệu, hãy xoá rồi tải lại (vì file nằm ở kho khác nhau).</p>
+        <p class="hint">Ẩn để giữ file nhưng không cho học sinh thấy; Sửa để đổi thông tin, quyền hoặc thay PDF. Chỉ Xóa khi thực sự không cần nữa. Với file công khai, Ẩn sẽ chuyển file vào kho riêng.</p>
         <div class="tablewrap"><table>
           <thead><tr><th>Tiêu đề</th><th>Gắn với</th><th>Loại</th><th>Ai tải được</th><th>Trạng thái</th><th></th></tr></thead>
           <tbody id="materials-body"></tbody>
         </table></div>
         <p class="muted" id="materials-empty" hidden style="margin-top:12px;">Chưa có tài liệu nào.</p>
+        <div id="material-editor" class="note" hidden style="margin-top:18px; border:1px solid var(--line); border-radius:12px; padding:18px; background:#fffaf2;">
+          <h3 style="margin-bottom:10px">Sửa / thay file tài liệu</h3>
+          <form id="form-material-edit">
+            <input type="hidden" id="me-id">
+            <label for="me-title">Tiêu đề</label><input id="me-title" type="text" required>
+            <label for="me-desc">Mô tả</label><textarea id="me-desc"></textarea>
+            <div class="grid2">
+              <div><label for="me-loai">Loại tài liệu</label><select id="me-loai"></select></div>
+              <div><label for="me-pages">Số trang</label><input id="me-pages" type="number" min="1"></div>
+            </div>
+            <div class="grid2">
+              <div><label for="me-access">Quyền truy cập</label><select id="me-access"></select></div>
+              <div><label for="me-status">Trạng thái</label><select id="me-status"></select></div>
+            </div>
+            <label for="me-file">PDF / tài liệu thay thế (không bắt buộc)</label>
+            <input type="file" id="me-file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg">
+            <p class="hint">Để trống nếu chỉ sửa thông tin. Thay file sẽ giữ nguyên mục tài liệu trên website, nhưng tạo một đường dẫn file mới. File cũ được xóa sau khi thay thành công.</p>
+            <p style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="submit" class="btn primary" id="me-save">Lưu thay đổi</button>
+              <button type="button" class="btn ghost" id="me-cancel">Hủy</button>
+            </p>
+          </form>
+        </div>
+
       </div>
     </div>
 
@@ -858,17 +882,105 @@
     var body = $('materials-body');
     $('materials-empty').hidden = S.materials.length > 0;
     body.innerHTML = S.materials.map(function (m) {
+      var published = m.trang_thai === 'da_dang';
       return '<tr>' +
         '<td><b>' + esc(m.tieu_de) + '</b>' + (m.mo_ta ? '<div class="muted">' + esc(m.mo_ta) + '</div>' : '') + '</td>' +
         '<td class="muted">' + materialContext(m) + '</td>' +
         '<td>' + esc(LOAI[m.loai] || m.loai) + '</td>' +
         '<td><span class="tag ' + esc(m.access_level) + '">' + esc(QUYEN[m.access_level] || m.access_level) + '</span></td>' +
-        '<td><select data-act="status" data-id="' + esc(m.id) + '">' + optionsFromMap(TRANG_THAI, m.trang_thai) + '</select></td>' +
-        '<td><div class="row-actions">' +
+        '<td><span class="tag ' + (published ? 'da_dang' : 'nhap') + '">' + (published ? 'Đã đăng' : 'Đã ẩn (Nháp)') + '</span></td>' +
+        '<td><div class="row-actions" style="flex-wrap:wrap; min-width:230px">' +
           '<button class="btn ghost small" type="button" data-act="open" data-id="' + esc(m.id) + '">Mở file</button>' +
-          '<button class="btn danger small" type="button" data-act="delete" data-id="' + esc(m.id) + '">Xoá</button>' +
+          '<button class="btn ghost small" type="button" data-act="material-edit" data-id="' + esc(m.id) + '">Sửa / thay file</button>' +
+          '<button class="btn ' + (published ? 'ghost' : 'primary') + ' small" type="button" data-act="material-toggle" data-id="' + esc(m.id) + '">' + (published ? 'Ẩn' : 'Xuất bản') + '</button>' +
+          '<button class="btn danger small" type="button" data-act="delete" data-id="' + esc(m.id) + '">Xóa</button>' +
         '</div></td></tr>';
     }).join('');
+  }
+
+  function editMaterial(id) {
+    var m = S.materials.find(function (x) { return x.id === id; }); if (!m) return;
+    $('me-id').value = m.id;
+    $('me-title').value = m.tieu_de || '';
+    $('me-desc').value = m.mo_ta || '';
+    $('me-loai').innerHTML = optionsFromMap(LOAI, m.loai);
+    $('me-pages').value = m.so_trang || '';
+    $('me-access').innerHTML = optionsFromMap(QUYEN, m.access_level);
+    $('me-status').innerHTML = optionsFromMap(TRANG_THAI, m.trang_thai);
+    $('me-file').value = '';
+    $('material-editor').hidden = false;
+    $('material-editor').scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+  function closeMaterialEditor() { $('material-editor').hidden = true; $('form-material-edit').reset(); }
+
+  // Kho công khai KHÔNG phù hợp với file Nháp: URL đã biết vẫn có thể truy cập.
+  // Chuyển vào kho riêng trước khi ẩn; khi xuất bản công khai, chuyển ngược lại.
+  async function updateMaterialSafe(m, patch, replacement) {
+    var status = patch.trang_thai || m.trang_thai;
+    var access = patch.access_level || m.access_level;
+    var bucket = (status === 'da_dang' && access === 'cong_khai') ? BUCKET_PUBLIC : BUCKET_PRIVATE;
+    var mustMove = m.bucket !== bucket;
+    var newPath = null, newUploaded = false;
+    try {
+      if (replacement || mustMove) {
+        var file = replacement;
+        if (!file) {
+          var dl = await sb.storage.from(m.bucket).download(m.file_path);
+          if (dl.error) throw new Error('Không tải được file cũ: ' + friendlyError(dl.error));
+          file = dl.data;
+        }
+        var suffix = (replacement ? slugify(replacement.name) : (m.file_path.split('/').pop() || 'tai-lieu.pdf'));
+        // Dùng thư mục mới để không đụng tên cũ, giữ nhận diện gắn với chuyên đề.
+        newPath = 'm-' + m.id + '/' + Date.now() + '-' + Math.random().toString(36).slice(2,9) + '-' + suffix;
+        var up = await sb.storage.from(bucket).upload(newPath, file, {
+          contentType: (replacement && replacement.type) || file.type || 'application/octet-stream', upsert:false
+        });
+        if (up.error) throw new Error('Không tải được file mới: ' + friendlyError(up.error));
+        newUploaded = true;
+        patch.bucket = bucket; patch.file_path = newPath;
+      }
+      patch.updated_at = new Date().toISOString();
+      var result = await sb.from('materials').update(patch).eq('id',m.id).select('id').single();
+      if (result.error) throw new Error('Không lưu được thay đổi: ' + friendlyError(result.error));
+      if (newUploaded) {
+        var old = await sb.storage.from(m.bucket).remove([m.file_path]);
+        if (old.error) toast('Đã cập nhật tài liệu nhưng file cũ chưa xóa được. Hãy kiểm tra Storage: ' + friendlyError(old.error),'err');
+      }
+      await reloadAll();
+      return true;
+    } catch (e) {
+      if (newUploaded && newPath) await sb.storage.from(bucket).remove([newPath]);
+      toast(friendlyError(e),'err');
+      await reloadAll();
+      return false;
+    }
+  }
+  async function toggleMaterial(id) {
+    var m = S.materials.find(function (x) { return x.id === id; }); if (!m) return;
+    var publishing = m.trang_thai !== 'da_dang';
+    if (publishing && m.access_level === 'cong_khai' && !confirmPublic('file "' + m.tieu_de + '"')) return;
+    if (!publishing && !confirm('Ẩn "' + m.tieu_de + '" khỏi trang học sinh? File vẫn được giữ trong Admin.')) return;
+    var ok = await updateMaterialSafe(m,{trang_thai:publishing?'da_dang':'nhap'},null);
+    if (ok) toast(publishing ? 'Đã xuất bản lại tài liệu.' : 'Đã ẩn tài liệu; không cần xóa PDF.', 'ok');
+  }
+  async function saveMaterialEdit(ev) {
+    ev.preventDefault();
+    var m = S.materials.find(function (x) { return x.id === $('me-id').value; }); if (!m) return;
+    var name = $('me-title').value.trim(); if (!name) return toast('Cần nhập tiêu đề.', 'err');
+    var patch = {
+      tieu_de:name, mo_ta:$('me-desc').value.trim() || null,
+      loai:$('me-loai').value, so_trang:numOrNull($('me-pages').value),
+      access_level:$('me-access').value, trang_thai:$('me-status').value
+    };
+    if (patch.access_level === 'cong_khai' && patch.trang_thai === 'da_dang' &&
+       (m.access_level !== 'cong_khai' || m.trang_thai !== 'da_dang') && !confirmPublic('tài liệu này')) return;
+    var replacement = $('me-file').files[0] || null;
+    if (replacement && !confirm('Thay file tài liệu hiện tại? Nội dung file cũ sẽ không còn ở đường dẫn cũ.')) return;
+    var btn = $('me-save'); btn.disabled=true;btn.textContent='Đang lưu...';
+    try {
+      var ok = await updateMaterialSafe(m,patch,replacement);
+      if (ok) { closeMaterialEditor(); toast('Đã lưu thay đổi tài liệu.', 'ok'); }
+    } finally {btn.disabled=false;btn.textContent='Lưu thay đổi';}
   }
 
   async function doUpload(ev) {
@@ -883,7 +995,7 @@
     if (!title) { title = file.name.replace(/\.[^.]+$/, ''); $('up-title').value = title; }
     if (access === 'cong_khai' && !confirmPublic('file này (sẽ nằm trong kho công khai)')) return;
 
-    var bucket = access === 'cong_khai' ? BUCKET_PUBLIC : BUCKET_PRIVATE;
+    var bucket = (access === 'cong_khai' && $('up-status').value === 'da_dang') ? BUCKET_PUBLIC : BUCKET_PRIVATE;
     var folder = topicId ? 't-' + topicId : 'l-' + levelId;
     var path = folder + '/' + Date.now() + '-' + slugify(file.name);
     var btn = $('btn-upload');
@@ -947,14 +1059,6 @@
     await reloadAll();
   }
 
-  async function setMaterialStatus(id, value) {
-    var r = await sb.from('materials').update({ trang_thai: value, updated_at: new Date().toISOString() }).eq('id', id);
-    if (r.error) { toast('Không cập nhật được: ' + friendlyError(r.error), 'err'); await reloadAll(); return; }
-    toast('Đã cập nhật trạng thái.', 'ok');
-    var m = S.materials.find(function (x) { return x.id === id; });
-    if (m) m.trang_thai = value;
-    renderPolicyCounts();
-  }
 
   /* ---------- CHUYÊN ĐỀ ---------- */
   function renderTopics() {
@@ -1325,7 +1429,7 @@
     var r = await sb.from('papers').update({ trang_thai: value }).eq('id', id);
     if (r.error) { toast('Không cập nhật được: ' + friendlyError(r.error), 'err'); await loadPapers(); return; }
     if (p) p.trang_thai = value;
-    toast('Đã cập nhật trạng thái đề.', 'ok');
+    toast(value === 'nhap' ? 'Đã chuyển về Nháp. Đề được ẩn trên trang Thi thử; vẫn hiển thị trong Admin để sửa.' : 'Đã xuất bản đề trên trang Thi thử.', 'ok');
   }
 
   /* --- Duyệt các câu độc lập nhập CSV thuộc đề đang chọn --- */
@@ -2052,6 +2156,8 @@
     if (r.error) { err.textContent = friendlyError(r.error); err.hidden = false; }
   });
   $('btn-logout').addEventListener('click', function () { sb.auth.signOut(); });
+  $('form-material-edit').addEventListener('submit',saveMaterialEdit);
+  $('me-cancel').addEventListener('click',closeMaterialEditor);
 
   document.querySelectorAll('.tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
@@ -2276,6 +2382,8 @@
     if (!b) return;
     if (b.dataset.act === 'open') openFile(b.dataset.id);
     if (b.dataset.act === 'delete') deleteMaterial(b.dataset.id);
+    if (b.dataset.act === 'material-edit') editMaterial(b.dataset.id);
+    if (b.dataset.act === 'material-toggle') toggleMaterial(b.dataset.id);
     if (b.dataset.act === 'term-del') deleteTerm(b.dataset.id);
     if (b.dataset.act === 'level-edit') showLevelEdit(b.dataset.id);
     if (b.dataset.act === 'exam-edit') showExamEdit(b.dataset.id);
@@ -2298,7 +2406,7 @@
     if (!s) return;
     var act = s.dataset.act, id = s.dataset.id;
     if (!exposureOk(act, id, s.value)) { rerenderFor(act); return; }
-    if (act === 'status') setMaterialStatus(id, s.value);
+    // Trạng thái tài liệu dùng nút Ẩn / Xuất bản và chuyển kho an toàn, không sửa bằng select.
     if (act === 'topic-access') updateTopic(id, { access_level: s.value });
     if (act === 'topic-status') updateTopic(id, { trang_thai: s.value });
     if (act === 'level-status') updateLevelStatus(id, s.value);
