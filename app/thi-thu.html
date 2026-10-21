@@ -321,6 +321,7 @@
   function rpcMsg(e) {
     var m = (e && e.message) || '';
     if (/Khong co quyen lam de nay/i.test(m)) return 'Bạn chưa có quyền làm đề này. Hãy đăng nhập hoặc xem các gói tại trang giới thiệu.';
+    if (/Chua tra loi du tat ca cau|Chua du cau de nop/i.test(m)) return 'Chỉ được nộp sớm khi đã trả lời đủ tất cả câu hỏi. Hết giờ hệ thống sẽ tự nộp.';
     if (/De chua co cau hoi/i.test(m)) return 'Đề này chưa có câu hỏi.';
     if (/De co cau hoi chua xuat ban/i.test(m)) return 'Đề có câu hỏi đang ở trạng thái Nháp. Quản trị viên cần duyệt và xuất bản các câu CSV trong Admin → Đề thi → Soạn câu.';
     if (/Khong tim thay luot lam bai/i.test(m)) return 'Không tìm thấy lượt làm bài. Đường dẫn có thể đã cũ hoặc bài thuộc tài khoản khác.';
@@ -380,13 +381,14 @@
     return [ex && ex.ten, lv && lv.ten].filter(Boolean).join(' · ');
   }
   function renderList() {
-    var used = {}; S.papers.forEach(function (p) {
+    var used = {}; S.papers.filter(function(p){return p.trang_thai==='da_dang';}).forEach(function (p) {
       var lv = S.levels.find(function (l) { return l.id === p.level_id; }); var eid = lv ? lv.exam_id : p.exam_id; if (eid) used[eid] = true; });
     var sel = $('f-exam'), keep = S.exam;
     sel.innerHTML = '<option value="">Tất cả kỳ thi</option>' + S.exams.filter(function (e) { return used[e.id]; })
       .map(function (e) { return '<option value="' + esc(e.id) + '"' + (e.id === keep ? ' selected' : '') + '>' + esc(e.ten) + '</option>'; }).join('');
     document.querySelectorAll('.ftab').forEach(function (b) { b.classList.toggle('active', b.dataset.loai === S.loai); });
     var list = S.papers.filter(function (p) {
+      if (p.trang_thai !== 'da_dang') return false; // Ẩn đề nháp cả với admin trên trang học sinh
       if (S.loai !== 'all' && p.loai !== S.loai) return false;
       if (S.exam) { var lv = S.levels.find(function (l) { return l.id === p.level_id; }); if ((lv ? lv.exam_id : p.exam_id) !== S.exam) return false; }
       return true;
@@ -505,6 +507,13 @@
     if (ms <= 0 && !S.run.submitting) doSubmit(true);
   }
   function answered(q) { var a = S.run.answers[q.problem_id]; return !!(a && String(a.tra_loi || '').trim() !== ''); }
+  function allAnswered() { return !!(S.run && S.run.qs.length && S.run.qs.every(answered)); }
+  function updateSubmitButton() {
+    var btn=$('btn-submit'), ready=allAnswered();
+    btn.disabled=!!(S.run && S.run.submitting) || !ready;
+    btn.textContent=ready ? 'Nộp bài' : 'Nộp bài (trả lời đủ câu)';
+    btn.title=ready ? 'Nộp bài sớm khi đã hoàn thành' : 'Chỉ nộp sớm sau khi trả lời đủ tất cả câu';
+  }
   function renderRun() {
     var r = S.run, q = r.qs[r.idx]; if (!q) return;
     var a = r.answers[q.problem_id] || { tra_loi: '', danh_dau: false };
@@ -521,6 +530,7 @@
     var done = r.qs.filter(answered).length;
     $('p-count').textContent = 'Đã làm ' + done + '/' + r.qs.length + ' câu';
     $('run-progress').style.width = (r.qs.length ? Math.round(done * 100 / r.qs.length) : 0) + '%';
+    updateSubmitButton();
     $('pgrid').innerHTML = r.qs.map(function (x, i) {
       var ans = r.answers[x.problem_id] || {};
       return '<button type="button" class="pbtn' + (answered(x) ? ' done' : '') + (ans.danh_dau ? ' mk' : '') + (i === r.idx ? ' cur' : '') +
@@ -563,6 +573,7 @@
     var done = r.qs.filter(answered).length; $('p-count').textContent = 'Đã làm ' + done + '/' + r.qs.length + ' câu';
     $('run-progress').style.width = Math.round(done * 100 / r.qs.length) + '%';
     var b = document.querySelector('.pbtn[data-go="' + r.idx + '"]'); if (b) b.classList.toggle('done', answered(q));
+    updateSubmitButton(); // Đồng bộ nút Nộp bài ngay sau mỗi thay đổi đáp án.
   }
   function toggleMark() {
     var r = S.run, q = r.qs[r.idx]; var a = r.answers[q.problem_id] || (r.answers[q.problem_id] = { tra_loi: '', danh_dau: false });
@@ -571,6 +582,7 @@
   function askSubmit() {
     var r = S.run; if (!r || r.submitting) return;
     var done = r.qs.filter(answered).length, left = r.qs.length - done;
+    if (left) { toast('Còn '+left+' câu chưa trả lời. Chỉ được nộp sớm khi làm đủ các câu; hết giờ tự động nộp.', 'err'); return; }
     var marked = r.qs.filter(function (x) { var a = r.answers[x.problem_id]; return a && a.danh_dau; }).length;
     $('confirm-text').textContent = 'Con đã trả lời ' + done + '/' + r.qs.length + ' câu.' + (left ? ' Còn ' + left + ' câu chưa trả lời.' : '') +
       (marked ? ' Có ' + marked + ' câu đang đánh dấu xem lại.' : '') + ' Nộp bài rồi sẽ không sửa được nữa.';
@@ -578,13 +590,16 @@
   }
   async function doSubmit(auto) {
     var r = S.run; if (!r || r.submitting) return;
+    if (!auto && remaining() > 0 && !allAnswered()) {
+      toast('Chưa trả lời đủ các câu để nộp sớm.', 'err'); updateSubmitButton(); return;
+    }
     r.submitting = true; $('confirm').classList.remove('open'); stopTimer();
     $('btn-submit').disabled = true;
     if (auto) toast('Hết giờ. Bài của con được nộp tự động.');
     await flushAll();
     var res = await sb.rpc('tbt22_submit', { p_attempt: r.id, p_guest_secret: tbt22Token(r.id) });
     if (res.error) {
-      r.submitting = false; $('btn-submit').disabled = false; S.timer = setInterval(tick, 250);
+      r.submitting = false; updateSubmitButton(); S.timer = setInterval(tick, 250);
       toast('Chưa nộp được: ' + rpcMsg(res.error) + ' Bạn thử bấm Nộp bài lại.', 'err'); return;
     }
     S.run = null;
