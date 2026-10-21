@@ -157,8 +157,6 @@
   .lesson .lock { font-size:13px; color:var(--navy-light); } .lesson .lock a { color:var(--gold-deep); font-weight:700; text-decoration:none; }
   .lesson-btn { border:none; background:linear-gradient(180deg,#F3B85A,var(--gold)); color:var(--navy); font:inherit; font-weight:700; font-size:13.5px; padding:8px 16px; border-radius:10px; cursor:pointer; box-shadow:0 3px 0 var(--gold-deep); }
   .lesson-btn.alt { background:var(--paper-deep); box-shadow:none; } .lesson-btn:disabled { opacity:.6; cursor:wait; }
-  .doc-actions { display:flex; gap:8px; flex-wrap:wrap; }
-  @media(max-width:480px){ .doc-actions { width:100%; } .doc-actions .lesson-btn { flex:1; } }
   .vframe { position:relative; padding-top:56.25%; border-radius:12px; overflow:hidden; background:#000; margin-top:12px; }
   .vframe iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
 </style>
@@ -378,9 +376,9 @@
     try {
       var lr = await Promise.all([
         sb.from('videos').select('*').eq('topic_id', topicId).order('thu_tu'),
-        sb.from('materials').select('*').eq('topic_id', topicId).order('thu_tu'),
+        sb.from('materials').select('*').eq('topic_id', topicId).eq('trang_thai', 'da_dang').order('thu_tu'),
         sb.from('videos').select('*').eq('level_id', topic.level_id).order('thu_tu'),
-        sb.from('materials').select('*').eq('level_id', topic.level_id).order('thu_tu')
+        sb.from('materials').select('*').eq('level_id', topic.level_id).eq('trang_thai', 'da_dang').order('thu_tu')
       ]);
       T.videos = lr[0].error ? [] : (lr[0].data || []); T.mats = lr[1].error ? [] : (lr[1].data || []);
       T.lvVideos = lr[2].error ? [] : (lr[2].data || []); T.lvMats = lr[3].error ? [] : (lr[3].data || []);
@@ -567,8 +565,7 @@
   function docCard(m) {
     var ok = canSee(m.access_level);
     return '<div class="lesson"><div class="lesson-top"><div><b>📄 ' + esc(m.tieu_de) + '</b><span class="sub">' + esc(LOAI_TL[m.loai] || m.loai) + (m.so_trang ? ' · ' + esc(m.so_trang) + ' trang' : '') + ' · ' + esc(QUYEN_TL[m.access_level] || m.access_level) + '</span></div>' +
-      (ok ? '<div class="doc-actions"><button class="lesson-btn alt" type="button" data-doc-view="' + esc(m.id) + '">Xem tài liệu</button>' +
-        '<button class="lesson-btn alt" type="button" data-doc-download="' + esc(m.id) + '">⬇ Tải về</button></div>' : lockNote(m.access_level)) + '</div>' +
+      (ok ? '<button class="lesson-btn alt" type="button" data-doc="' + esc(m.id) + '">Mở / Tải về</button>' : lockNote(m.access_level)) + '</div>' +
       (m.mo_ta ? '<p class="desc">' + esc(m.mo_ta) + '</p>' : '') + '</div>';
   }
   function renderLessons() {
@@ -596,16 +593,8 @@
     f.setAttribute('allow', 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen');
     wrap.appendChild(f); box.appendChild(wrap); btn.textContent = '✕ Đóng video';
   }
-  function findAllowedDoc(id) {
-    if (!T || T.locked) return null;
-    var m = (T.mats || []).concat(T.lvMats || []).find(function (x) { return x.id === id; });
-    // Không mở rộng quyền: phải được phép vào chuyên đề VÀ được phép xem chính tài liệu.
-    return m && canSee(m.access_level) ? m : null;
-  }
-
   async function openDoc(id) {
-    var m = findAllowedDoc(id);
-    if (!m) { toast('Bạn chưa có quyền xem tài liệu này.', 'err'); return; }
+    var m = (T.mats || []).concat(T.lvMats || []).find(function (x) { return x.id === id; }); if (!m) return;
     var w = window.open('about:blank', '_blank'), url = null;
     if (m.bucket === 'tai-lieu-cong-khai') url = sb.storage.from(m.bucket).getPublicUrl(m.file_path).data.publicUrl;
     else {
@@ -616,29 +605,9 @@
     if (w) w.location = url; else window.location.href = url;
   }
 
-  async function downloadDoc(id, btn) {
-    var m = findAllowedDoc(id);
-    if (!m) { toast('Bạn chưa có quyền tải tài liệu này.', 'err'); return; }
-    btn.disabled = true;
-    try {
-      // Storage kiểm tra quyền bằng RLS; không tạo link tải công khai cho tài liệu riêng tư.
-      var r = await sb.storage.from(m.bucket).download(m.file_path);
-      if (r.error) throw r.error;
-      var url = URL.createObjectURL(r.data);
-      var a = document.createElement('a');
-      var filename = (m.file_path || '').split('/').pop() || 'tai-lieu.pdf';
-      filename = filename.replace(/^\d{10,}-/, '');
-      a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
-    } catch (e) {
-      toast('Chưa tải được tài liệu. Hãy kiểm tra quyền hoặc thử lại.', 'err');
-    } finally { btn.disabled = false; }
-  }
-
   document.addEventListener('click', function (ev) {
     var vb = ev.target.closest('[data-vid]'); if (vb) { playVideo(vb.dataset.vid, vb); return; }
-    var dbView = ev.target.closest('[data-doc-view]'); if (dbView) { openDoc(dbView.dataset.docView); return; }
-    var dbDownload = ev.target.closest('[data-doc-download]'); if (dbDownload) { downloadDoc(dbDownload.dataset.docDownload, dbDownload); return; }
+    var db = ev.target.closest('[data-doc]'); if (db) { openDoc(db.dataset.doc); return; }
     var open = ev.target.closest('[data-open]'); if (open) { ev.preventDefault(); openModal(open.dataset.open); return; }
     var tb = ev.target.closest('.tab'); if (tb) { setTab(tb.dataset.tab); return; }
     var lb = ev.target.closest('[data-lang]');
