@@ -596,7 +596,10 @@ header .burger {display:none;}
   header .nav-links {grid-column:1/-1; grid-row:2; width:100%; justify-content:center; gap:clamp(15px,2.2vw,30px); font-size:14px; border-top:1px solid rgba(255,255,255,.10); margin-top:9px; padding-top:7px;}
   header .burger {display:none;}
 }
-@media(max-width:850px) {
+@media(min-width:781px) and (max-width:850px) {
+  header .nav-links {gap:12px; font-size:13px;}
+}
+@media(max-width:780px) {
   header .nav {display:flex; gap:12px; padding:10px 15px;}
   header .logo-img {height:38px; max-width:49vw;}
   header .nav-links {display:none;}

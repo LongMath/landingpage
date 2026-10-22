@@ -28,7 +28,7 @@
   .nav{display:flex; align-items:center; justify-content:space-between; padding:14px 24px; max-width:960px; margin:0 auto;}
   .logo{display:flex; align-items:center; text-decoration:none; cursor:pointer;}
   .logo-img{height:44px; width:auto; display:block;}
-  .back-link{color:#fff; font-weight:600; font-size:14px; display:flex; align-items:center; gap:6px;}
+  .back-link{color:#fff; font-weight:600; font-size:14px; display:flex; align-items:center; gap:6px; white-space:nowrap;}
   .back-link:hover{color:var(--gold);}
 
   .page-hero{background:linear-gradient(135deg, var(--coral-dark) 0%, var(--coral) 45%, var(--sun) 100%); padding:56px 24px 46px; text-align:center; color:#fff;}
@@ -87,6 +87,9 @@
     .topic-toggle{padding:16px;}
     .topic-body{padding:0 16px 20px;}
   }
+
+/* Điện thoại: logo thu nhỏ để chữ "← Về ..." luôn nằm một dòng mà thanh không bị tràn ngang */
+@media (max-width:495px) { .logo-img { height:auto; max-height:44px; max-width:40vw; } }
 </style>
 </head>
 <body>

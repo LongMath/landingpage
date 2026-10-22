@@ -102,6 +102,36 @@
     #greeting, #auth-greeting, .head-actions .tag-soon { display:none; }
   }
   @media (max-width:440px) { .brand span { display:none; } }
+
+  /* ===== Thanh menu: cỡ GỐC trên màn hình rộng, nén dần khi hẹp. Bản web luôn menu NGANG; chỉ từ 920 px trở xuống (điện thoại, máy tính bảng nhỏ) mới dùng menu 3 gạch. ===== */
+  header .wide, header .wrap { max-width:1440px; }
+  header .brand span, header nav a { white-space:nowrap; }
+  header .head-actions { flex-shrink:0; white-space:nowrap; }
+  #greeting, #auth-greeting { max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  /* 1280 đến 1439 px */
+  @media (max-width:1439px) {
+    header nav { gap:2px; }
+    header nav a { padding:8px 11px; font-size:13.5px; }
+    #greeting, #auth-greeting { max-width:170px; }
+    header .head-actions .tag-soon { display:none; }
+  }
+  @media (min-width:641px) and (max-width:1439px) { header .btn-outline, header .btn-gold { padding:8px 14px; } }
+  /* 1180 đến 1279 px: ẩn lời chào */
+  @media (max-width:1279px) {
+    #greeting, #auth-greeting { display:none; }
+    header nav a { padding:8px 9px; }
+  }
+  @media (min-width:641px) and (max-width:1279px) { header .btn-outline, header .btn-gold { padding:8px 13px; font-size:13px; } }
+  /* 1100 đến 1179 px */
+  @media (max-width:1179px) { header nav a { padding:8px 7px; font-size:12.5px; } }
+  @media (min-width:641px) and (max-width:1179px) { header .btn-outline, header .btn-gold { padding:8px 12px; font-size:12.5px; } }
+  /* 921 đến 1099 px: VẪN menu ngang; ẩn chữ thương hiệu cạnh logo và nén thêm cho vừa một hàng */
+  @media (min-width:921px) and (max-width:1099px) {
+    header .brand span { display:none; }
+    header nav { gap:0; }
+    header nav a { padding:8px 6px; font-size:12.5px; }
+    header .btn-outline, header .btn-gold { padding:8px 10px; font-size:12px; }
+  }
 </style>
 </head>
 <body>
