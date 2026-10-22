@@ -146,6 +146,7 @@
       <button class="tab" type="button" data-tab="levels">Bảng đề</button>
       <button class="tab" type="button" data-tab="content">Nội dung</button>
       <button class="tab" type="button" data-tab="papers">Đề thi</button>
+      <button class="tab" type="button" data-tab="examlib">Thư viện đề</button>
       <button class="tab" type="button" data-tab="access">Quyền truy cập</button>
       <button class="tab" type="button" data-tab="olympic-info">Thông tin Olympic</button>
       <button class="tab" type="button" data-tab="analytics">Thống kê truy cập</button>
@@ -577,6 +578,60 @@
       <div class="card" id="oc-editor" hidden><h2 id="oc-editor-title">Thông tin kỳ thi</h2><form id="oc-form"><div class="grid2"><div><label>Slug (không dấu, dùng trong URL)</label><input id="oc-slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="sasmo-2027"></div><div><label>Tên kỳ thi chính thức</label><input id="oc-name" required></div><div><label>Viết tắt</label><input id="oc-abbr"></div><div><label>Khối lớp</label><input id="oc-grades" placeholder="1–5"></div><div><label>Ngày thi</label><input type="date" id="oc-exam_date"></div><div><label>Hạn đăng ký</label><input type="date" id="oc-registration_deadline"></div></div><h3>Nội dung chi tiết</h3><div class="grid2"><div><label for="oc-tagline">Khẩu hiệu / tagline</label><input id="oc-tagline" type="text"></div><div><label for="oc-mode">Hình thức thi</label><input id="oc-mode" type="text"></div><div><label for="oc-organizer">Đơn vị tổ chức</label><input id="oc-organizer" type="text"></div><div><label for="oc-international_founder">Sáng lập / bảo trợ quốc tế</label><input id="oc-international_founder" type="text"></div><div><label for="oc-vietnam_coordinator">Điều phối Việt Nam</label><input id="oc-vietnam_coordinator" type="text"></div><div><label for="oc-history">Quy mô và lịch sử</label><textarea id="oc-history" rows="2"></textarea></div><div><label for="oc-educational_goals">Mục tiêu giáo dục</label><textarea id="oc-educational_goals" rows="2"></textarea></div><div><label for="oc-divisions">Phân bảng thi đấu</label><textarea id="oc-divisions" rows="2"></textarea></div><div><label for="oc-eligibility">Điều kiện dự thi</label><textarea id="oc-eligibility" rows="2"></textarea></div><div><label for="oc-exam_format">Dạng đề / quy chế</label><input id="oc-exam_format" type="text"></div><div><label for="oc-question_count">Số câu hỏi</label><input id="oc-question_count" type="text"></div><div><label for="oc-duration_minutes">Số phút làm bài</label><input id="oc-duration_minutes" type="number" min="0"></div><div><label for="oc-language">Ngôn ngữ đề thi</label><input id="oc-language" type="text"></div><div><label for="oc-negative_marking">Quy định trừ điểm</label><input id="oc-negative_marking" type="text"></div><div><label for="oc-topics">Phạm vi kiến thức</label><textarea id="oc-topics" rows="2"></textarea></div><div><label for="oc-awards">Huy chương, chứng nhận</label><textarea id="oc-awards" rows="2"></textarea></div><div><label for="oc-international_round">Vòng quốc tế tiếp theo</label><textarea id="oc-international_round" rows="2"></textarea></div><div><label for="oc-result_analysis">Báo cáo kết quả</label><textarea id="oc-result_analysis" rows="2"></textarea></div><div><label for="oc-fee_vnd">Lệ phí (VNĐ)</label><input id="oc-fee_vnd" type="number" min="0"></div><div><label for="oc-fee_includes">Lệ phí bao gồm</label><textarea id="oc-fee_includes" rows="2"></textarea></div><div><label for="oc-official_registration_url">Link đăng ký BTC</label><input id="oc-official_registration_url" type="url"></div><div><label for="oc-official_logo_url">Logo chính thức (URL)</label><input id="oc-official_logo_url" type="url"></div><div><label for="oc-sample_paper_url">Link đề mẫu</label><input id="oc-sample_paper_url" type="url"></div><div><label for="oc-terms_url">Link thuật ngữ</label><input id="oc-terms_url" type="url"></div><div><label for="oc-hotline">Hotline / Zalo BTC</label><input id="oc-hotline" type="text"></div><div><label for="oc-support_email">Email BTC</label><input id="oc-support_email" type="email"></div><div><label for="oc-community_url">Link cộng đồng</label><input id="oc-community_url" type="url"></div><div><label for="oc-registration_status">Tình trạng đăng ký</label><input id="oc-registration_status" type="text"></div><div><label for="oc-editorial_note">Ghi chú nội bộ</label><textarea id="oc-editorial_note" rows="2"></textarea></div><div><label for="oc-timeline">Timeline (JSON mảng)</label><textarea id="oc-timeline" rows="3" placeholder='[ {"date":"2027-01-01","title":"Mốc thời gian"} ]'></textarea></div><div><label for="oc-registration_steps">Các bước đăng ký (JSON mảng)</label><textarea id="oc-registration_steps" rows="3" placeholder='["Điền form","Chuyển khoản","Nhận email"]'></textarea></div><div><label for="oc-faq">FAQ (JSON mảng)</label><textarea id="oc-faq" rows="3" placeholder='[ {"q":"Hỏi?","a":"Trả lời"} ]'></textarea></div></div><section id="oc-publication-check" style="margin-top:22px;padding:20px;border:1px solid #dec99e;border-radius:14px;background:#fffcf5"><h3 style="margin:0 0 6px;color:#102449">Xác minh nguồn và công khai kỳ thi</h3><p class="hint" style="margin:0 0 14px">Chỉ cần điền hai trường sau khi muốn công khai. Đối chiếu các thông tin với thông báo của ban tổ chức, rồi tích hai ô bên dưới.</p><div class="grid2" style="margin-bottom:14px"><div><label for="oc-source_url">Link nguồn chính thức (https://) <strong style="color:#b45309">*</strong></label><input type="url" id="oc-source_url" placeholder="https://website-ban-to-chuc/..." autocomplete="url"></div><div><label for="oc-verified_at">Ngày xác minh <strong style="color:#b45309">*</strong></label><input type="date" id="oc-verified_at"></div></div><div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:18px"><label><input type="checkbox" id="oc-verified"> Đã đối chiếu nguồn chính thức</label><label><input type="checkbox" id="oc-published"> Công khai trên website</label></div></section><p class="hint">Bật công khai yêu cầu đồng thời: đã xác minh, có ngày xác minh và URL nguồn chính thức. Supabase còn kiểm tra điều kiện này tại cơ sở dữ liệu.</p><p class="row-actions"><button class="btn primary" type="submit" id="oc-save">Lưu thông tin</button><button class="btn ghost" type="button" id="oc-cancel">Hủy</button></p></form></div>
     </div>
 
+    <!-- TAB THƯ VIỆN ĐỀ -->
+    <div id="tab-examlib" hidden>
+      <div class="card">
+        <h2>Thư viện đề thi (chỉ thành viên trả phí)</h2>
+        <p class="hint">Mọi đề, đáp án và lời giải trong thư viện đều là nội dung <b>Trả phí</b> và nằm trong kho riêng. Khách và tài khoản miễn phí chỉ xem được danh mục (tên đề, kỳ thi, khối, vòng, năm), không thấy file. Chỉ đăng được khi đã có file đề và bạn đã xác nhận có quyền phân phối tài liệu. Khác với tab Tài liệu (dành cho chuyên đề), tab này không có lựa chọn Công khai hay Thành viên.</p>
+        <div class="grid3">
+          <div><label for="edf-exam">Lọc theo kỳ thi</label><select id="edf-exam"></select></div>
+          <div><label for="edf-status">Trạng thái</label><select id="edf-status"><option value="">Tất cả</option><option value="nhap">Nháp</option><option value="da_dang">Đã đăng</option></select></div>
+          <div><label for="edf-q">Tìm theo tên đề</label><input type="search" id="edf-q" autocomplete="off"></div>
+        </div>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Tên đề</th><th>Kỳ thi › Bảng đề</th><th>Vòng · Năm</th><th>Nhóm</th><th>Tệp</th><th>Trạng thái</th><th></th></tr></thead>
+          <tbody id="examdocs-body"></tbody>
+        </table></div>
+        <p class="muted" id="examdocs-empty" hidden style="margin-top:12px;">Chưa có đề nào trong thư viện.</p>
+      </div>
+
+      <form id="form-examdoc" class="card">
+        <h2 id="ed-heading">Thêm đề vào thư viện</h2>
+        <div class="grid3">
+          <div><label for="ed-exam">Kỳ thi</label><select id="ed-exam"></select></div>
+          <div><label for="ed-level">Khối / cấp độ (quyết định gói nào được xem)</label><select id="ed-level"></select></div>
+          <div><label for="ed-cat">Nhóm đề</label><select id="ed-cat">
+            <option value="past_paper">Đề các năm</option><option value="mock_paper">Đề mô phỏng</option><option value="practice_paper">Đề luyện tổng hợp</option></select></div>
+        </div>
+        <div class="grid3">
+          <div><label for="ed-round">Vòng thi (không bắt buộc)</label><input type="text" id="ed-round" list="ed-rounds" maxlength="80" placeholder="Ví dụ: Vòng Quốc gia"><datalist id="ed-rounds"></datalist></div>
+          <div><label for="ed-year">Năm học (không bắt buộc)</label><input type="text" id="ed-year" list="ed-years" maxlength="40" placeholder="Ví dụ: 2019–2020"><datalist id="ed-years"></datalist></div>
+          <div><label for="ed-order">Số thứ tự</label><input type="number" id="ed-order" value="0"></div>
+        </div>
+        <label for="ed-title">Tiêu đề đề thi</label>
+        <input type="text" id="ed-title" maxlength="200" placeholder="Ví dụ: ĐỀ THI TIMO – VÒNG QUỐC GIA NĂM 2019–2020">
+        <div class="grid3">
+          <div><label for="ed-duration">Thời gian làm bài (phút)</label><input type="number" id="ed-duration" min="1" max="600"></div>
+          <div><label for="ed-count">Số câu</label><input type="number" id="ed-count" min="1" max="500"></div>
+          <div><label for="ed-paper">Đề thi trực tuyến liên kết (không bắt buộc)</label><select id="ed-paper"></select></div>
+        </div>
+        <label for="ed-desc">Mô tả ngắn (hiện cho cả người chưa trả phí)</label>
+        <textarea id="ed-desc" maxlength="2000"></textarea>
+        <label for="ed-source">Nguồn gốc, trích dẫn (ghi rõ: đề thật, đề mô phỏng hay tài liệu tự biên soạn)</label>
+        <textarea id="ed-source" maxlength="1000"></textarea>
+        <div class="grid3">
+          <div><label for="ed-file-q">File đề (PDF hoặc Word) *</label><input type="file" id="ed-file-q" accept=".pdf,.doc,.docx"><p class="hint" id="ed-cur-q" style="margin-top:4px;"></p></div>
+          <div><label for="ed-file-a">File đáp án (không bắt buộc)</label><input type="file" id="ed-file-a" accept=".pdf,.doc,.docx"><p class="hint" id="ed-cur-a" style="margin-top:4px;"></p><label class="check" id="ed-rm-a-wrap" hidden><input type="checkbox" id="ed-rm-a"> Gỡ file đáp án hiện tại</label></div>
+          <div><label for="ed-file-s">File lời giải (không bắt buộc)</label><input type="file" id="ed-file-s" accept=".pdf,.doc,.docx"><p class="hint" id="ed-cur-s" style="margin-top:4px;"></p><label class="check" id="ed-rm-s-wrap" hidden><input type="checkbox" id="ed-rm-s"> Gỡ file lời giải hiện tại</label></div>
+        </div>
+        <p class="hint">Dung lượng tối đa 25 MB mỗi file. Đáp án và lời giải có thể để trống hoặc tách thành hai file riêng. Thay file sẽ tải bản mới lên trước, chỉ xoá bản cũ sau khi lưu thành công.</p>
+        <p style="margin-top:6px; font-weight:700;">Quyền truy cập: Trả phí (bắt buộc, không đổi được)</p>
+        <label class="check" style="margin-top:10px;"><input type="checkbox" id="ed-rights"> Tôi xác nhận có quyền phân phối tài liệu này. Đề thật của bên thứ ba cần có giấy phép; gắn watermark không tự tạo quyền phát hành.</label>
+        <div class="grid3" style="margin-top:10px;"><div><label for="ed-status">Trạng thái</label><select id="ed-status"><option value="nhap">Nháp</option><option value="da_dang">Đã đăng</option></select></div></div>
+        <p style="margin-top:16px;" class="row-actions"><button class="btn primary" type="submit" id="btn-examdoc">Thêm đề</button><button class="btn ghost" type="button" id="btn-cancel-examdoc" hidden>Huỷ sửa</button></p>
+      </form>
+    </div>
+
     <!-- TAB QUYỀN TRUY CẬP -->
     <div id="tab-access" hidden>
       <div class="card">
@@ -692,6 +747,11 @@
     if (/Diem phai lon hon 0/i.test(m)) return 'Điểm của mỗi câu phải lớn hơn 0.';
     if (/Chon dung mot pham vi/i.test(m)) return 'Hãy chọn đúng một phạm vi quyền.';
     if (/Khoi khong hop le/i.test(m)) return 'Khối không hợp lệ (chọn từ 1 đến 5).';
+    if (/exam_documents_san_sang_dang/i.test(m)) return 'Chỉ đăng được khi đề đã có file đề và bạn đã tích xác nhận quyền phân phối.';
+    if (/exam_documents_gioi_han/i.test(m)) return 'Có ô vượt giới hạn: tên đề tối đa 200 ký tự, thời gian 1 đến 600 phút, số câu 1 đến 500.';
+    if (/exam_documents_chi_tra_phi/i.test(m)) return 'Thư viện đề chỉ có mức Trả phí.';
+    if (/exam_documents_duong_dan/i.test(m)) return 'Đường dẫn file không thuộc đề này.';
+    if (/exam_documents.*(does not exist|schema cache)|relation .*exam_documents/i.test(m)) return 'Chưa có bảng thư viện đề. Hãy chạy SQL bản 11 trong Supabase trước.';
     if (/Thieu tieu de/i.test(m)) return 'Cần nhập tiêu đề.';
     if (/Ma video khong hop le/i.test(m)) return 'Mã video YouTube không hợp lệ.';
     if (/Gan video vao dung mot noi/i.test(m)) return 'Hãy chọn đúng một nơi để gắn video.';
@@ -781,6 +841,7 @@
     updateAccessScopeUI();
     initPackageForm();
     initVideoSelects();
+    initExamLibSelects();
     renderMaterials();
     renderLevels();
     renderExams();
@@ -1799,6 +1860,194 @@
     toast('Đã cập nhật trạng thái video.', 'ok');
   }
 
+
+  /* ---------- THƯ VIỆN ĐỀ THI (CHỈ TRẢ PHÍ) ---------- */
+  var ED = { list: [], papers: [], edit: null, busy: false };
+  var EXAMLIB_BUCKET = 'thu-vien-de';   // kho RIÊNG, không bao giờ dùng địa chỉ công khai
+  var EXAM_CAT = { past_paper: 'Đề các năm', mock_paper: 'Đề mô phỏng', practice_paper: 'Đề luyện tổng hợp' };
+  var EXAM_MIME = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' };
+  var EXAM_MAX = 25 * 1024 * 1024;
+
+  function examLibExams() { return S.exams.filter(function (e) { return e.loai !== 'chuong_trinh'; }); }
+  function initExamLibSelects() {
+    var ex = examLibExams(), opts = ex.map(function (e) { return '<option value="' + esc(e.id) + '">' + esc(e.ten) + '</option>'; }).join('');
+    var k1 = $('ed-exam').value, k2 = $('edf-exam').value;
+    $('ed-exam').innerHTML = opts; if (k1 && ex.some(function (e) { return e.id === k1; })) $('ed-exam').value = k1;
+    $('edf-exam').innerHTML = '<option value="">Tất cả kỳ thi</option>' + opts; $('edf-exam').value = k2 || '';
+    cascadeExamDocLevel();
+    renderExamPaperOptions();
+  }
+  function cascadeExamDocLevel() {
+    var el = $('ed-level'), keep = el.value, list = levelsOfExam($('ed-exam').value);
+    el.innerHTML = list.map(function (l) { return '<option value="' + esc(l.id) + '">' + esc(l.ten) + '</option>'; }).join('');
+    if (keep && list.some(function (l) { return l.id === keep; })) el.value = keep;
+  }
+  function renderExamPaperOptions() {
+    var keep = $('ed-paper').value;
+    $('ed-paper').innerHTML = '<option value="">(Không liên kết)</option>' + ED.papers.map(function (p) { return '<option value="' + esc(p.id) + '">' + esc(p.ten) + '</option>'; }).join('');
+    if (keep && ED.papers.some(function (p) { return p.id === keep; })) $('ed-paper').value = keep;
+  }
+  function examLevelInfo(levelId) {
+    var l = S.levels.find(function (x) { return x.id === levelId; }), e = l && S.exams.find(function (x) { return x.id === l.exam_id; });
+    return { exam: e ? e.ten : '?', level: l ? l.ten : '(đã xoá)', examId: l ? l.exam_id : null };
+  }
+  function fileBase(path) { return String(path || '').split('/').pop().replace(/^(question|answer|solution)-\d{10,}/, '$1'); }
+  async function loadExamDocs() {
+    var r = await sb.from('exam_documents').select('*').order('updated_at', { ascending: false });
+    if (r.error) { toast('Chưa tải được thư viện đề: ' + friendlyError(r.error), 'err'); return; }
+    ED.list = r.data || [];
+    var pr = await sb.rpc('list_papers');
+    ED.papers = (pr.error ? [] : (pr.data || [])).filter(function (p) { return p.trang_thai === 'da_dang'; });
+    renderExamPaperOptions();
+    $('ed-rounds').innerHTML = uniq(ED.list.map(function (d) { return d.exam_round; })).map(function (v) { return '<option value="' + esc(v) + '">'; }).join('');
+    $('ed-years').innerHTML = uniq(ED.list.map(function (d) { return d.year_label; })).map(function (v) { return '<option value="' + esc(v) + '">'; }).join('');
+    renderExamDocs();
+  }
+  function uniq(a) { var o = {}; return a.filter(function (v) { if (!v || o[v]) return false; o[v] = 1; return true; }); }
+  function renderExamDocs() {
+    var fe = $('edf-exam').value, fs = $('edf-status').value, fq = $('edf-q').value.trim().toLowerCase();
+    var rows = ED.list.filter(function (d) {
+      var inf = examLevelInfo(d.level_id);
+      return (!fe || inf.examId === fe) && (!fs || d.status === fs) && (!fq || d.title.toLowerCase().indexOf(fq) >= 0);
+    });
+    $('examdocs-empty').hidden = rows.length > 0;
+    $('examdocs-body').innerHTML = rows.map(function (d) {
+      var inf = examLevelInfo(d.level_id);
+      function fbtn(kind, label, path) { return path ? '<button class="btn ghost small" type="button" data-act="examdoc-open" data-id="' + esc(d.id) + '" data-kind="' + kind + '">' + label + '</button>' : '<span class="muted">' + label + ' —</span>'; }
+      return '<tr><td><b>' + esc(d.title) + '</b>' + (d.description ? '<div class="muted">' + esc(snippet(d.description)) + '</div>' : '') + '</td>' +
+        '<td class="muted">' + esc(inf.exam) + ' › ' + esc(inf.level) + '</td>' +
+        '<td>' + esc([d.exam_round, d.year_label].filter(Boolean).join(' · ') || '—') + '</td>' +
+        '<td>' + esc(EXAM_CAT[d.category] || d.category) + '</td>' +
+        '<td><div class="row-actions">' + fbtn('question', 'Đề', d.question_path) + fbtn('answer', 'Đáp án', d.answer_path) + fbtn('solution', 'Lời giải', d.solution_path) + '</div></td>' +
+        '<td><select data-act="examdoc-status" data-id="' + esc(d.id) + '">' + optionsFromMap(TRANG_THAI, d.status) + '</select>' + (d.rights_confirmed ? '' : '<div class="muted">Chưa xác nhận quyền</div>') + '</td>' +
+        '<td><div class="row-actions"><button class="btn ghost small" type="button" data-act="examdoc-edit" data-id="' + esc(d.id) + '">Sửa</button>' +
+        '<button class="btn danger small" type="button" data-act="examdoc-del" data-id="' + esc(d.id) + '">Xoá</button></div></td></tr>';
+    }).join('');
+  }
+  function resetExamDocForm() {
+    ED.edit = null; $('form-examdoc').reset();
+    $('ed-cat').value = 'past_paper'; $('ed-status').value = 'nhap'; $('ed-order').value = 0; $('ed-paper').value = '';
+    ['q', 'a', 's'].forEach(function (k) { $('ed-cur-' + k).textContent = ''; });
+    $('ed-rm-a-wrap').hidden = true; $('ed-rm-s-wrap').hidden = true;
+    $('ed-heading').textContent = 'Thêm đề vào thư viện'; $('btn-examdoc').textContent = 'Thêm đề'; $('btn-cancel-examdoc').hidden = true;
+    cascadeExamDocLevel();
+  }
+  function showExamDocEdit(id) {
+    var d = ED.list.find(function (x) { return x.id === id; }); if (!d) return;
+    ED.edit = id; var inf = examLevelInfo(d.level_id);
+    if (inf.examId) { $('ed-exam').value = inf.examId; cascadeExamDocLevel(); $('ed-level').value = d.level_id; }
+    $('ed-cat').value = d.category; $('ed-round').value = d.exam_round || ''; $('ed-year').value = d.year_label || ''; $('ed-order').value = d.sort_order || 0;
+    $('ed-title').value = d.title; $('ed-duration').value = d.duration_minutes == null ? '' : d.duration_minutes; $('ed-count').value = d.question_count == null ? '' : d.question_count;
+    $('ed-paper').value = d.linked_paper_id || ''; $('ed-desc').value = d.description || ''; $('ed-source').value = d.source_note || '';
+    $('ed-rights').checked = !!d.rights_confirmed; $('ed-status').value = d.status;
+    $('ed-cur-q').textContent = d.question_path ? 'Hiện có: ' + fileBase(d.question_path) + '. Chọn file mới để thay.' : 'Chưa có file đề.';
+    $('ed-cur-a').textContent = d.answer_path ? 'Hiện có: ' + fileBase(d.answer_path) : 'Chưa có.'; $('ed-cur-s').textContent = d.solution_path ? 'Hiện có: ' + fileBase(d.solution_path) : 'Chưa có.';
+    $('ed-rm-a-wrap').hidden = !d.answer_path; $('ed-rm-s-wrap').hidden = !d.solution_path; $('ed-rm-a').checked = false; $('ed-rm-s').checked = false;
+    ['ed-file-q', 'ed-file-a', 'ed-file-s'].forEach(function (x) { $(x).value = ''; });
+    $('ed-heading').textContent = 'Sửa đề: ' + d.title; $('btn-examdoc').textContent = 'Lưu thay đổi'; $('btn-cancel-examdoc').hidden = false;
+    scrollTo($('form-examdoc')); $('ed-title').focus();
+  }
+  function extOfName(name) { var m = String(name || '').match(/\.([A-Za-z0-9]{2,5})$/); return m ? m[1].toLowerCase() : ''; }
+  async function removeQuiet(paths) {
+    paths = paths.filter(Boolean); if (!paths.length) return true;
+    try { var r = await sb.storage.from(EXAMLIB_BUCKET).remove(paths); return !r.error; } catch (e) { return false; }
+  }
+  async function saveExamDoc(ev) {
+    ev.preventDefault(); if (ED.busy) return;
+    var cur = ED.edit ? ED.list.find(function (x) { return x.id === ED.edit; }) : null;
+    var title = $('ed-title').value.trim(), levelId = $('ed-level').value, status = $('ed-status').value;
+    if (!title) { toast('Cần nhập tiêu đề đề thi.', 'err'); return; }
+    if (!levelId) { toast('Hãy chọn kỳ thi và khối / cấp độ.', 'err'); return; }
+    var dur = $('ed-duration').value.trim() === '' ? null : numOrNull($('ed-duration').value), cnt = $('ed-count').value.trim() === '' ? null : numOrNull($('ed-count').value);
+    if (dur != null && (dur < 1 || dur > 600)) { toast('Thời gian làm bài phải từ 1 đến 600 phút.', 'err'); return; }
+    if (cnt != null && (cnt < 1 || cnt > 500)) { toast('Số câu phải từ 1 đến 500.', 'err'); return; }
+    var files = { question: $('ed-file-q').files[0], answer: $('ed-file-a').files[0], solution: $('ed-file-s').files[0] }, kinds = ['question', 'answer', 'solution'];
+    for (var i = 0; i < kinds.length; i++) {
+      var f = files[kinds[i]]; if (!f) continue;
+      if (!EXAM_MIME[extOfName(f.name)]) { toast('File "' + f.name + '" không đúng định dạng. Chỉ nhận PDF hoặc Word (.doc, .docx).', 'err'); return; }
+      if (f.size > EXAM_MAX) { toast('File "' + f.name + '" lớn hơn 25 MB. Hãy nén hoặc tách nhỏ file.', 'err'); return; }
+    }
+    var rights = $('ed-rights').checked, rmA = !$('ed-rm-a-wrap').hidden && $('ed-rm-a').checked, rmS = !$('ed-rm-s-wrap').hidden && $('ed-rm-s').checked;
+    var hasQ = !!files.question || !!(cur && cur.question_path);
+    if (status === 'da_dang') {
+      if (!hasQ) { toast('Cần có file đề trước khi đăng.', 'err'); return; }
+      if (!rights) { toast('Hãy tích xác nhận bạn có quyền phân phối tài liệu này trước khi đăng.', 'err'); return; }
+    }
+    ED.busy = true; var btn = $('btn-examdoc'); btn.disabled = true;
+    var uploaded = [];
+    try {
+      // 1. Lưu thông tin trước (chưa đổi file). Đề mới luôn lưu ở trạng thái Nháp cho tới khi file đã lên đầy đủ.
+      var base = { level_id: levelId, exam_round: nz($('ed-round').value), year_label: nz($('ed-year').value), category: $('ed-cat').value, title: title, description: nz($('ed-desc').value),
+        duration_minutes: dur, question_count: cnt, source_note: nz($('ed-source').value), rights_confirmed: rights, linked_paper_id: $('ed-paper').value || null, sort_order: numOrNull($('ed-order').value) || 0 };
+      var id, r;
+      if (!cur) {
+        r = await sb.from('exam_documents').insert(Object.assign({ status: 'nhap' }, base)).select('id').single();
+        if (r.error) { toast('Không lưu được đề: ' + friendlyError(r.error), 'err'); return; }
+        id = r.data.id;
+      } else {
+        id = cur.id;
+        // Bỏ tích xác nhận quyền khi đề đang đăng: đưa về Nháp luôn để không vi phạm quy tắc đăng.
+        var patch0 = Object.assign({}, base); if (cur.status === 'da_dang' && !rights) patch0.status = 'nhap';
+        r = await sb.from('exam_documents').update(patch0).eq('id', id);
+        if (r.error) { toast('Không lưu được đề: ' + friendlyError(r.error), 'err'); return; }
+      }
+      // 2. Tải file mới lên đường dẫn mới (không ghi đè file cũ)
+      var paths = {};
+      for (var j = 0; j < kinds.length; j++) {
+        var k = kinds[j], file = files[k]; if (!file) continue;
+        var ext = extOfName(file.name), path = id + '/' + k + '-' + Date.now() + '.' + ext;
+        var up = await sb.storage.from(EXAMLIB_BUCKET).upload(path, file, { upsert: false, contentType: EXAM_MIME[ext] });
+        if (up.error) { await removeQuiet(uploaded); toast('Không tải được file "' + file.name + '": ' + friendlyError(up.error) + '. Thông tin đề đã lưu ở trạng thái Nháp, file cũ (nếu có) vẫn nguyên.', 'err'); await loadExamDocs(); return; }
+        uploaded.push(path); paths[k] = path;
+      }
+      // 3. Cập nhật đường dẫn và trạng thái trong một lần
+      var patch = { status: status };
+      if (paths.question) patch.question_path = paths.question;
+      if (paths.answer) patch.answer_path = paths.answer; else if (rmA) patch.answer_path = null;
+      if (paths.solution) patch.solution_path = paths.solution; else if (rmS) patch.solution_path = null;
+      r = await sb.from('exam_documents').update(patch).eq('id', id);
+      if (r.error) { await removeQuiet(uploaded); toast('Không lưu được: ' + friendlyError(r.error) + ' File cũ (nếu có) vẫn nguyên.', 'err'); await loadExamDocs(); return; }
+      // 4. Chỉ SAU KHI lưu thành công mới xoá file cũ bị thay hoặc gỡ
+      if (cur) {
+        var old = [];
+        if (paths.question && cur.question_path) old.push(cur.question_path);
+        if ((paths.answer || rmA) && cur.answer_path) old.push(cur.answer_path);
+        if ((paths.solution || rmS) && cur.solution_path) old.push(cur.solution_path);
+        if (old.length && !(await removeQuiet(old))) toast('Đã lưu, nhưng chưa xoá được file cũ trong kho. File cũ không còn truy cập được qua thư viện.', 'ok');
+      }
+      toast(cur ? 'Đã lưu đề.' : (status === 'da_dang' ? 'Đã thêm và đăng đề.' : 'Đã thêm đề ở trạng thái Nháp.'), 'ok');
+      resetExamDocForm();
+      await loadExamDocs();
+    } finally { ED.busy = false; btn.disabled = false; }
+  }
+  async function setExamDocStatus(id, value) {
+    var r = await sb.from('exam_documents').update({ status: value }).eq('id', id);
+    if (r.error) { toast('Không cập nhật được: ' + friendlyError(r.error), 'err'); await loadExamDocs(); return; }
+    var d = ED.list.find(function (x) { return x.id === id; }); if (d) d.status = value;
+    toast(value === 'da_dang' ? 'Đã đăng đề. Thành viên có gói phù hợp mở được ngay.' : 'Đã chuyển đề về Nháp. Người dùng mất quyền xem ngay lập tức.', 'ok');
+  }
+  async function deleteExamDoc(id) {
+    var d = ED.list.find(function (x) { return x.id === id; }); if (!d) return;
+    if (!window.confirm('Xoá đề "' + d.title + '" khỏi thư viện? Các file của đề cũng bị xoá. Muốn chỉ ẩn đề, hãy chuyển về Nháp thay vì xoá.')) return;
+    var r = await sb.from('exam_documents').delete().eq('id', id);
+    if (r.error) { toast('Không xoá được: ' + friendlyError(r.error), 'err'); return; }
+    var okFiles = await removeQuiet([d.question_path, d.answer_path, d.solution_path]);
+    toast(okFiles ? 'Đã xoá đề và các file.' : 'Đã xoá đề. Một số file chưa xoá được khỏi kho, bạn có thể xoá thủ công trong Supabase, Storage, kho thu-vien-de.', okFiles ? 'ok' : 'err');
+    if (ED.edit === id) resetExamDocForm();
+    await loadExamDocs();
+  }
+  async function openExamDocFile(id, kind) {
+    var d = ED.list.find(function (x) { return x.id === id; }); if (!d) return;
+    var path = kind === 'question' ? d.question_path : kind === 'answer' ? d.answer_path : d.solution_path; if (!path) return;
+    var w = window.open('about:blank', '_blank');
+    var r = await sb.storage.from(EXAMLIB_BUCKET).download(path);
+    if (r.error) { if (w) w.close(); toast('Chưa mở được file: ' + friendlyError(r.error), 'err'); return; }
+    var ext = extOfName(path), url = URL.createObjectURL(new Blob([r.data], { type: EXAM_MIME[ext] || 'application/octet-stream' }));
+    if (ext === 'pdf' && w) { w.location.href = url; }
+    else { if (w) w.close(); var a = document.createElement('a'); a.href = url; a.download = fileBase(path); document.body.appendChild(a); a.click(); a.remove(); }
+    setTimeout(function () { URL.revokeObjectURL(url); }, 300000);
+  }
+
   /* ---------- NỘI DUNG CHUYÊN ĐỀ ---------- */
   var C = { topicId: null, problems: [], solutions: {}, links: {}, terms: [], editingId: null, plan: null };
 
@@ -2162,10 +2411,11 @@
   document.querySelectorAll('.tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
       document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
-      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'papers', 'access', 'olympic-info', 'analytics'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
+      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'papers', 'examlib', 'access', 'olympic-info', 'analytics'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
       if (tab.dataset.tab === 'olympic-info') loadOlympicCompetitions();
       if (tab.dataset.tab === 'analytics') loadSiteAnalytics();
       if (tab.dataset.tab === 'videos') loadVideos();
+      if (tab.dataset.tab === 'examlib') loadExamDocs();
       if (tab.dataset.tab === 'access') loadAccess();
       if (tab.dataset.tab === 'papers') { loadPapers(); if ($('pk-topic').value) loadPicker(); }
     });
@@ -2215,6 +2465,11 @@
   $('form-access').addEventListener('submit', grantAccess);
   $('form-package').addEventListener('submit', grantPackage);
   $('form-video').addEventListener('submit', saveVideo);
+  $('form-examdoc').addEventListener('submit', saveExamDoc);
+  $('btn-cancel-examdoc').addEventListener('click', resetExamDocForm);
+  $('ed-exam').addEventListener('change', cascadeExamDocLevel);
+  ['edf-exam', 'edf-status'].forEach(function (id) { $(id).addEventListener('change', renderExamDocs); });
+  $('edf-q').addEventListener('input', renderExamDocs);
   $('btn-cancel-video').addEventListener('click', resetVideoForm);
   $('vd-exam').addEventListener('change', cascadeVideoLevel);
   $('vd-level').addEventListener('change', cascadeVideoTopic);
@@ -2390,6 +2645,9 @@
     if (b.dataset.act === 'access-revoke') revokeAccess(b.dataset.id);
     if (b.dataset.act === 'video-edit') showVideoEdit(b.dataset.id);
     if (b.dataset.act === 'video-del') deleteVideo(b.dataset.id);
+    if (b.dataset.act === 'examdoc-edit') showExamDocEdit(b.dataset.id);
+    if (b.dataset.act === 'examdoc-del') deleteExamDoc(b.dataset.id);
+    if (b.dataset.act === 'examdoc-open') openExamDocFile(b.dataset.id, b.dataset.kind);
     if (b.dataset.act === 'paper-items') openPaperItems(b.dataset.id);
     if (b.dataset.act === 'paper-edit') showPaperForm(PP.papers.find(function (x) { return x.id === b.dataset.id; }));
     if (b.dataset.act === 'pk-add') addItem(b.dataset.id);
@@ -2413,6 +2671,7 @@
     if (act === 'prob-status') setProblemStatus(id, s.value);
     if (act === 'paper-status') setPaperStatus(id, s.value);
     if (act === 'video-status') setVideoStatus(id, s.value);
+    if (act === 'examdoc-status') setExamDocStatus(id, s.value);
   });
 
 
