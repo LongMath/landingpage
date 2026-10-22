@@ -129,6 +129,54 @@
     .mobile-menu a:last-child { border-bottom:0; }
     .mobile-menu a.active { color:var(--gold-deep); }
   }
+
+  /* TBL HEADER FULL-BLEED v3 - visual alignment with the landing page.
+     Only header is full width; page content retains its existing .wrap size. */
+  header {
+    background: rgba(12,32,80,.97);
+    border-bottom: 1px solid rgba(227,160,56,.3);
+    backdrop-filter: blur(8px);
+  }
+  header > .wrap.bar {
+    box-sizing: border-box;
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 12px clamp(16px, 1.7vw, 34px) !important;
+    display: flex;
+    align-items: center;
+    gap: clamp(12px, 1.3vw, 26px);
+  }
+  header .brand { flex: 0 0 auto; }
+  header .brand span { color: #FFF7E6; }
+  header nav {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: clamp(4px, .7vw, 15px);
+  }
+  header nav a {
+    color: rgba(255,255,255,.88);
+    white-space: nowrap;
+    padding: 9px clamp(4px, .55vw, 12px);
+    font-size: clamp(12.5px, .77vw, 15px);
+  }
+  header nav a:hover, header nav a.active { color: #FFE4A5; background: rgba(255,255,255,.12); }
+  header .head-actions { flex: 0 0 auto; margin-left: 0; }
+  header .btn-outline { color: #FFF7E6; border-color: rgba(255,255,255,.7); }
+  header .burger span { background: #FFF7E6; }
+  @media (min-width: 1321px) { header nav { display: flex !important; } header .burger { display:none !important; } }
+  @media (max-width: 1320px) {
+    header nav { display: none !important; }
+    header .burger { display:flex !important; }
+    header .head-actions { margin-left:auto; }
+  }
+  @media (max-width: 640px) {
+    header > .wrap.bar { padding: 10px 16px !important; }
+  }
+  /* End TBL HEADER FULL-BLEED v3 */
 </style>
 </head>
 <body>
