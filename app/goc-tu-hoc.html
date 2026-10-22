@@ -93,6 +93,31 @@
     #greeting, #auth-greeting, .head-actions .tag-soon { display:none; }
   }
   @media (max-width:440px) { .brand span { display:none; } }
+
+  /* ===== Thanh menu gọn, không xuống dòng. Kích thước tính theo độ rộng chữ thật của từng mục ===== */
+  header .wide, header .wrap { max-width:1440px; }
+  header .brand span { white-space:nowrap; }
+  header nav { gap:2px; flex-wrap:nowrap; }
+  header nav a { padding:8px 10px; font-size:13.5px; white-space:nowrap; }
+  header .head-actions { flex-shrink:0; white-space:nowrap; }
+  #greeting, #auth-greeting { max-width:170px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  @media (min-width:641px) { header .btn-outline, header .btn-gold { padding:8px 14px; white-space:nowrap; } }
+  /* Màn hình vừa (1100 đến 1279 px): ẩn lời chào và nhãn "Sắp ra mắt", thu nhỏ chữ để vẫn đủ một hàng */
+  @media (max-width:1279px) {
+    #greeting, #auth-greeting, header .head-actions .tag-soon { display:none; }
+    header nav a { padding:8px 7px; font-size:12.5px; }
+  }
+  @media (min-width:641px) and (max-width:1279px) { header .btn-outline, header .btn-gold { padding:8px 12px; font-size:12.5px; } }
+  /* Dưới 1100 px: chuyển sang menu 3 gạch (trước đây là 920 px, quá thấp nên 920 đến 1100 px bị tràn) */
+  @media (max-width:1099px) {
+    header nav { display:none; }
+    .burger { display:flex; }
+    .head-actions { margin-left:auto; }
+    .mobile-menu.open { display:block; position:absolute; left:0; right:0; top:100%; background:var(--paper); border-bottom:1px solid var(--line); box-shadow:0 18px 30px -12px rgba(12,32,80,0.25); padding:6px 24px 14px; max-height:calc(100vh - 70px); overflow-y:auto; }
+    .mobile-menu a { display:block; padding:14px 4px; color:var(--navy); font-weight:600; font-size:16px; text-decoration:none; border-bottom:1px solid var(--line); }
+    .mobile-menu a:last-child { border-bottom:0; }
+    .mobile-menu a.active { color:var(--gold-deep); }
+  }
 </style>
 </head>
 <body>
@@ -226,7 +251,7 @@
   menu.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
   document.addEventListener('click', function (e) { if (!menu.contains(e.target) && !burger.contains(e.target)) setOpen(false); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
-  window.addEventListener('resize', function () { if (window.innerWidth > 920) setOpen(false); });
+  window.addEventListener('resize', function () { if (window.innerWidth > 1099) setOpen(false); });
 })();
 </script>
 </body>
