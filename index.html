@@ -1258,9 +1258,9 @@ header .burger {display:none;}
         </select>
       </div>
       <input type="text" id="regWebsite" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
-      <button type="submit" class="reg-submit" id="regSubmit">Tạo tài khoản và đăng ký học</button>
+      <button type="submit" class="reg-submit" id="regSubmit">Tạo tài khoản (bước 1/2)</button>
       <div class="reg-status" id="regStatus" role="status" aria-live="polite"></div>
-      <p class="reg-note">Gửi form là bạn tạo luôn tài khoản Toán Bác Long (miễn phí) để theo dõi đăng ký và học thử. Đã có tài khoản? <a href="/app/dang-ky-hoc.html">Đăng nhập để gửi đăng ký</a>.</p>
+      <p class="reg-note">Bước 1: tạo tài khoản miễn phí. Bước 2: đăng nhập và gửi yêu cầu đăng ký học để CLB tiếp nhận. Đã có tài khoản? <a href="/app/dang-ky-hoc.html">Đăng nhập để gửi đăng ký</a>.</p>
     </form>
 
     <div class="reg-divider">hoặc</div>
@@ -1278,7 +1278,7 @@ header .burger {display:none;}
   var SB_URL = 'https://vmttxgndosucjpysdrzg.supabase.co';
   var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdHR4Z25kb3N1Y2pweXNkcnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMTE5NjcsImV4cCI6MjEwNDg4Nzk2N30.q79YcNPMQhhtOhp3ei1kWV03_TdORAx1PnJi3BgYXlU';
   var form = document.getElementById('regForm'), btn = document.getElementById('regSubmit'), status = document.getElementById('regStatus'), ok = document.getElementById('regSuccess'), okMsg = document.getElementById('regSuccessMsg');
-  var BTN_TEXT = 'Tạo tài khoản và đăng ký học';
+  var BTN_TEXT = 'Tạo tài khoản (bước 1/2)';
   function val(id) { return String(document.getElementById(id).value || '').trim(); }
   function label(id) { var el = document.getElementById(id); return el.options ? el.options[el.selectedIndex].text : el.value; }
   function showErr(text, withLogin) {
@@ -1286,13 +1286,8 @@ header .burger {display:none;}
     if (withLogin) { var a = document.createElement('a'); a.href = '/app/dang-ky-hoc.html'; a.textContent = 'Đăng nhập để gửi đăng ký'; status.appendChild(document.createTextNode(' ')); status.appendChild(a); status.appendChild(document.createTextNode('.')); }
     btn.disabled = false; btn.textContent = BTN_TEXT;
   }
-  // Gửi thêm một bản tin vào email quản trị (chỉ thông tin liên hệ, KHÔNG gửi mật khẩu). Không bao giờ chặn luồng chính.
-  function notifyEmail(info) {
-    try {
-      fetch('https://formsubmit.co/ajax/digivina@gmail.com', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ 'Họ tên phụ huynh': info.parent, 'Số điện thoại': info.phone, 'Email': info.email, 'Họ tên con': info.child, 'Lớp': info.gradeText, 'Gói quan tâm': info.planText, '_subject': 'Đăng ký học mới - Toán Bác Long' }) }).catch(function () {});
-    } catch (e) { /* bỏ qua */ }
-  }
+  // Không gửi thông tin phụ huynh/học sinh sang dịch vụ email bên thứ ba.
+  // Đăng ký tài khoản không đồng nghĩa với việc đã gửi yêu cầu tư vấn học.
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
     if (document.getElementById('regWebsite').value) { form.style.display = 'none'; ok.classList.add('show'); return; }   // ô bẫy bị điền: coi như bot, báo thành công giả
@@ -1307,7 +1302,7 @@ header .burger {display:none;}
         body: JSON.stringify({ email: info.email, password: password, data: { ho_ten: info.parent, so_dien_thoai: info.phone, dang_ky_hoc: true, nguon: 'landing', ten_hoc_sinh: info.child, khoi: info.grade, goi: info.plan } }) });
       try { body = await res.json(); } catch (x) { body = {}; }
     } catch (err) {                                    // lỗi mạng: vẫn báo cho quản trị qua email để không mất khách
-      notifyEmail(info); showErr('Chưa gửi được đăng ký do kết nối. Mình đã báo cho CLB, bạn cũng có thể đăng ký nhanh qua Zalo bên dưới.'); return;
+      showErr('Chưa tạo được tài khoản vì lỗi kết nối. Vui lòng thử lại hoặc liên hệ qua Zalo.'); return;
     }
     var code = String(body.error_code || body.code || ''), msg = String(body.msg || body.message || body.error_description || '');
     var existing = code === 'user_already_exists' || /already registered|already been registered/i.test(msg);
@@ -1317,15 +1312,17 @@ header .burger {display:none;}
     if (!res.ok) {
       if (code === 'weak_password' || res.status === 422) { showErr('Mật khẩu chưa đủ mạnh. Hãy dùng ít nhất 6 ký tự.'); return; }
       if (res.status === 429 || /rate.?limit/i.test(code)) { showErr('Bạn thao tác hơi nhanh. Vui lòng thử lại sau vài phút, hoặc đăng ký nhanh qua Zalo bên dưới.'); return; }
-      if (res.status >= 500) { notifyEmail(info); showErr('Hệ thống đang bận. Mình đã báo cho CLB, bạn cũng có thể đăng ký nhanh qua Zalo bên dưới.'); return; }
+      if (res.status >= 500) { showErr('Hệ thống đang bận. Vui lòng thử lại hoặc liên hệ qua Zalo.'); return; }
       if (/email/i.test(code + ' ' + msg)) { showErr('Email chưa hợp lệ. Bạn kiểm tra lại giúp mình nhé.'); return; }
       showErr('Chưa gửi được đăng ký. Bạn thử lại sau hoặc đăng ký nhanh qua Zalo bên dưới.'); return;
     }
-    notifyEmail(info);
     var hasSession = !!(body.access_token || body.session);
-    okMsg.textContent = 'Đã tạo tài khoản và ghi nhận đăng ký học' + (info.child ? ' cho ' + info.child : '') + '. ' +
-      (hasSession ? 'Bạn có thể đăng nhập ngay bằng email vừa đăng ký. ' : 'Hãy mở email ' + info.email + ' và bấm liên kết xác nhận MỘT lần (có hiệu lực khoảng 1 giờ; kiểm tra cả thư mục Spam). ') +
-      'CLB Toán Bác Long sẽ liên hệ tư vấn qua số ' + info.phone + ' trong thời gian sớm nhất.';
+    okMsg.textContent = 'Đã tiếp nhận yêu cầu tạo tài khoản. ' +
+      (hasSession ? 'Bạn có thể đăng nhập ngay. ' : 'Nếu nhận được email xác nhận, hãy bấm liên kết kích hoạt (kiểm tra cả Spam). ') +
+      'Để CLB thực sự nhận được đăng ký tư vấn/học, vui lòng mở trang Đăng ký học và nhấn Gửi đăng ký sau khi đăng nhập. Không cần tạo tài khoản lần thứ hai.';
+    var go = document.createElement('p'); go.style.marginTop = '12px';
+    var link = document.createElement('a'); link.href = '/app/dang-ky-hoc.html'; link.textContent = 'Tiếp tục gửi đăng ký học →';
+    go.appendChild(link); ok.appendChild(go);
     form.style.display = 'none'; ok.classList.add('show');
   });
 })();

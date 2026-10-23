@@ -338,7 +338,7 @@
     ev.preventDefault(); var err = $('register-error'), ok = $('register-success'); err.hidden = true; ok.hidden = true;
     var r = await sb.auth.signUp({ email: $('reg-email').value.trim(), password: $('reg-password').value, options: { emailRedirectTo: (/^https?:$/.test(location.protocol) ? location.origin + '/app/dang-ky-hoc.html' : undefined), data: { ho_ten: $('reg-hoten').value.trim(), so_dien_thoai: $('reg-phone').value.trim() } } });
     if (r.error) { err.textContent = 'Đăng ký chưa được: ' + r.error.message; err.hidden = false; return; }
-    ok.textContent = 'Tài khoản đã được tạo. Hãy mở email xác nhận và bấm liên kết MỘT lần (có hiệu lực khoảng 1 giờ) để kích hoạt. Không thấy email thì kiểm tra thư mục Spam.'; ok.hidden = false;
+    ok.textContent = 'Tài khoản đã được tạo. Hãy mở email xác nhận và bấm liên kết MỘT lần (thời hạn do hệ thống xác thực quy định) để kích hoạt. Không thấy email thì kiểm tra thư mục Spam.'; ok.hidden = false;
   });
   $('btn-logout').addEventListener('click', function () { sb.auth.signOut(); });
 

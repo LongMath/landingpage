@@ -447,7 +447,7 @@
       errorEl.style.display = 'block';
       return;
     }
-    successEl.textContent = 'Đã gửi yêu cầu tạo tài khoản. Hãy mở email xác nhận và bấm liên kết MỘT lần (có hiệu lực khoảng 1 giờ, kiểm tra cả thư mục Spam), sau đó đăng nhập để xác nhận lộ trình' + (pendingGrade ? ' Khối '+pendingGrade : '') + '.';
+    successEl.textContent = 'Đã gửi yêu cầu tạo tài khoản. Hãy mở email xác nhận và bấm liên kết MỘT lần (kiểm tra cả thư mục Spam), sau đó đăng nhập để xác nhận lộ trình' + (pendingGrade ? ' Khối '+pendingGrade : '') + '.';
     const {data:{session:createdSession}}=await sb.auth.getSession();
     if(createdSession && pendingGrade){closeAuthModal();await registerTrack(pendingGrade);return;}
     successEl.style.display = 'block';
