@@ -78,6 +78,14 @@
   /* Thanh trên: mỗi ô một dòng (cả cụm có thể xuống hàng nhờ flex-wrap, chữ thì không bị bẻ) */
   header .brand, header .who a, header .who button { white-space:nowrap; }
   header #who-email { white-space:nowrap; max-width:240px; overflow:hidden; text-overflow:ellipsis; display:inline-block; vertical-align:middle; }
+
+  /* Tab Đăng ký học */
+  .nbadge { display:inline-block; min-width:20px; margin-left:7px; padding:1px 7px; border-radius:999px; background:#E63A2E; color:#fff; font-size:12px; line-height:18px; text-align:center; }
+  .enroll-bar { display:grid; grid-template-columns:200px 1fr auto; gap:12px; align-items:end; margin-top:14px; }
+  @media (max-width:700px) { .enroll-bar { grid-template-columns:1fr; } }
+  #enr-rows td { vertical-align:top; } #enr-rows .nowrap { white-space:nowrap; } #enr-rows .handle select, #enr-rows .handle input[type=text] { display:block; width:100%; min-width:150px; margin-bottom:6px; } #enr-rows .note-cell { max-width:200px; overflow-wrap:anywhere; } #enr-rows .row-actions { flex-direction:column; align-items:stretch; } #enr-rows .row-actions .btn { white-space:nowrap; }
+  .tagok, .tagwarn, .tagblue { display:inline-block; border-radius:999px; padding:1px 8px; font-size:11.5px; font-weight:700; margin:3px 4px 0 0; }
+  .tagok { background:#DDF3E6; color:#178A50; } .tagwarn { background:#FFF1D6; color:#8A5A0B; } .tagblue { background:#E4F0FB; color:#185FA5; }
 </style>
 </head>
 <body>
@@ -151,7 +159,8 @@
       <button class="tab" type="button" data-tab="content">Nội dung</button>
       <button class="tab" type="button" data-tab="papers">Đề thi</button>
       <button class="tab" type="button" data-tab="examlib">Thư viện đề</button>
-      <button class="tab" type="button" data-tab="access">Quyền truy cập</button>
+      <button class="tab" type="button" data-tab="enroll">Đăng ký học<span class="nbadge" id="enroll-badge" hidden></span></button>
+    <button class="tab" type="button" data-tab="access">Quyền truy cập</button>
       <button class="tab" type="button" data-tab="olympic-info">Thông tin Olympic</button>
       <button class="tab" type="button" data-tab="analytics">Thống kê truy cập</button>
     </div>
@@ -636,6 +645,21 @@
       </form>
     </div>
 
+    <!-- TAB ĐĂNG KÝ HỌC -->
+    <div id="tab-enroll" hidden>
+      <div class="card">
+        <h2>Đăng ký học</h2>
+        <p class="hint">Yêu cầu từ biểu mẫu "Đăng ký học" ở trang chủ và trang Đăng ký học. Tài khoản của phụ huynh đã được tạo cùng lúc. Nút <b>Cấp gói</b> chỉ điền sẵn email và gói vào form "Cấp theo gói" ở tab Quyền truy cập, bạn kiểm tra rồi mới bấm cấp (hệ thống không tự cấp quyền). Sau khi cấp, nhớ đổi trạng thái sang "Đã thanh toán".</p>
+        <div class="enroll-bar">
+          <div><label for="enr-status">Trạng thái</label><select id="enr-status"><option value="">Tất cả</option><option value="moi">Mới</option><option value="da_lien_he">Đã liên hệ</option><option value="da_thanh_toan">Đã thanh toán</option><option value="huy">Đã huỷ</option></select></div>
+          <div><label for="enr-q">Tìm</label><input type="text" id="enr-q" placeholder="Tên, điện thoại hoặc email" autocomplete="off"></div>
+          <div><button class="btn ghost" type="button" id="enr-refresh">Tải lại</button></div>
+        </div>
+        <p class="hint" id="enr-summary" style="margin-top:10px;"></p>
+        <div class="tablewrap"><table><thead><tr><th>Ngày</th><th>Phụ huynh</th><th>Học sinh và gói quan tâm</th><th>Ghi chú của khách</th><th>Xử lý (trạng thái, ghi chú của bạn)</th><th></th></tr></thead><tbody id="enr-rows"></tbody></table></div>
+      </div>
+    </div>
+
     <!-- TAB QUYỀN TRUY CẬP -->
     <div id="tab-access" hidden>
       <div class="card">
@@ -804,6 +828,7 @@
     }
     showView('app');
     await reloadAll();
+    refreshEnrollBadge();
   }
 
   /* ---------- TẢI DỮ LIỆU ---------- */
@@ -1647,6 +1672,98 @@
   }
 
 
+  /* ---------- ĐĂNG KÝ HỌC ---------- */
+  var ENR = { rows: [], seq: 0 };
+  var ENR_GRADE = { pre_k: 'Pre-K (Mẫu giáo)', '1': 'Lớp 1', '2': 'Lớp 2', '3': 'Lớp 3', '4': 'Lớp 4', '5': 'Lớp 5' };
+  var ENR_PLAN = { nangcao: 'Toán nâng cao', luyenthi: 'Luyện thi Olympic', toandien: 'Toàn diện', giadinh: 'Gia đình Đồng hành', full: 'Full', lop_hoc: 'Lớp học cùng giáo viên', chua_ro: 'Chưa rõ, cần tư vấn' };
+  var ENR_PACK = { nangcao: 1, luyenthi: 1, toandien: 1, giadinh: 1, full: 1 };   // gói quan tâm có gói cấp quyền tương ứng (lop_hoc và chua_ro thì không)
+  var ENR_STATUS = [['moi', 'Mới'], ['da_lien_he', 'Đã liên hệ'], ['da_thanh_toan', 'Đã thanh toán'], ['huy', 'Đã huỷ']];
+
+  async function refreshEnrollBadge() {
+    var b = $('enroll-badge'); if (!b) return;
+    try {
+      var r = await sb.rpc('admin_enrollment_counts');
+      if (r.error || !r.data) { b.hidden = true; return; }
+      var n = Number(r.data.moi) || 0; b.textContent = String(n); b.hidden = n === 0;
+    } catch (e) { b.hidden = true; }
+  }
+  async function loadEnroll() {
+    var seq = ++ENR.seq, st = $('enr-status').value;
+    $('enr-summary').textContent = 'Đang tải...';
+    var r = await sb.rpc('admin_list_enrollment_requests', { p_status: st || null, p_limit: 300 });
+    if (seq !== ENR.seq) return;
+    if (r.error) {
+      ENR.rows = []; $('enr-rows').innerHTML = '';
+      $('enr-summary').textContent = /function|schema cache|does not exist/i.test(r.error.message || '')
+        ? 'Chưa chạy SQL bản 12 (file supabase-content-v12-dang-ky-hoc.sql) nên chưa dùng được tab này.'
+        : 'Không tải được: ' + friendlyError(r.error);
+      return;
+    }
+    ENR.rows = r.data || []; renderEnroll(); refreshEnrollBadge();
+  }
+  function enrFind(id) { return ENR.rows.filter(function (x) { return x.id === id; })[0]; }
+  function renderEnroll() {
+    var raw = $('enr-q').value.trim(), q = raw.toLowerCase();
+    var rows = ENR.rows.filter(function (x) { return !q || [x.parent_name, x.phone, x.email, x.student_name].join(' ').toLowerCase().indexOf(q) >= 0; });
+    $('enr-summary').textContent = rows.length + ' yêu cầu' + (q ? ' (lọc theo "' + raw + '")' : '') + (ENR.rows.length >= 300 ? '. Chỉ hiện 300 yêu cầu mới nhất.' : '.');
+    if (!rows.length) { $('enr-rows').innerHTML = '<tr><td colspan="6" class="hint">Chưa có yêu cầu nào.</td></tr>'; return; }
+    $('enr-rows').innerHTML = rows.map(function (x) {
+      var d = new Date(x.created_at), when = isNaN(d) ? '' : d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+      var phone = String(x.phone || ''), digits = phone.replace(/\D/g, '');
+      var zalo = /^[0-9+\s.\-]{8,20}$/.test(phone) && digits.length >= 8 ? ' <a href="https://zalo.me/' + esc(digits) + '" target="_blank" rel="noopener">Zalo</a>' : '';
+      var tags = (x.email_confirmed ? '<span class="tagok">Đã xác nhận email</span>' : '<span class="tagwarn">Chưa xác nhận email</span>') + (x.co_goi ? '<span class="tagblue">Đã có gói</span>' : '') + '<span class="tagblue">' + (x.source === 'landing' ? 'Từ trang chủ' : 'Từ trang Đăng ký học') + '</span>';
+      var opts = ENR_STATUS.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === x.status ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('');
+      return '<tr>' +
+        '<td class="nowrap">' + esc(when) + '</td>' +
+        '<td><b>' + esc(x.parent_name || '(chưa có tên)') + '</b><br>' + esc(phone) + zalo + '<br>' + esc(x.email || '') + '<br>' + tags + '</td>' +
+        '<td><b>' + esc(x.student_name || '(chưa có tên con)') + '</b><br><span class="hint">' + esc(ENR_GRADE[x.grade] || '') + '</span><br>' + esc(ENR_PLAN[x.plan] || '') + '</td>' +
+        '<td class="note-cell">' + esc(x.note || '') + '</td>' +
+        '<td class="handle"><select data-enr="status" data-id="' + esc(x.id) + '">' + opts + '</select><input type="text" data-enr="note" data-id="' + esc(x.id) + '" maxlength="1000" value="' + esc(x.admin_note || '') + '" placeholder="Ví dụ: đã gọi, hẹn thứ 7"></td>' +
+        '<td class="row-actions"><button class="btn small primary" type="button" data-enr="grant" data-id="' + esc(x.id) + '">Cấp gói</button><button class="btn small danger" type="button" data-enr="del" data-id="' + esc(x.id) + '">Xoá</button></td>' +
+        '</tr>';
+    }).join('');
+  }
+  async function enrUpdate(id, status, note) {
+    var r = await sb.rpc('admin_update_enrollment_request', { p_id: id, p_status: status, p_admin_note: note });
+    if (r.error) { toast('Không lưu được: ' + friendlyError(r.error), 'err'); await loadEnroll(); return; }
+    var x = enrFind(id); if (x) { if (status) x.status = status; if (note !== null) x.admin_note = note.trim() || null; }
+    toast('Đã lưu.', 'ok'); refreshEnrollBadge();
+  }
+  function enrGrant(id) {
+    var x = enrFind(id); if (!x) return;
+    document.querySelector('.tab[data-tab="access"]').click();
+    $('pk2-email').value = x.email || '';
+    var msg = 'Đã điền sẵn email. ';
+    if (ENR_PACK[x.plan]) {
+      $('pk2-pack').value = x.plan; $('pk2-pack').dispatchEvent(new Event('change'));
+      var g = Number(x.grade); if (g >= 1 && g <= 5) { $('pk2-k1-khoi').value = String(g); $('pk2-k1-khoi').dispatchEvent(new Event('change')); }
+      msg += 'Đã chọn gói "' + ENR_PLAN[x.plan] + '". ';
+    } else { msg += 'Khách chọn "' + (ENR_PLAN[x.plan] || 'chưa chọn gói') + '" nên bạn hãy chọn gói phù hợp. '; }
+    toast(msg + 'Kiểm tra rồi bấm "Cấp theo gói" (chưa có quyền nào được cấp).', 'ok');
+    $('form-package').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  async function enrDelete(id) {
+    var x = enrFind(id); if (!x) return;
+    if (!confirm('Xoá yêu cầu của ' + (x.parent_name || x.email || 'khách này') + '? Tài khoản của họ không bị xoá.')) return;
+    var r = await sb.from('enrollment_requests').delete().eq('id', id);
+    if (r.error) { toast('Không xoá được: ' + friendlyError(r.error), 'err'); return; }
+    toast('Đã xoá yêu cầu.', 'ok'); await loadEnroll();
+  }
+  $('enr-status').addEventListener('change', loadEnroll);
+  $('enr-q').addEventListener('input', renderEnroll);
+  $('enr-refresh').addEventListener('click', loadEnroll);
+  $('enr-rows').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-enr]'); if (!b) return;
+    if (b.dataset.enr === 'grant') enrGrant(b.dataset.id);
+    if (b.dataset.enr === 'del') enrDelete(b.dataset.id);
+  });
+  $('enr-rows').addEventListener('change', function (ev) {
+    var el = ev.target, id = el.dataset && el.dataset.id; if (!id) return;
+    if (el.dataset.enr === 'status') enrUpdate(id, el.value, null);
+    if (el.dataset.enr === 'note') enrUpdate(id, '', el.value);
+  });
+
+
   /* ---------- CẤP QUYỀN THEO GÓI ---------- */
   var PACKS = {
     nangcao:  { ten: 'Toán nâng cao', kids: 1, khoi: true,  exam: false },
@@ -2415,11 +2532,12 @@
   document.querySelectorAll('.tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
       document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
-      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'papers', 'examlib', 'access', 'olympic-info', 'analytics'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
+      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'papers', 'examlib', 'enroll', 'access', 'olympic-info', 'analytics'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
       if (tab.dataset.tab === 'olympic-info') loadOlympicCompetitions();
       if (tab.dataset.tab === 'analytics') loadSiteAnalytics();
       if (tab.dataset.tab === 'videos') loadVideos();
       if (tab.dataset.tab === 'examlib') loadExamDocs();
+      if (tab.dataset.tab === 'enroll') loadEnroll();
       if (tab.dataset.tab === 'access') loadAccess();
       if (tab.dataset.tab === 'papers') { loadPapers(); if ($('pk-topic').value) loadPicker(); }
     });

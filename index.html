@@ -443,6 +443,8 @@
   .reg-status.show{display:block;}
   .reg-status.ok{color:#1E8E5A;}
   .reg-status.err{color:var(--coral-dark);}
+  .final-cta .reg-note { font-size:12.5px; color:var(--ink-soft); text-align:center; margin:12px 0 0; line-height:1.6; }
+  .final-cta .reg-note a, .reg-status a { color:var(--ink); font-weight:700; text-decoration:underline; }
   .reg-success{display:none; text-align:center; padding:20px 0;}
   .reg-success.show{display:block;}
   .reg-success .check{font-size:44px; margin-bottom:12px;}
@@ -1207,7 +1209,7 @@ header .burger {display:none;}
     <div class="reg-success" id="regSuccess">
       <div class="check">✅</div>
       <h3 style="font-family:'Baloo 2'; margin-bottom:8px;">Đăng ký thành công!</h3>
-      <p style="color:var(--ink-soft); font-size:14px;">CLB Toán Bác Long sẽ liên hệ tư vấn cho bạn trong thời gian sớm nhất.</p>
+      <p id="regSuccessMsg" style="color:var(--ink-soft); font-size:14px;">CLB Toán Bác Long sẽ liên hệ tư vấn cho bạn trong thời gian sớm nhất.</p>
     </div>
 
     <form id="regForm">
@@ -1220,8 +1222,12 @@ header .burger {display:none;}
         <input type="tel" id="phone" name="Số điện thoại" required placeholder="09xxxxxxxx">
       </div>
       <div class="reg-field">
-        <label for="email">Email (không bắt buộc)</label>
-        <input type="email" id="email" name="Email" placeholder="email@vidu.com">
+        <label for="email">Email (dùng để đăng nhập) *</label>
+        <input type="email" id="email" name="Email" required autocomplete="email" placeholder="email@vidu.com">
+      </div>
+      <div class="reg-field">
+        <label for="regPassword">Mật khẩu (từ 6 ký tự) *</label>
+        <input type="password" id="regPassword" required minlength="6" autocomplete="new-password" placeholder="Tạo mật khẩu để đăng nhập học">
       </div>
       <div class="reg-row">
         <div class="reg-field">
@@ -1231,28 +1237,30 @@ header .burger {display:none;}
         <div class="reg-field">
           <label for="grade">Con đang học lớp</label>
           <select id="grade" name="Lớp">
-            <option>Pre-K (Mẫu giáo)</option>
-            <option>Lớp 1</option>
-            <option>Lớp 2</option>
-            <option>Lớp 3</option>
-            <option>Lớp 4</option>
-            <option>Lớp 5</option>
+            <option value="pre_k">Pre-K (Mẫu giáo)</option>
+            <option value="1">Lớp 1</option>
+            <option value="2">Lớp 2</option>
+            <option value="3">Lớp 3</option>
+            <option value="4">Lớp 4</option>
+            <option value="5">Lớp 5</option>
           </select>
         </div>
       </div>
       <div class="reg-field">
         <label for="plan">Gói quan tâm</label>
         <select id="plan" name="Gói quan tâm">
-          <option>Toán nâng cao (59k/tháng)</option>
-          <option>Luyện thi Olympic (79k/tháng)</option>
-          <option>Toàn diện (109k/tháng)</option>
-          <option>Gia đình Đồng hành (179k/tháng)</option>
-          <option>Lớp học cùng giáo viên (200k/buổi)</option>
-          <option>Chưa rõ — cần tư vấn</option>
+          <option value="nangcao">Toán nâng cao (59k/tháng)</option>
+          <option value="luyenthi">Luyện thi Olympic (79k/tháng)</option>
+          <option value="toandien">Toàn diện (109k/tháng)</option>
+          <option value="giadinh">Gia đình Đồng hành (179k/tháng)</option>
+          <option value="lop_hoc">Lớp học cùng giáo viên (200k/buổi)</option>
+          <option value="chua_ro">Chưa rõ — cần tư vấn</option>
         </select>
       </div>
-      <button type="submit" class="reg-submit" id="regSubmit">Đăng ký ngay</button>
-      <div class="reg-status" id="regStatus"></div>
+      <input type="text" id="regWebsite" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
+      <button type="submit" class="reg-submit" id="regSubmit">Tạo tài khoản và đăng ký học</button>
+      <div class="reg-status" id="regStatus" role="status" aria-live="polite"></div>
+      <p class="reg-note">Gửi form là bạn tạo luôn tài khoản Toán Bác Long (miễn phí) để theo dõi đăng ký và học thử. Đã có tài khoản? <a href="/app/dang-ky-hoc.html">Đăng nhập để gửi đăng ký</a>.</p>
     </form>
 
     <div class="reg-divider">hoặc</div>
@@ -1265,38 +1273,62 @@ header .burger {display:none;}
 
 
 <script>
-  const regForm = document.getElementById('regForm');
-  const regSubmit = document.getElementById('regSubmit');
-  const regStatus = document.getElementById('regStatus');
-  const regSuccess = document.getElementById('regSuccess');
-
-  regForm.addEventListener('submit', async function(e){
-    e.preventDefault();
-    regSubmit.disabled = true;
-    regSubmit.textContent = 'Đang gửi...';
-    regStatus.className = 'reg-status';
-    regStatus.textContent = '';
-
-    const data = {};
-    new FormData(regForm).forEach((value, key) => { data[key] = value; });
-    data['_subject'] = 'Đăng ký học mới - Toán Bác Long';
-
+(function () {
+  // ĐĂNG KÝ HỌC MỘT BƯỚC: tạo tài khoản Supabase kèm thông tin đăng ký (bẫy ở cơ sở dữ liệu ghi thành yêu cầu để admin xem).
+  var SB_URL = 'https://vmttxgndosucjpysdrzg.supabase.co';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdHR4Z25kb3N1Y2pweXNkcnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMTE5NjcsImV4cCI6MjEwNDg4Nzk2N30.q79YcNPMQhhtOhp3ei1kWV03_TdORAx1PnJi3BgYXlU';
+  var form = document.getElementById('regForm'), btn = document.getElementById('regSubmit'), status = document.getElementById('regStatus'), ok = document.getElementById('regSuccess'), okMsg = document.getElementById('regSuccessMsg');
+  var BTN_TEXT = 'Tạo tài khoản và đăng ký học';
+  function val(id) { return String(document.getElementById(id).value || '').trim(); }
+  function label(id) { var el = document.getElementById(id); return el.options ? el.options[el.selectedIndex].text : el.value; }
+  function showErr(text, withLogin) {
+    status.className = 'reg-status show err'; status.textContent = text;
+    if (withLogin) { var a = document.createElement('a'); a.href = '/app/dang-ky-hoc.html'; a.textContent = 'Đăng nhập để gửi đăng ký'; status.appendChild(document.createTextNode(' ')); status.appendChild(a); status.appendChild(document.createTextNode('.')); }
+    btn.disabled = false; btn.textContent = BTN_TEXT;
+  }
+  // Gửi thêm một bản tin vào email quản trị (chỉ thông tin liên hệ, KHÔNG gửi mật khẩu). Không bao giờ chặn luồng chính.
+  function notifyEmail(info) {
     try {
-      const res = await fetch('https://formsubmit.co/ajax/digivina@gmail.com', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if(!res.ok) throw new Error('Gửi thất bại');
-      regForm.style.display = 'none';
-      regSuccess.classList.add('show');
-    } catch (err) {
-      regStatus.textContent = 'Có lỗi khi gửi form. Vui lòng đăng ký qua Zalo bên dưới giúp mình nhé!';
-      regStatus.classList.add('show', 'err');
-      regSubmit.disabled = false;
-      regSubmit.textContent = 'Đăng ký ngay';
+      fetch('https://formsubmit.co/ajax/digivina@gmail.com', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ 'Họ tên phụ huynh': info.parent, 'Số điện thoại': info.phone, 'Email': info.email, 'Họ tên con': info.child, 'Lớp': info.gradeText, 'Gói quan tâm': info.planText, '_subject': 'Đăng ký học mới - Toán Bác Long' }) }).catch(function () {});
+    } catch (e) { /* bỏ qua */ }
+  }
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    if (document.getElementById('regWebsite').value) { form.style.display = 'none'; ok.classList.add('show'); return; }   // ô bẫy bị điền: coi như bot, báo thành công giả
+    var info = { parent: val('parentName'), phone: val('phone'), email: val('email'), child: val('childName'), grade: val('grade'), plan: val('plan'), gradeText: label('grade'), planText: label('plan') };
+    var password = document.getElementById('regPassword').value;
+    if (password.length < 6) { showErr('Mật khẩu cần tối thiểu 6 ký tự.'); return; }
+    btn.disabled = true; btn.textContent = 'Đang gửi...'; status.className = 'reg-status'; status.textContent = '';
+    var redirect = /^https?:$/.test(location.protocol) ? '?redirect_to=' + encodeURIComponent(location.origin + '/app/toanbaclong-platform.html') : '';
+    var res, body = {};
+    try {
+      res = await fetch(SB_URL + '/auth/v1/signup' + redirect, { method: 'POST', headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: info.email, password: password, data: { ho_ten: info.parent, so_dien_thoai: info.phone, dang_ky_hoc: true, nguon: 'landing', ten_hoc_sinh: info.child, khoi: info.grade, goi: info.plan } }) });
+      try { body = await res.json(); } catch (x) { body = {}; }
+    } catch (err) {                                    // lỗi mạng: vẫn báo cho quản trị qua email để không mất khách
+      notifyEmail(info); showErr('Chưa gửi được đăng ký do kết nối. Mình đã báo cho CLB, bạn cũng có thể đăng ký nhanh qua Zalo bên dưới.'); return;
     }
+    var code = String(body.error_code || body.code || ''), msg = String(body.msg || body.message || body.error_description || '');
+    var existing = code === 'user_already_exists' || /already registered|already been registered/i.test(msg);
+    var user = body.user || (body.id ? body : null);
+    if (res.ok && user && Array.isArray(user.identities) && user.identities.length === 0) existing = true;     // email đã có tài khoản (Supabase không báo lỗi để tránh dò email)
+    if (existing) { showErr('Email này đã có tài khoản Toán Bác Long.', true); return; }
+    if (!res.ok) {
+      if (code === 'weak_password' || res.status === 422) { showErr('Mật khẩu chưa đủ mạnh. Hãy dùng ít nhất 6 ký tự.'); return; }
+      if (res.status === 429 || /rate.?limit/i.test(code)) { showErr('Bạn thao tác hơi nhanh. Vui lòng thử lại sau vài phút, hoặc đăng ký nhanh qua Zalo bên dưới.'); return; }
+      if (res.status >= 500) { notifyEmail(info); showErr('Hệ thống đang bận. Mình đã báo cho CLB, bạn cũng có thể đăng ký nhanh qua Zalo bên dưới.'); return; }
+      if (/email/i.test(code + ' ' + msg)) { showErr('Email chưa hợp lệ. Bạn kiểm tra lại giúp mình nhé.'); return; }
+      showErr('Chưa gửi được đăng ký. Bạn thử lại sau hoặc đăng ký nhanh qua Zalo bên dưới.'); return;
+    }
+    notifyEmail(info);
+    var hasSession = !!(body.access_token || body.session);
+    okMsg.textContent = 'Đã tạo tài khoản và ghi nhận đăng ký học' + (info.child ? ' cho ' + info.child : '') + '. ' +
+      (hasSession ? 'Bạn có thể đăng nhập ngay bằng email vừa đăng ký. ' : 'Hãy mở email ' + info.email + ' và bấm liên kết xác nhận MỘT lần (có hiệu lực khoảng 1 giờ; kiểm tra cả thư mục Spam). ') +
+      'CLB Toán Bác Long sẽ liên hệ tư vấn qua số ' + info.phone + ' trong thời gian sớm nhất.';
+    form.style.display = 'none'; ok.classList.add('show');
   });
+})();
 </script>
 
 <footer>
