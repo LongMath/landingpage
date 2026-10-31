@@ -173,6 +173,13 @@
     header nav a { padding:8px 6px; font-size:12.5px; }
     header .btn-outline, header .btn-gold { padding:8px 10px; font-size:12px; }
   }
+
+  /* Ô chọn bé đang học (dùng chung các trang) */
+  .kid-bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; margin:18px 0 0; padding:10px 14px; background:#fff; border:1px solid var(--line); border-radius:12px; font-size:13.5px; }
+  .kid-bar label { font-weight:700; }
+  .kid-bar select { font:inherit; font-size:13.5px; padding:6px 10px; border:1.5px solid var(--line); border-radius:9px; background:#fff; color:var(--navy); max-width:100%; }
+  .kid-bar a { color:var(--gold-deep); font-weight:700; text-decoration:none; white-space:nowrap; }
+  .kid-note { color:var(--navy-light); }
 </style>
 </head>
 <body>
@@ -206,6 +213,7 @@
 </header>
 
 <main class="wide">
+  <div id="kid-bar" class="kid-bar" hidden></div>
   <div id="state" class="card state" style="margin-top:28px;">Đang tải...</div>
 
   <!-- DANH SÁCH ĐỀ -->
@@ -331,6 +339,47 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+/* ---------- BÉ ĐANG HỌC (dùng chung các trang) ---------- */
+window.TBLKid = (function () {
+  var K = { list: [], id: null, ready: false, hooks: [] };
+  var LABEL = { pre_k: 'Mẫu giáo', '1': 'Lớp 1', '2': 'Lớp 2', '3': 'Lớp 3', '4': 'Lớp 4', '5': 'Lớp 5' };
+  var uid = null;
+  function key() { return 'tbl_kid:' + uid; }
+  function e(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function render() {
+    var b = document.getElementById('kid-bar'); if (!b) return;
+    if (!uid || !K.ready) { b.hidden = true; return; }
+    b.hidden = false;
+    if (!K.list.length) { b.innerHTML = '<span class="kid-note">Chưa có hồ sơ bé nên bài làm chưa được gắn với bé nào.</span> <a href="ho-so-hoc-sinh.html">Tạo hồ sơ bé</a>'; return; }
+    b.innerHTML = '<label for="kid-select">Bé đang học:</label><select id="kid-select">' + (K.id ? '' : '<option value="">— chọn bé —</option>') +
+      K.list.map(function (x) { return '<option value="' + e(x.id) + '">' + e(x.ten) + ' · ' + e(LABEL[x.khoi] || x.khoi) + '</option>'; }).join('') +
+      '</select>' + (/tien-do\.html$/.test(location.pathname) ? '' : '<a href="tien-do.html">Xem tiến độ</a>') + '<a href="ho-so-hoc-sinh.html">Quản lý hồ sơ</a>';
+    var s = document.getElementById('kid-select'); s.value = K.id || '';
+    s.addEventListener('change', function () { K.set(s.value || null); });
+  }
+  K.set = function (id) {
+    K.id = id; try { if (id) localStorage.setItem(key(), id); else localStorage.removeItem(key()); } catch (x) { /* bỏ qua */ }
+    render(); K.hooks.forEach(function (f) { try { f(id); } catch (x) { /* bỏ qua */ } });
+  };
+  K.init = async function (sb, user) {
+    uid = user ? user.id : null; K.list = []; K.id = null; K.ready = false; render();
+    if (uid) {
+      var r = await sb.from('students').select('id,ten,khoi,created_at').eq('user_id', uid).order('created_at', { ascending: true });
+      K.list = r.error ? [] : (r.data || []);
+      var saved = null; try { saved = localStorage.getItem(key()); } catch (x) { /* bỏ qua */ }
+      if (saved && K.list.some(function (s) { return s.id === saved; })) K.id = saved;
+      else if (K.list.length === 1) K.id = K.list[0].id;
+    }
+    K.ready = true; render();
+  };
+  // null: không có bé nào để gắn (khách hoặc chưa có hồ sơ) -> gọi như cũ; false: có từ 2 bé trở lên mà chưa chọn -> chặn; chuỗi: id bé đang chọn
+  K.pick = function () { if (!uid || !K.list.length) return null; return K.id || false; };
+  K.onChange = function (f) { K.hooks.push(f); };
+  K.nameOf = function (id) { for (var i = 0; i < K.list.length; i++) if (K.list[i].id === id) return K.list[i].ten; return ''; };
+  return K;
+})();
+</script>
+<script>
   var SUPABASE_URL = 'https://vmttxgndosucjpysdrzg.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdHR4Z25kb3N1Y2pweXNkcnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMTE5NjcsImV4cCI6MjEwNDg4Nzk2N30.q79YcNPMQhhtOhp3ei1kWV03_TdORAx1PnJi3BgYXlU';
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -358,6 +407,9 @@
     if (/Khong tim thay luot lam bai/i.test(m)) return 'Không tìm thấy lượt làm bài. Đường dẫn có thể đã cũ hoặc bài thuộc tài khoản khác.';
     if (/het gio|da nop/i.test(m)) return 'Đã hết giờ hoặc bài đã được nộp.';
     if (/Chua nop bai/i.test(m)) return 'Bài này chưa được nộp.';
+    if (/dang duoc lam do boi hoc sinh khac/i.test(m)) return 'Đề này đang được một bé khác trong tài khoản làm dở. Hãy nộp bài đó hoặc chờ hết giờ rồi bắt đầu lại.';
+    if (/Hoc sinh khong hop le/i.test(m)) return 'Hồ sơ bé không hợp lệ. Hãy chọn lại bé đang học.';
+    if (/Khach khong chon duoc hoc sinh/i.test(m)) return 'Hãy đăng nhập để làm đề cho từng bé.';
     return 'Chưa xử lý được lúc này. Bạn thử lại sau ít phút.';
   }
   function views(name) {
@@ -394,8 +446,9 @@
     S.papers = r[0].data || []; S.exams = (r[1].data || []); S.levels = (r[2].data || []);
     S.attempts = [];
     if (user) {
-      var at = await sb.from('attempts').select('id,paper_id,bat_dau,han_nop,nop_luc,diem,tong_diem,so_dung,so_cau,trang_thai')
-        .eq('user_id', user.id).order('bat_dau', { ascending: false }).limit(30);
+      var aq = sb.from('attempts').select('id,paper_id,student_id,bat_dau,han_nop,nop_luc,diem,tong_diem,so_dung,so_cau,trang_thai').eq('user_id', user.id);
+      if (TBLKid.id) aq = aq.or('student_id.eq.' + TBLKid.id + ',student_id.is.null');   // lượt của bé đang chọn, kèm các lượt cũ chưa gán
+      var at = await aq.order('bat_dau', { ascending: false }).limit(30);
       if (!at.error) S.attempts = at.data || [];
     }
     S.loaded = true;
@@ -449,6 +502,7 @@
       var byId = {}; S.papers.forEach(function (p) { byId[p.id] = p; });
       $('history-body').innerHTML = S.attempts.length ? S.attempts.map(function (a) {
         var p = byId[a.paper_id]; var name = p ? p.ten : 'Đề đã gỡ';
+        if (!a.student_id && TBLKid.list.length) name += ' (chưa gán bé)';
         var when = new Date(a.bat_dau).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         var expired = a.trang_thai === 'dang_lam' && new Date(a.han_nop) <= new Date();
         var score, right, act;
@@ -460,8 +514,10 @@
     }
   }
   async function startPaper(id, btn) {
+    var kid = TBLKid.pick();
+    if (kid === false) { toast('Hãy chọn bé đang học (ô phía trên) trước khi bắt đầu làm đề.', 'err'); return; }
     if (btn) btn.disabled = true;
-    var r = await sb.rpc('tbt22_start', { p_paper: id });
+    var r = await sb.rpc('tbt22_start', kid ? { p_paper: id, p_student: kid } : { p_paper: id });
     if (btn) btn.disabled = false;
     if (r.error) { toast(rpcMsg(r.error), 'err'); return; }
     if (r.data && r.data.guest_secret) sessionStorage.setItem('tbt22-guest-' + r.data.attempt_id, r.data.guest_secret);
@@ -724,8 +780,10 @@
     if (user) $('greeting').textContent = 'Xin chào, ' + ((user.user_metadata && user.user_metadata.ho_ten) || user.email);
     // Đổi tài khoản giữa chừng một bài làm thì quay về danh sách cho an toàn
     if (!first && S.run) { S.run = null; stopTimer(); location.hash = '#'; }
+    await TBLKid.init(sb, user);
     await route();
   }
+  TBLKid.onChange(function () { if (user && parseHash().view === 'list') route(); });
   sb.auth.onAuthStateChange(function (_e, session) { setTimeout(function () { applySession(session); }, 0); });
   sb.auth.getSession().then(function (r) { applySession(r.data ? r.data.session : null); });
 </script>
