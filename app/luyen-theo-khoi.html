@@ -331,6 +331,7 @@
       </div>
       <p id="login-error" style="color:var(--coral); font-size:13px; margin-bottom:10px; display:none;"></p>
       <button class="btn-gold" type="submit" style="width:100%; justify-content:center; border:none; cursor:pointer;">Đăng nhập</button>
+          <p style="margin-top:12px; text-align:center; font-size:13px;"><a href="quen-mat-khau.html" style="font-weight:700;">Quên mật khẩu?</a></p>
     </form>
 
     <form id="form-register" onsubmit="handleSignUp(event)" style="display:none;">
@@ -362,6 +363,23 @@
   const SUPABASE_URL = 'https://vmttxgndosucjpysdrzg.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdHR4Z25kb3N1Y2pweXNkcnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMTE5NjcsImV4cCI6MjEwNDg4Nzk2N30.q79YcNPMQhhtOhp3ei1kWV03_TdORAx1PnJi3BgYXlU';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Thông báo đăng ký dễ hiểu: email đã có tài khoản (Supabase không báo lỗi mà trả danh tính rỗng), quá nhiều email, mật khẩu ngắn
+  (function () {
+    var orig = sb.auth.signUp.bind(sb.auth), EXISTS = 'Email này đã có tài khoản. Hãy đăng nhập, hoặc dùng "Quên mật khẩu" nếu bạn không nhớ mật khẩu.';
+    sb.auth.signUp = async function (a) {
+      var r = await orig(a), u = r && r.data && r.data.user;
+      if (!r.error && u && Array.isArray(u.identities) && u.identities.length === 0) return { data: r.data, error: { message: EXISTS } };
+      if (r.error) {
+        var m = r.error.message || '', t = null;
+        if (/rate limit|too many/i.test(m)) t = 'Hệ thống đang gửi quá nhiều email. Bạn thử lại sau ít phút.';
+        else if (/already registered/i.test(m)) t = EXISTS;
+        else if (/at least|weak/i.test(m)) t = 'Mật khẩu cần tối thiểu 6 ký tự.';
+        else if (/valid email|invalid.*email|email.*invalid/i.test(m)) t = 'Email chưa hợp lệ.';
+        if (t) return { data: r.data, error: { message: t } };
+      }
+      return r;
+    };
+  })();
 
   let pendingGrade = null;
   function closeTrackModal(){document.getElementById('track-modal').style.display='none';}
