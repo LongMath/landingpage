@@ -86,6 +86,14 @@
   #enr-rows td { vertical-align:top; } #enr-rows .nowrap { white-space:nowrap; } #enr-rows .handle select, #enr-rows .handle input[type=text] { display:block; width:100%; min-width:150px; margin-bottom:6px; } #enr-rows .note-cell { max-width:200px; overflow-wrap:anywhere; } #enr-rows .row-actions { flex-direction:column; align-items:stretch; } #enr-rows .row-actions .btn { white-space:nowrap; }
   .tagok, .tagwarn, .tagblue { display:inline-block; border-radius:999px; padding:1px 8px; font-size:11.5px; font-weight:700; margin:3px 4px 0 0; }
   .tagok { background:#DDF3E6; color:#178A50; } .tagwarn { background:#FFF1D6; color:#8A5A0B; } .tagblue { background:#E4F0FB; color:#185FA5; }
+
+  /* Tab Tiến độ học sinh */
+  .pg-bar { display:flex; flex-wrap:wrap; gap:12px 16px; align-items:flex-end; margin-top:14px; } .pg-grow { flex:1 1 220px; }
+  .pg-bar label { display:block; font-size:12.5px; font-weight:700; margin-bottom:4px; } .pg-bar input[type=text], .pg-bar input[type=number], .pg-bar select { font:inherit; font-size:14px; padding:8px 10px; border:1.5px solid var(--line, #E4D9BE); border-radius:10px; background:#fff; } .pg-bar input[type=number] { width:96px; } .pg-grow input { width:100%; }
+  .pg-bar2 .pg-chk { display:flex; gap:8px; align-items:center; margin:0 0 8px; } .pg-btns { display:flex; gap:8px; margin-left:auto; }
+  .pg-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-top:14px; }
+  .pg-kpi { background:#fff; border:1px solid var(--line, #E4D9BE); border-radius:12px; padding:12px 14px; } .pg-kl { font-size:12px; font-weight:700; opacity:.75; } .pg-kv { font-size:26px; font-weight:700; margin-top:2px; } .pg-ks { font-size:12px; opacity:.75; margin-top:4px; line-height:1.45; }
+  .pg-tag { display:inline-block; border-radius:999px; padding:2px 9px; font-size:11.5px; font-weight:700; background:#F1ECE4; white-space:nowrap; } .pg-tag.warn { background:#FFF1D6; color:#8A5A0B; } .pg-tag.ok { background:#DDF3E6; color:#178A50; }
 </style>
 </head>
 <body>
@@ -114,6 +122,7 @@
       <input type="password" id="login-password" autocomplete="current-password" required>
       <p id="login-error" class="note warn" hidden></p>
       <p style="margin-top:16px;"><button class="btn primary" type="submit" id="btn-login">Đăng nhập</button></p>
+          <p style="margin-top:12px; text-align:center; font-size:13px;"><a href="app/quen-mat-khau.html" style="font-weight:700;">Quên mật khẩu?</a></p>
     </form>
   </section>
 
@@ -160,6 +169,7 @@
       <button class="tab" type="button" data-tab="papers">Đề thi</button>
       <button class="tab" type="button" data-tab="examlib">Thư viện đề</button>
       <button class="tab" type="button" data-tab="enroll">Đăng ký học<span class="nbadge" id="enroll-badge" hidden></span></button>
+    <button class="tab" type="button" data-tab="progress">Tiến độ</button>
     <button class="tab" type="button" data-tab="access">Quyền truy cập</button>
       <button class="tab" type="button" data-tab="olympic-info">Thông tin Olympic</button>
       <button class="tab" type="button" data-tab="analytics">Thống kê truy cập</button>
@@ -657,6 +667,38 @@
         </div>
         <p class="hint" id="enr-summary" style="margin-top:10px;"></p>
         <div class="tablewrap"><table><thead><tr><th>Ngày</th><th>Phụ huynh</th><th>Học sinh và gói quan tâm</th><th>Ghi chú của khách</th><th>Xử lý (trạng thái, ghi chú của bạn)</th><th></th></tr></thead><tbody id="enr-rows"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- TAB TIẾN ĐỘ HỌC SINH -->
+    <div id="tab-progress" hidden>
+      <div class="card">
+        <h2>Tiến độ học sinh</h2>
+        <p class="hint">Tổng hợp từ các bài đã gắn với từng bé, tính ở máy chủ. Chỉ Admin xem. Không hiển thị email hay số điện thoại; bảng và tệp CSV chỉ có tên bé, khối, tên phụ huynh và số liệu học tập. Chi tiết từng bé chỉ mở khi bạn bấm "Xem chi tiết".</p>
+        <div class="pg-bar">
+          <div><label for="pg-days">Kỳ xem</label><select id="pg-days"><option value="30">30 ngày</option><option value="90">90 ngày</option><option value="365">365 ngày</option></select></div>
+          <div><label for="pg-khoi">Khối</label><select id="pg-khoi"><option value="">Tất cả</option><option value="pre_k">Mẫu giáo</option><option value="1">Lớp 1</option><option value="2">Lớp 2</option><option value="3">Lớp 3</option><option value="4">Lớp 4</option><option value="5">Lớp 5</option></select></div>
+          <div class="pg-grow"><label for="pg-q">Tìm theo tên bé hoặc tên phụ huynh</label><input type="text" id="pg-q" autocomplete="off" placeholder="Nhập tên"></div>
+        </div>
+        <div class="pg-bar pg-bar2">
+          <label class="pg-chk"><input type="checkbox" id="pg-need"> Chỉ hiện bé cần hỗ trợ</label>
+          <div><label for="pg-minpct">Điểm TB dưới (%)</label><input type="number" id="pg-minpct" value="50" min="0" max="100"></div>
+          <div><label for="pg-inact">Không hoạt động quá (ngày)</label><input type="number" id="pg-inact" value="14" min="1" max="365"></div>
+          <div class="pg-btns"><button class="btn ghost" type="button" id="pg-refresh">Tải lại</button><button class="btn ghost" type="button" id="pg-csv">Xuất CSV</button></div>
+        </div>
+        <p class="hint" style="margin-top:6px;">"Cần hỗ trợ": không có hoạt động quá số ngày đã đặt; hoặc có từ 3 đề trở lên mà điểm TB thấp hơn ngưỡng; hoặc có từ 10 lượt luyện tập mà tỷ lệ đúng thấp hơn ngưỡng. Bé chưa có dữ liệu không bị gắn cờ.</p>
+        <div class="pg-kpis" id="pg-overview"></div>
+        <p class="hint" id="pg-summary" style="margin-top:12px;"></p>
+        <div class="tablewrap"><table><thead><tr><th>Bé</th><th>Hoạt động gần nhất</th><th>Đề hoàn thành</th><th>Luyện tập</th><th>Trạng thái</th><th></th></tr></thead><tbody id="pg-rows"></tbody></table></div>
+        <p style="margin-top:10px;"><button class="btn ghost" type="button" id="pg-more" hidden>Xem thêm</button></p>
+      </div>
+      <div class="card" id="pg-detail" hidden>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;"><h2 id="pg-detail-title" style="margin:0;"></h2><button class="btn ghost small" type="button" id="pg-detail-close">Đóng</button></div>
+        <div class="pg-kpis" id="pg-d-kpis" style="margin-top:12px;"></div>
+        <h3 style="margin:16px 0 6px; font-size:15px;">Theo chuyên đề</h3>
+        <div class="tablewrap"><table><thead><tr><th>Chuyên đề</th><th class="num">Câu khác nhau</th><th class="num">Tỷ lệ đúng lần đầu</th></tr></thead><tbody id="pg-d-topics"></tbody></table></div>
+        <h3 style="margin:16px 0 6px; font-size:15px;">Lịch sử gần đây</h3>
+        <div class="tablewrap"><table><thead><tr><th>Đề</th><th>Nộp lúc</th><th class="num">Đúng/Tổng</th><th class="num">Điểm chuẩn hoá</th></tr></thead><tbody id="pg-d-hist"></tbody></table></div>
       </div>
     </div>
 
@@ -1764,6 +1806,112 @@
   });
 
 
+  /* ---------- TIẾN ĐỘ HỌC SINH (chỉ đọc, tổng hợp ở máy chủ) ---------- */
+  var PG = { rows: [], total: 0, seq: 0, t: null };
+  var PG_GRADE = { pre_k: 'Mẫu giáo', '1': 'Lớp 1', '2': 'Lớp 2', '3': 'Lớp 3', '4': 'Lớp 4', '5': 'Lớp 5' };
+  function pgF1(n) { return n == null ? '—' : (Math.round(Number(n) * 10) / 10).toFixed(1).replace('.', ','); }
+  function pgPc(n) { return n == null ? '—' : pgF1(n) + '%'; }
+  function pgDt(iso) { var d = new Date(iso); return isNaN(d) ? '—' : d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }); }
+  function pgErr(e) {
+    var m = (e && e.message) || '';
+    if (/function|schema cache|does not exist/i.test(m)) return 'Chưa chạy SQL bản 13 (file supabase-content-v13-tien-do.sql) nên chưa dùng được tab này.';
+    if (/Khong co quyen/i.test(m)) return 'Tài khoản này không có quyền Admin.';
+    return 'Không tải được: ' + friendlyError(e);
+  }
+  function pgNum(id, dflt, lo, hi) { var v = Number($(id).value); if (!isFinite(v) || $(id).value === '') v = dflt; return Math.min(Math.max(v, lo), hi); }
+  function pgParams(offset, limit) {
+    return { p_q: $('pg-q').value.trim() || null, p_khoi: $('pg-khoi').value || null, p_days: Number($('pg-days').value) || 30, p_need_support: $('pg-need').checked,
+             p_min_pct: pgNum('pg-minpct', 50, 0, 100), p_inactive_days: pgNum('pg-inact', 14, 1, 365), p_limit: limit, p_offset: offset };
+  }
+  function pgKpi(label, val, sub) { return '<div class="pg-kpi"><div class="pg-kl">' + esc(label) + '</div><div class="pg-kv">' + esc(val) + '</div><div class="pg-ks">' + sub + '</div></div>'; }
+  async function loadProgress(reset) {
+    var seq = ++PG.seq;
+    if (reset) { PG.rows = []; PG.total = 0; $('pg-detail').hidden = true; }
+    $('pg-summary').textContent = 'Đang tải...';
+    var days = Number($('pg-days').value) || 30;
+    var calls = [sb.rpc('admin_list_students_progress', pgParams(PG.rows.length, 50))];
+    if (reset) calls.push(sb.rpc('admin_get_progress_overview', { p_days: days }));
+    var r = await Promise.all(calls);
+    if (seq !== PG.seq) return;
+    if (r[0].error || (r[1] && r[1].error)) {
+      var e = r[0].error || r[1].error; PG.rows = []; $('pg-rows').innerHTML = ''; $('pg-overview').innerHTML = ''; $('pg-more').hidden = true; $('pg-summary').textContent = pgErr(e); return;
+    }
+    if (r[1]) {
+      var o = r[1].data, kh = Object.keys(o.by_khoi || {}).map(function (k) { return (PG_GRADE[k] || k) + ': ' + o.by_khoi[k]; }).join(' · ');
+      $('pg-overview').innerHTML =
+        pgKpi('Hồ sơ học sinh', o.students_total, o.accounts_with_students + ' tài khoản có hồ sơ') +
+        pgKpi('Có hoạt động trong ' + o.days + ' ngày', o.students_active, esc(kh) || 'Chưa có hoạt động') +
+        pgKpi('Đã hoàn thành đề', o.students_completed_attempt, o.valid_attempts + ' đề hợp lệ · điểm TB ' + esc(pgPc(o.avg_pct))) +
+        pgKpi('Lượt kiểm tra luyện tập', o.practice_checks, 'Trong ' + o.days + ' ngày') +
+        pgKpi('Lịch sử chưa gán bé', o.unassigned_attempts + o.unassigned_practice, o.unassigned_attempts + ' đề, ' + o.unassigned_practice + ' lượt luyện tập (phụ huynh cần tự gán)');
+    }
+    PG.total = r[0].data.total; PG.rows = PG.rows.concat(r[0].data.rows || []); renderProgress();
+  }
+  function renderProgress() {
+    var inact = pgNum('pg-inact', 14, 1, 365), minp = pgNum('pg-minpct', 50, 0, 100);
+    var FLAG = { khong_hoat_dong: 'Không hoạt động quá ' + inact + ' ngày', diem_thap: 'Điểm TB dưới ' + minp + '%', luyen_tap_thap: 'Luyện tập đúng dưới ' + minp + '%' };
+    $('pg-summary').textContent = PG.total + ' học sinh' + (PG.rows.length < PG.total ? ' (đang hiện ' + PG.rows.length + ')' : '') + '.';
+    $('pg-rows').innerHTML = PG.rows.length ? PG.rows.map(function (x) {
+      var st = !x.has_data ? '<span class="pg-tag">Chưa có dữ liệu</span>' : (x.can_ho_tro ? '<span class="pg-tag warn">' + esc(FLAG[x.can_ho_tro] || x.can_ho_tro) + '</span>' : '<span class="pg-tag ok">Bình thường</span>');
+      return '<tr><td><b>' + esc(x.ten) + '</b><br><span class="hint">' + esc(PG_GRADE[x.khoi] || x.khoi) + ' · PH: ' + esc(x.phu_huynh || '—') + '</span></td>' +
+        '<td>' + esc(x.last_activity ? pgDt(x.last_activity) : '—') + '</td>' +
+        '<td>' + (x.attempts_n ? x.attempts_n + ' đề · TB ' + esc(pgPc(x.avg_pct)) : '—') + '</td>' +
+        '<td>' + (x.checks_n ? x.checks_n + ' lượt · đúng ' + esc(pgPc(x.practice_pct)) : '—') + '</td>' +
+        '<td>' + st + '</td>' +
+        '<td><button class="btn small ghost" type="button" data-pg="' + esc(x.id) + '" data-pgname="' + esc(x.ten) + '">Xem chi tiết</button></td></tr>';
+    }).join('') : '<tr><td colspan="6" class="hint">Không có học sinh nào khớp bộ lọc.</td></tr>';
+    $('pg-more').hidden = PG.rows.length >= PG.total;
+  }
+  async function pgOpen(id, name) {
+    $('pg-detail').hidden = false; $('pg-detail-title').textContent = 'Chi tiết: ' + name; $('pg-d-kpis').innerHTML = ''; $('pg-d-topics').innerHTML = '<tr><td colspan="3" class="hint">Đang tải...</td></tr>'; $('pg-d-hist').innerHTML = '';
+    $('pg-detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var r = await Promise.all([sb.rpc('get_student_progress_summary', { p_student: id }), sb.rpc('get_student_topic_stats', { p_student: id }), sb.rpc('get_student_attempt_history', { p_student: id, p_limit: 20, p_offset: 0 })]);
+    var bad = r.filter(function (x) { return x.error; })[0];
+    if (bad) { $('pg-d-topics').innerHTML = '<tr><td colspan="3" class="hint">' + esc(pgErr(bad.error)) + '</td></tr>'; return; }
+    var s = r[0].data;
+    $('pg-d-kpis').innerHTML = s.data_status === 'khong_co_du_lieu' ? '<p class="hint">Bé này chưa có dữ liệu.</p>' :
+      pgKpi('Đề hoàn thành', s.attempts_done, 'Đang làm dở: ' + s.in_progress + ' (chưa tính)') +
+      pgKpi('Điểm TB 5 đề gần nhất', pgPc(s.avg_last5_pct), 'Chuẩn hoá về 100 · ' + s.avg_last5_n + ' đề') +
+      pgKpi('Tỷ lệ đúng trên toàn đề', pgPc(s.accuracy_exam_pct), 'Trên câu đã làm: ' + esc(pgPc(s.accuracy_answered_pct))) +
+      pgKpi('Luyện chuyên đề', s.practice_checks + ' lượt', 'Đúng ' + esc(pgPc(s.practice_accuracy_pct)) + ' · ' + s.practice_distinct_problems + ' câu khác nhau · xem đáp án ' + s.practice_reveals);
+    var tp = r[1].data.topics || [];
+    $('pg-d-topics').innerHTML = tp.length ? tp.map(function (t) { return '<tr><td>' + esc(t.ten) + '</td><td class="num">' + t.n_distinct + '</td><td class="num">' + (t.status === 'co_du_lieu' ? esc(pgPc(t.mastery_pct)) : '<span class="pg-tag">chưa đủ dữ liệu</span>') + '</td></tr>'; }).join('') : '<tr><td colspan="3" class="hint">Chưa có dữ liệu.</td></tr>';
+    var h = r[2].data.rows || [];
+    $('pg-d-hist').innerHTML = h.length ? h.map(function (x) { return '<tr><td>' + esc(x.paper) + '</td><td>' + esc(pgDt(x.nop_luc)) + '</td><td class="num">' + x.so_dung + '/' + x.so_cau + '</td><td class="num">' + esc(pgPc(x.pct)) + '</td></tr>'; }).join('') : '<tr><td colspan="4" class="hint">Chưa có đề nào hoàn thành.</td></tr>';
+  }
+  // CSV: chặn "tiêm công thức" (ô bắt đầu bằng = + - @ bị Excel hiểu là công thức) vì tên bé do người dùng tự nhập
+  function csvCell(v) {
+    var t = String(v == null ? '' : v);
+    if (/^[=+\-@\t\r]/.test(t)) t = "'" + t;
+    return /[",\n\r]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+  }
+  async function pgExport() {
+    var btn = $('pg-csv'); if (btn.disabled) return; btn.disabled = true; var all = [], off = 0, total = 1;
+    try {
+      while (off < total && off < 2000) {
+        var r = await sb.rpc('admin_list_students_progress', pgParams(off, 200));
+        if (r.error) { toast(pgErr(r.error), 'err'); return; }
+        total = r.data.total; var rows = r.data.rows || []; if (!rows.length) break; all = all.concat(rows); off += rows.length;
+      }
+      var head = ['Tên bé', 'Khối', 'Phụ huynh', 'Hoạt động gần nhất', 'Số đề hoàn thành', 'Điểm TB (%)', 'Lượt kiểm tra luyện tập', 'Tỷ lệ đúng luyện tập (%)', 'Có dữ liệu', 'Cần hỗ trợ'];
+      var lines = [head.map(csvCell).join(',')].concat(all.map(function (x) {
+        return [x.ten, PG_GRADE[x.khoi] || x.khoi, x.phu_huynh, x.last_activity || '', x.attempts_n, x.avg_pct == null ? '' : x.avg_pct, x.checks_n, x.practice_pct == null ? '' : x.practice_pct, x.has_data ? 'Có' : 'Không', x.can_ho_tro || ''].map(csvCell).join(',');
+      }));
+      var blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'tien-do-hoc-sinh-' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+      toast('Đã xuất ' + all.length + ' học sinh' + (total > all.length ? ' (giới hạn 2.000 dòng)' : '') + '. Tệp không chứa email hay số điện thoại.', 'ok');
+    } finally { btn.disabled = false; }
+  }
+  function pgDebounce() { clearTimeout(PG.t); PG.t = setTimeout(function () { loadProgress(true); }, 300); }
+  ['pg-days', 'pg-khoi', 'pg-need', 'pg-minpct', 'pg-inact'].forEach(function (id) { $(id).addEventListener('change', function () { loadProgress(true); }); });
+  $('pg-q').addEventListener('input', pgDebounce);
+  $('pg-refresh').addEventListener('click', function () { loadProgress(true); });
+  $('pg-more').addEventListener('click', function () { loadProgress(false); });
+  $('pg-csv').addEventListener('click', pgExport);
+  $('pg-detail-close').addEventListener('click', function () { $('pg-detail').hidden = true; });
+  $('pg-rows').addEventListener('click', function (ev) { var b = ev.target.closest('button[data-pg]'); if (b) pgOpen(b.dataset.pg, b.dataset.pgname); });
+
   /* ---------- CẤP QUYỀN THEO GÓI ---------- */
   var PACKS = {
     nangcao:  { ten: 'Toán nâng cao', kids: 1, khoi: true,  exam: false },
@@ -2532,12 +2680,13 @@
   document.querySelectorAll('.tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
       document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
-      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'papers', 'examlib', 'enroll', 'access', 'olympic-info', 'analytics'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
+      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'papers', 'examlib', 'enroll', 'progress', 'access', 'olympic-info', 'analytics'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
       if (tab.dataset.tab === 'olympic-info') loadOlympicCompetitions();
       if (tab.dataset.tab === 'analytics') loadSiteAnalytics();
       if (tab.dataset.tab === 'videos') loadVideos();
       if (tab.dataset.tab === 'examlib') loadExamDocs();
       if (tab.dataset.tab === 'enroll') loadEnroll();
+      if (tab.dataset.tab === 'progress') loadProgress(true);
       if (tab.dataset.tab === 'access') loadAccess();
       if (tab.dataset.tab === 'papers') { loadPapers(); if ($('pk-topic').value) loadPicker(); }
     });
