@@ -166,8 +166,10 @@
       <button class="tab" type="button" data-tab="exams">Kỳ thi</button>
       <button class="tab" type="button" data-tab="levels">Bảng đề</button>
       <button class="tab" type="button" data-tab="content">Nội dung</button>
+    <button class="tab" type="button" data-tab="bulk">Nhập hàng loạt</button>
       <button class="tab" type="button" data-tab="papers">Đề thi</button>
       <button class="tab" type="button" data-tab="examlib">Thư viện đề</button>
+    <button class="tab" type="button" data-tab="refdocs">Tài liệu tham khảo</button>
       <button class="tab" type="button" data-tab="enroll">Đăng ký học<span class="nbadge" id="enroll-badge" hidden></span></button>
     <button class="tab" type="button" data-tab="progress">Tiến độ</button>
     <button class="tab" type="button" data-tab="access">Quyền truy cập</button>
@@ -511,6 +513,26 @@
     </div>
 
     <!-- TAB ĐỀ THI -->
+    <div id="tab-bulk" hidden>
+      <div class="card">
+        <h2>Nhập hàng loạt chuyên đề và bài</h2>
+        <p class="hint">Chọn <b>một hoặc nhiều tệp CSV</b> một lúc. Mỗi dòng ghi rõ <code>ky_thi</code>, <code>khoi</code> (hoặc tên bảng đề), <code>chuyen_de</code> và <code>so_thu_tu</code>, cùng các cột như phần "Nhập nhiều bài từ CSV": <code>de_vi, de_en, goi_y_1, goi_y_2, dap_so, loi_giai, diem, nguon</code> (thêm được <code>nhom</code> và <code>muc</code> = thuc_hanh, nang_cao, ve_nha). Tên kỳ thi, khối, chuyên đề <b>không phân biệt hoa thường và dấu</b>. Chuyên đề chưa có sẽ được <b>tạo ở trạng thái Nháp</b>; bài mới luôn ở trạng thái Nháp. Bài trùng chuyên đề và số thứ tự được cập nhật, không nhân đôi; ô để trống không xoá dữ liệu đang có. Toàn bộ chạy trong <b>một giao dịch</b>: có lỗi ở đâu cũng không ghi gì.</p>
+        <div class="grid3">
+          <div><label for="bk-exam">Kỳ thi mặc định (dùng khi tệp không có cột ky_thi)</label><select id="bk-exam"></select></div>
+          <div><label for="bk-level">Khối / bảng đề mặc định (khi không có cột khoi)</label><select id="bk-level"></select></div>
+        </div>
+        <label for="bk-files">Chọn các tệp CSV (nhiều tệp, tối đa 1000 dòng mỗi lần)</label>
+        <input type="file" id="bk-files" accept=".csv,.txt,text/csv" multiple>
+        <label class="check"><input type="checkbox" id="bk-name"> Tệp nào không có cột chuyen_de thì lấy <b>tên tệp</b> làm tên chuyên đề (ví dụ "Dãy số có quy luật.csv")</label>
+        <label class="check"><input type="checkbox" id="bk-pub"> Đăng ngay các bài nhập (mọi bài phải có đáp số). Bỏ chọn thì lưu ở trạng thái Nháp để rà soát (nên dùng).</label>
+        <label class="check" id="bk-pub2-wrap" hidden><input type="checkbox" id="bk-pub2"> Tôi xác nhận đăng vào chuyên đề đang <b>Công khai</b> (bài sẽ hiện cho mọi người ngay).</label>
+        <div class="btn-row"><button class="btn ghost" type="button" id="bk-sample">Tải CSV mẫu</button><button class="btn primary" type="button" id="bk-check">Kiểm tra</button><button class="btn" type="button" id="bk-apply" disabled>Nhập tất cả</button></div>
+        <p class="note" id="bk-msg" hidden role="status"></p>
+        <div class="tablewrap" id="bk-plan-wrap" hidden><table><thead><tr><th>Kỳ thi › bảng đề</th><th>Chuyên đề</th><th class="num">Số bài</th><th class="num">Thêm mới</th><th class="num">Cập nhật</th></tr></thead><tbody id="bk-plan"></tbody></table></div>
+        <ol class="hint" id="bk-errors" hidden style="margin-top:12px; padding-left:20px;"></ol>
+      </div>
+    </div>
+
     <div id="tab-papers" hidden>
       <div class="card">
         <h2>Đề thi, luyện đề, kiểm tra tuần</h2>
@@ -602,6 +624,62 @@
     </div>
 
     <!-- TAB THƯ VIỆN ĐỀ -->
+    <div id="tab-refdocs" hidden>
+      <div class="card">
+        <h2>Thư viện tài liệu tham khảo</h2>
+        <p class="hint">Tài liệu PDF cho phụ huynh và học sinh, nằm trong kho riêng <b>tai-lieu</b>. Mỗi tài liệu có một mức quyền, <b>theo đúng chính sách quyền của Toán Bác Long</b>: <b>Công khai</b> (ai cũng xem, kể cả chưa đăng nhập), <b>Thành viên</b> (cần tài khoản miễn phí), <b>Gói trả phí</b> (cần gói còn hạn đúng kỳ thi hoặc bảng đề của tài liệu). Ai cũng xem được danh mục (tên, mô tả, ảnh bìa) nhưng không thấy đường dẫn tệp. Tài liệu ở trạng thái Nháp chỉ admin thấy; chuyển về Nháp thì người dùng mất quyền ngay.</p>
+        <div class="grid3">
+          <div><label for="rff-status">Trạng thái</label><select id="rff-status"><option value="">Tất cả</option><option value="nhap">Nháp</option><option value="da_dang">Đã đăng</option></select></div>
+          <div><label for="rff-access">Quyền xem</label><select id="rff-access"><option value="">Tất cả</option><option value="cong_khai">Công khai</option><option value="thanh_vien">Thành viên</option><option value="tra_phi">Gói trả phí</option></select></div>
+          <div><label for="rff-q">Tìm theo tên</label><input type="search" id="rff-q" autocomplete="off"></div>
+        </div>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Tài liệu</th><th>Loại · Quyền</th><th>Gắn với</th><th>Tệp</th><th>Xem · Tải</th><th>Trạng thái</th><th></th></tr></thead>
+          <tbody id="refdocs-body"></tbody>
+        </table></div>
+        <p class="muted" id="refdocs-empty" hidden style="margin-top:12px;">Chưa có tài liệu nào.</p>
+      </div>
+
+      <form id="form-refdoc" class="card">
+        <h2 id="rf-heading">Thêm tài liệu</h2>
+        <label for="rf-title">Tiêu đề *</label>
+        <input type="text" id="rf-title" maxlength="200" placeholder="Ví dụ: Sổ tay từ khoá Anh – Việt lớp 2">
+        <label for="rf-desc">Mô tả ngắn (hiện cho mọi người, kể cả người chưa có quyền mở)</label>
+        <textarea id="rf-desc" maxlength="2000"></textarea>
+        <div class="grid3">
+          <div><label for="rf-kind">Loại tài liệu</label><select id="rf-kind"><option value="ly_thuyet">Lý thuyết</option><option value="bai_tap">Bài tập</option><option value="de_thi">Đề thi</option><option value="so_tay">Sổ tay</option><option value="huong_dan">Hướng dẫn</option><option value="khac">Khác</option></select></div>
+          <div><label for="rf-access">Quyền xem *</label><select id="rf-access"><option value="cong_khai">Công khai (ai cũng xem)</option><option value="thanh_vien" selected>Thành viên (tài khoản miễn phí)</option><option value="tra_phi">Gói trả phí</option></select></div>
+          <div><label for="rf-order">Số thứ tự (nhỏ hiện trước)</label><input type="number" id="rf-order" value="0"></div>
+        </div>
+        <div class="grid3">
+          <div><label for="rf-exam">Kỳ thi (không bắt buộc, bắt buộc với Gói trả phí)</label><select id="rf-exam"></select></div>
+          <div><label for="rf-level">Khối / cấp độ (quyết định gói nào được xem)</label><select id="rf-level"></select></div>
+          <div><label for="rf-tags">Nhãn, cách nhau bằng dấu phẩy (tối đa 10)</label><input type="text" id="rf-tags" placeholder="song ngữ, từ vựng"></div>
+        </div>
+        <div class="grid3">
+          <div><label for="rf-k0">Khối từ (không bắt buộc)</label><select id="rf-k0"><option value="">(Theo bảng đề / mọi khối)</option><option value="0">Mẫu giáo</option><option value="1">Lớp 1</option><option value="2">Lớp 2</option><option value="3">Lớp 3</option><option value="4">Lớp 4</option><option value="5">Lớp 5</option></select></div>
+          <div><label for="rf-k1">Khối đến</label><select id="rf-k1"><option value="">(Theo bảng đề / mọi khối)</option><option value="0">Mẫu giáo</option><option value="1">Lớp 1</option><option value="2">Lớp 2</option><option value="3">Lớp 3</option><option value="4">Lớp 4</option><option value="5">Lớp 5</option></select></div>
+          <div><label for="rf-author">Tác giả / đơn vị biên soạn</label><input type="text" id="rf-author" maxlength="120"></div>
+        </div>
+        <label for="rf-source">Nguồn gốc, ghi chú nội bộ (không hiện cho người dùng)</label>
+        <textarea id="rf-source" maxlength="1000"></textarea>
+        <div class="grid3">
+          <div><label for="rf-file">Tệp PDF (tối đa 25 MB)</label><input type="file" id="rf-file" accept=".pdf,application/pdf"><p class="hint" id="rf-cur-file" style="margin-top:4px;"></p></div>
+          <div><label for="rf-url">Hoặc liên kết ngoài (https://...)</label><input type="url" id="rf-url" maxlength="500" placeholder="https://"><p class="hint" style="margin-top:4px;">Chọn MỘT trong hai: tệp PDF hoặc liên kết.</p></div>
+          <div><label for="rf-cover">Ảnh bìa (JPG, PNG, WebP, tối đa 2 MB)</label><input type="file" id="rf-cover" accept="image/jpeg,image/png,image/webp"><p class="hint" id="rf-cur-cover" style="margin-top:4px;"></p>
+            <label class="check" id="rf-auto-wrap"><input type="checkbox" id="rf-auto" checked> Tự tạo ảnh bìa từ trang 1 của PDF nếu không chọn ảnh</label>
+            <label class="check" id="rf-rmcover-wrap" hidden><input type="checkbox" id="rf-rmcover"> Gỡ ảnh bìa hiện tại</label></div>
+        </div>
+        <label class="check"><input type="checkbox" id="rf-dl" checked> Cho phép tải về (bỏ tick: chỉ xem trực tuyến. Lưu ý: đây chỉ là nút bấm, ai xem được về kỹ thuật vẫn có thể chụp hoặc lưu lại)</label>
+        <label class="check"><input type="checkbox" id="rf-rights"> Tôi xác nhận có quyền phân phối tài liệu này (tự biên soạn, được cấp phép hoặc không vướng bản quyền). Cần tick mới đăng được.</label>
+        <div class="grid3">
+          <div><label for="rf-status">Trạng thái</label><select id="rf-status"><option value="nhap">Nháp (chỉ admin thấy)</option><option value="da_dang">Đã đăng</option></select></div>
+        </div>
+        <p class="hint">Thay tệp: bản mới được tải lên trước, bản cũ chỉ bị xoá sau khi lưu thành công. Tài liệu mới luôn lưu ở trạng thái Nháp cho tới khi tệp đã lên đầy đủ.</p>
+        <div class="btn-row"><button class="btn primary" type="submit" id="btn-refdoc">Lưu tài liệu</button><button class="btn ghost" type="button" id="btn-refdoc-cancel" hidden>Huỷ sửa</button></div>
+      </form>
+    </div>
+
     <div id="tab-examlib" hidden>
       <div class="card">
         <h2>Thư viện đề thi (chỉ thành viên trả phí)</h2>
@@ -2317,6 +2395,332 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 300000);
   }
 
+  /* ---------- TÀI LIỆU THAM KHẢO ---------- */
+  var RFD = { list: [], edit: null, busy: false };
+  var REF_BUCKET = 'tai-lieu';   // kho RIÊNG, không bao giờ dùng địa chỉ công khai
+  var REF_KIND = { ly_thuyet: 'Lý thuyết', bai_tap: 'Bài tập', de_thi: 'Đề thi', so_tay: 'Sổ tay', huong_dan: 'Hướng dẫn', khac: 'Khác' };
+  var REF_ACCESS = { cong_khai: 'Công khai', thanh_vien: 'Thành viên', tra_phi: 'Gói trả phí' };
+  var REF_MAX = 25 * 1024 * 1024, REF_COVER_MAX = 2 * 1024 * 1024, REF_COVER_MIME = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' };
+  var REF_PDFJS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/';
+  function refErr(e) {
+    var m = (e && e.message) || '';
+    if (/relation .*reference_docs.* does not exist|schema cache|reference_docs/.test(m) && /does not exist|find the table/.test(m)) return 'Chưa chạy SQL bản 14 (file supabase-content-v14-tai-lieu.sql).';
+    if (/tra_phi_can_bang_de/.test(m)) return 'Quyền "Gói trả phí" cần chọn kỳ thi và bảng đề để biết gói nào được xem.';
+    if (/san_sang_dang/.test(m)) return 'Cần có tệp PDF hoặc liên kết, và tick xác nhận quyền phân phối trước khi đăng.';
+    if (/lien_ket_https/.test(m)) return 'Liên kết ngoài phải bắt đầu bằng https:// và không có khoảng trắng.';
+    if (/mot_nguon/.test(m)) return 'Chỉ chọn MỘT trong hai: tệp PDF hoặc liên kết ngoài.';
+    if (/khoi_ok/.test(m)) return 'Khối từ phải nhỏ hơn hoặc bằng khối đến (cùng điền hoặc cùng để trống).';
+    if (/gioi_han/.test(m)) return 'Có giá trị vượt giới hạn: tên tối đa 200 ký tự, mô tả 2000, tối đa 10 nhãn (mỗi nhãn tối đa 40 ký tự), tệp tối đa 25 MB.';
+    if (/row-level security|violates row/.test(m)) return 'Tài khoản này không có quyền ghi (cần là admin).';
+    return friendlyError(e);
+  }
+  function refLoadPdfJs() {
+    if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+    if (refLoadPdfJs.p) return refLoadPdfJs.p;
+    refLoadPdfJs.p = new Promise(function (res, rej) {
+      var sc = document.createElement('script'); sc.src = REF_PDFJS + 'pdf.min.js';
+      sc.onload = function () { if (window.pdfjsLib) { window.pdfjsLib.GlobalWorkerOptions.workerSrc = REF_PDFJS + 'pdf.worker.min.js'; res(window.pdfjsLib); } else { refLoadPdfJs.p = null; rej(new Error('pdfjs')); } };
+      sc.onerror = function () { refLoadPdfJs.p = null; rej(new Error('pdfjs')); };
+      document.head.appendChild(sc);
+    });
+    return refLoadPdfJs.p;
+  }
+  // Đọc PDF ngay trong trình duyệt: đếm trang và (tuỳ chọn) vẽ trang 1 thành ảnh bìa JPEG. Lỗi thì trả null, không chặn việc lưu.
+  async function refPdfInfo(file, wantCover) {
+    try {
+      var lib = await refLoadPdfJs(), buf = await file.arrayBuffer(), pdf = await lib.getDocument({ data: new Uint8Array(buf) }).promise, out = { pages: pdf.numPages, cover: null };
+      if (wantCover) {
+        var pg = await pdf.getPage(1), v0 = pg.getViewport({ scale: 1 }), vp = pg.getViewport({ scale: 480 / v0.width }), cv = document.createElement('canvas');
+        cv.width = Math.floor(vp.width); cv.height = Math.floor(vp.height);
+        await pg.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+        out.cover = await new Promise(function (res) { cv.toBlob(res, 'image/jpeg', 0.82); });
+      }
+      try { pdf.destroy(); } catch (e) { /* bỏ qua */ }
+      return out;
+    } catch (e) { return null; }
+  }
+  function refExamOptions() { return S.exams.map(function (e) { return '<option value="' + esc(e.id) + '">' + esc(e.ten) + '</option>'; }).join(''); }
+  function initRefSelects() {
+    var keep = $('rf-exam').value;
+    $('rf-exam').innerHTML = '<option value="">(Không gắn kỳ thi)</option>' + refExamOptions();
+    if (keep && S.exams.some(function (e) { return e.id === keep; })) $('rf-exam').value = keep;
+    cascadeRefLevel();
+  }
+  function cascadeRefLevel() {
+    var el = $('rf-level'), keep = el.value, ex = $('rf-exam').value, list = ex ? levelsOfExam(ex) : [];
+    el.innerHTML = '<option value="">' + (ex ? '(Chọn khối / cấp độ)' : '(Chọn kỳ thi trước)') + '</option>' + list.map(function (l) { return '<option value="' + esc(l.id) + '">' + esc(l.ten) + '</option>'; }).join('');
+    if (keep && list.some(function (l) { return l.id === keep; })) el.value = keep;
+    el.disabled = !ex;
+  }
+  function refLevelInfo(levelId) {
+    var l = S.levels.find(function (x) { return x.id === levelId; }), e = l && S.exams.find(function (x) { return x.id === l.exam_id; });
+    return l ? e.ten + ' › ' + l.ten : '';
+  }
+  function refBase(path) { return String(path || '').split('/').pop(); }
+  async function loadRefDocs() {
+    initRefSelects();
+    var r = await sb.from('reference_docs').select('*').order('created_at', { ascending: false });
+    if (r.error) { toast('Chưa tải được tài liệu: ' + refErr(r.error), 'err'); return; }
+    RFD.list = r.data || []; renderRefDocs();
+  }
+  function renderRefDocs() {
+    var st = $('rff-status').value, ac = $('rff-access').value, q = $('rff-q').value.trim().toLowerCase();
+    var rows = RFD.list.filter(function (d) { return (!st || d.status === st) && (!ac || d.access_level === ac) && (!q || String(d.title).toLowerCase().indexOf(q) >= 0); });
+    $('refdocs-empty').hidden = rows.length > 0;
+    $('refdocs-body').innerHTML = rows.map(function (d) {
+      var file = d.external_url ? 'Liên kết ngoài' : d.file_path ? 'PDF' + (d.page_count ? ' · ' + d.page_count + ' trang' : '') + (d.file_size ? ' · ' + (d.file_size / 1048576).toFixed(1).replace('.', ',') + ' MB' : '') : '<span class="muted">chưa có tệp</span>';
+      var where = [d.level_id ? refLevelInfo(d.level_id) : '', d.khoi_tu != null ? 'Khối ' + d.khoi_tu + (d.khoi_den !== d.khoi_tu ? '–' + d.khoi_den : '') : ''].filter(Boolean).join(' · ') || 'Mọi khối';
+      var open = d.file_path ? '<button class="btn ghost small" type="button" data-act="refdoc-open" data-id="' + esc(d.id) + '">Mở</button>' : d.external_url ? '<a class="btn ghost small" href="' + esc(d.external_url) + '" target="_blank" rel="noopener noreferrer">Mở</a>' : '';
+      return '<tr><td><b>' + esc(d.title) + '</b>' + (d.author ? '<br><span class="muted">' + esc(d.author) + '</span>' : '') + '</td>' +
+        '<td>' + esc(REF_KIND[d.kind] || d.kind) + '<br><span class="chip">' + esc(REF_ACCESS[d.access_level] || d.access_level) + '</span>' + (d.allow_download ? '' : ' <span class="chip">chỉ xem</span>') + '</td>' +
+        '<td>' + esc(where) + '</td><td>' + file + '</td><td>' + d.view_count + ' · ' + d.download_count + '</td>' +
+        '<td><select data-act="refdoc-status" data-id="' + esc(d.id) + '"><option value="nhap"' + (d.status === 'nhap' ? ' selected' : '') + '>Nháp</option><option value="da_dang"' + (d.status === 'da_dang' ? ' selected' : '') + '>Đã đăng</option></select></td>' +
+        '<td class="actions-cell">' + open + '<button class="btn ghost small" type="button" data-act="refdoc-edit" data-id="' + esc(d.id) + '">Sửa</button><button class="btn danger small" type="button" data-act="refdoc-del" data-id="' + esc(d.id) + '">Xoá</button></td></tr>';
+    }).join('');
+  }
+  function resetRefForm() {
+    RFD.edit = null; $('form-refdoc').reset(); $('rf-heading').textContent = 'Thêm tài liệu'; $('btn-refdoc').textContent = 'Lưu tài liệu'; $('btn-refdoc-cancel').hidden = true;
+    $('rf-cur-file').textContent = ''; $('rf-cur-cover').textContent = ''; $('rf-rmcover-wrap').hidden = true; $('rf-auto-wrap').hidden = false; $('rf-order').value = 0; $('rf-dl').checked = true; $('rf-auto').checked = true;
+    initRefSelects();
+  }
+  function showRefEdit(id) {
+    var d = RFD.list.find(function (x) { return x.id === id; }); if (!d) return;
+    resetRefForm(); RFD.edit = id;
+    $('rf-heading').textContent = 'Sửa tài liệu'; $('btn-refdoc').textContent = 'Lưu thay đổi'; $('btn-refdoc-cancel').hidden = false;
+    $('rf-title').value = d.title || ''; $('rf-desc').value = d.description || ''; $('rf-kind').value = d.kind; $('rf-access').value = d.access_level; $('rf-order').value = d.sort_order || 0;
+    var lv = d.level_id ? S.levels.find(function (x) { return x.id === d.level_id; }) : null;
+    $('rf-exam').value = lv ? lv.exam_id : ''; cascadeRefLevel(); $('rf-level').value = d.level_id || '';
+    $('rf-k0').value = d.khoi_tu == null ? '' : String(d.khoi_tu); $('rf-k1').value = d.khoi_den == null ? '' : String(d.khoi_den);
+    $('rf-tags').value = (d.tags || []).join(', '); $('rf-author').value = d.author || ''; $('rf-source').value = d.source_note || ''; $('rf-url').value = d.external_url || '';
+    $('rf-dl').checked = !!d.allow_download; $('rf-rights').checked = !!d.rights_confirmed; $('rf-status').value = d.status;
+    $('rf-cur-file').textContent = d.file_path ? 'Tệp hiện tại: ' + refBase(d.file_path) + ' (chọn tệp mới để thay)' : d.external_url ? 'Đang dùng liên kết ngoài' : 'Chưa có tệp';
+    $('rf-cur-cover').textContent = d.cover_path ? 'Đã có ảnh bìa (chọn ảnh mới để thay)' : 'Chưa có ảnh bìa'; $('rf-rmcover-wrap').hidden = !d.cover_path;
+    $('form-refdoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  async function refRemoveQuiet(paths) {
+    paths = (paths || []).filter(Boolean); if (!paths.length) return true;
+    try { var r = await sb.storage.from(REF_BUCKET).remove(paths); return !r.error; } catch (e) { return false; }
+  }
+  async function saveRefDoc(ev) {
+    ev.preventDefault(); if (RFD.busy) return;
+    var cur = RFD.edit ? RFD.list.find(function (x) { return x.id === RFD.edit; }) : null;
+    var title = $('rf-title').value.trim(), access = $('rf-access').value, levelId = $('rf-level').value || null, status = $('rf-status').value, rights = $('rf-rights').checked;
+    var url = $('rf-url').value.trim(), file = $('rf-file').files[0], cover = $('rf-cover').files[0];
+    if (!title) { toast('Cần nhập tiêu đề.', 'err'); return; }
+    if (access === 'tra_phi' && !levelId) { toast('Quyền "Gói trả phí" cần chọn kỳ thi và khối / cấp độ để biết gói nào được xem.', 'err'); return; }
+    if (url && file) { toast('Chỉ chọn MỘT trong hai: tệp PDF hoặc liên kết ngoài.', 'err'); return; }
+    if (url && !/^https:\/\/[^\s]+$/.test(url)) { toast('Liên kết ngoài phải bắt đầu bằng https:// và không có khoảng trắng.', 'err'); return; }
+    if (file) {
+      if (!/\.pdf$/i.test(file.name) || (file.type && file.type !== 'application/pdf')) { toast('Tệp "' + file.name + '" không phải PDF.', 'err'); return; }
+      if (file.size > REF_MAX) { toast('Tệp "' + file.name + '" lớn hơn 25 MB. Hãy nén hoặc tách nhỏ.', 'err'); return; }
+    }
+    var cext = cover ? extOfName(cover.name) : '';
+    if (cover) {
+      if (!REF_COVER_MIME[cext]) { toast('Ảnh bìa chỉ nhận JPG, PNG hoặc WebP.', 'err'); return; }
+      if (cover.size > REF_COVER_MAX) { toast('Ảnh bìa lớn hơn 2 MB.', 'err'); return; }
+    }
+    var k0 = $('rf-k0').value, k1 = $('rf-k1').value;
+    if ((k0 === '') !== (k1 === '')) { toast('Khối từ và khối đến cần cùng điền hoặc cùng để trống.', 'err'); return; }
+    if (k0 !== '' && Number(k0) > Number(k1)) { toast('Khối từ phải nhỏ hơn hoặc bằng khối đến.', 'err'); return; }
+    var tags = []; $('rf-tags').value.split(',').forEach(function (t) { t = t.trim(); if (t && tags.indexOf(t) < 0) tags.push(t); });
+    if (tags.length > 10 || tags.some(function (t) { return t.length > 40; })) { toast('Tối đa 10 nhãn, mỗi nhãn tối đa 40 ký tự.', 'err'); return; }
+    var hasSrc = !!file || !!url || !!(cur && (cur.file_path || cur.external_url));
+    if (status === 'da_dang') {
+      if (!hasSrc) { toast('Cần có tệp PDF hoặc liên kết trước khi đăng.', 'err'); return; }
+      if (!rights) { toast('Hãy tick xác nhận bạn có quyền phân phối tài liệu này trước khi đăng.', 'err'); return; }
+    }
+    RFD.busy = true; var btn = $('btn-refdoc'); btn.disabled = true; var uploaded = [];
+    try {
+      // 1. Lưu thông tin trước (chưa đổi tệp). Tài liệu mới luôn lưu Nháp cho tới khi tệp đã lên đầy đủ.
+      var base = { title: title, description: nz($('rf-desc').value), kind: $('rf-kind').value, access_level: access, level_id: levelId, khoi_tu: k0 === '' ? null : Number(k0), khoi_den: k1 === '' ? null : Number(k1),
+        tags: tags, author: nz($('rf-author').value), source_note: nz($('rf-source').value), allow_download: $('rf-dl').checked, rights_confirmed: rights, sort_order: numOrNull($('rf-order').value) || 0 };
+      var id, r;
+      if (!cur) {
+        r = await sb.from('reference_docs').insert(Object.assign({ status: 'nhap' }, base)).select('id').single();
+        if (r.error) { toast('Không lưu được tài liệu: ' + refErr(r.error), 'err'); return; }
+        id = r.data.id;
+      } else {
+        id = cur.id; var p0 = Object.assign({}, base); if (cur.status === 'da_dang' && !rights) p0.status = 'nhap';
+        r = await sb.from('reference_docs').update(p0).eq('id', id);
+        if (r.error) { toast('Không lưu được tài liệu: ' + refErr(r.error), 'err'); return; }
+      }
+      // 2. Tải tệp mới lên đường dẫn mới (không ghi đè tệp cũ)
+      var patch = { status: status }, oldFiles = [], note = '';
+      var wantAuto = !cover && $('rf-auto').checked && !!file;
+      if (file) {
+        var info = await refPdfInfo(file, wantAuto), path = id + '/tai-lieu-' + Date.now() + '.pdf';
+        var up = await sb.storage.from(REF_BUCKET).upload(path, file, { upsert: false, contentType: 'application/pdf' });
+        if (up.error) { await refRemoveQuiet(uploaded); toast('Không tải được tệp "' + file.name + '": ' + refErr(up.error) + '. Thông tin đã lưu ở trạng thái Nháp, tệp cũ (nếu có) vẫn nguyên.', 'err'); await loadRefDocs(); return; }
+        uploaded.push(path); patch.file_path = path; patch.file_size = file.size; patch.page_count = info ? info.pages : null; patch.external_url = null;
+        if (cur && cur.file_path) oldFiles.push(cur.file_path);
+        if (wantAuto) { if (info && info.cover) { cover = info.cover; cext = 'jpg'; } else note = ' Chưa tự tạo được ảnh bìa (trình đọc PDF không tải được), bạn có thể chọn ảnh bìa thủ công.'; }
+      } else if (url) {
+        patch.external_url = url; patch.file_path = null; patch.file_size = null; patch.page_count = null;
+        if (cur && cur.file_path) oldFiles.push(cur.file_path);
+      }
+      if (cover) {
+        var cpath = id + '/cover-' + Date.now() + '.' + cext, cu = await sb.storage.from(REF_BUCKET).upload(cpath, cover, { upsert: false, contentType: REF_COVER_MIME[cext] || 'image/jpeg' });
+        if (cu.error) { await refRemoveQuiet(uploaded); toast('Không tải được ảnh bìa: ' + refErr(cu.error) + '. Thông tin đã lưu ở trạng thái Nháp, tệp cũ (nếu có) vẫn nguyên.', 'err'); await loadRefDocs(); return; }
+        uploaded.push(cpath); patch.cover_path = cpath; if (cur && cur.cover_path) oldFiles.push(cur.cover_path);
+      } else if (cur && cur.cover_path && !$('rf-rmcover-wrap').hidden && $('rf-rmcover').checked) { patch.cover_path = null; oldFiles.push(cur.cover_path); }
+      // 3. Cập nhật đường dẫn và trạng thái trong một lần
+      r = await sb.from('reference_docs').update(patch).eq('id', id);
+      if (r.error) { await refRemoveQuiet(uploaded); toast('Không lưu được: ' + refErr(r.error) + ' Tệp cũ (nếu có) vẫn nguyên.', 'err'); await loadRefDocs(); return; }
+      // 4. Chỉ SAU KHI lưu thành công mới xoá tệp cũ bị thay hoặc gỡ
+      if (oldFiles.length && !(await refRemoveQuiet(oldFiles))) toast('Đã lưu, nhưng chưa xoá được tệp cũ trong kho. Tệp cũ không còn truy cập được qua thư viện.', 'ok');
+      toast((cur ? 'Đã lưu tài liệu.' : (status === 'da_dang' ? 'Đã thêm và đăng tài liệu.' : 'Đã thêm tài liệu ở trạng thái Nháp.')) + note, 'ok');
+      resetRefForm(); await loadRefDocs();
+    } finally { RFD.busy = false; btn.disabled = false; }
+  }
+  async function setRefStatus(id, value, sel) {
+    var d = RFD.list.find(function (x) { return x.id === id; }); if (!d) return;
+    var r = await sb.from('reference_docs').update({ status: value }).eq('id', id);
+    if (r.error) { toast('Không cập nhật được: ' + refErr(r.error), 'err'); await loadRefDocs(); return; }
+    d.status = value; toast(value === 'da_dang' ? 'Đã đăng tài liệu. Người có quyền mở được ngay.' : 'Đã chuyển tài liệu về Nháp. Người dùng mất quyền xem ngay lập tức.', 'ok');
+  }
+  async function deleteRefDoc(id) {
+    var d = RFD.list.find(function (x) { return x.id === id; }); if (!d) return;
+    if (!window.confirm('Xoá tài liệu "' + d.title + '" khỏi thư viện? Tệp và ảnh bìa cũng bị xoá. Muốn chỉ ẩn, hãy chuyển về Nháp thay vì xoá.')) return;
+    var r = await sb.from('reference_docs').delete().eq('id', id);
+    if (r.error) { toast('Không xoá được: ' + refErr(r.error), 'err'); return; }
+    var ok = await refRemoveQuiet([d.file_path, d.cover_path]);
+    toast(ok ? 'Đã xoá tài liệu và tệp.' : 'Đã xoá tài liệu. Một số tệp chưa xoá được khỏi kho, bạn có thể xoá thủ công trong Supabase, Storage, kho tai-lieu.', ok ? 'ok' : 'err');
+    if (RFD.edit === id) resetRefForm(); await loadRefDocs();
+  }
+  async function openRefFile(id) {
+    var d = RFD.list.find(function (x) { return x.id === id; }); if (!d || !d.file_path) return;
+    var r = await sb.storage.from(REF_BUCKET).download(d.file_path);
+    if (r.error) { toast('Chưa mở được tệp: ' + refErr(r.error), 'err'); return; }
+    var url = URL.createObjectURL(new Blob([r.data], { type: 'application/pdf' })); window.open(url, '_blank'); setTimeout(function () { URL.revokeObjectURL(url); }, 300000);
+  }
+  $('form-refdoc').addEventListener('submit', saveRefDoc);
+  $('btn-refdoc-cancel').addEventListener('click', resetRefForm);
+  $('rf-exam').addEventListener('change', cascadeRefLevel);
+  ['rff-status', 'rff-access'].forEach(function (i) { $(i).addEventListener('change', renderRefDocs); });
+  $('rff-q').addEventListener('input', renderRefDocs);
+  $('refdocs-body').addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-act]'); if (!b) return;
+    if (b.dataset.act === 'refdoc-edit') showRefEdit(b.dataset.id); else if (b.dataset.act === 'refdoc-del') deleteRefDoc(b.dataset.id); else if (b.dataset.act === 'refdoc-open') openRefFile(b.dataset.id);
+  });
+  $('refdocs-body').addEventListener('change', function (ev) { var s2 = ev.target.closest('select[data-act="refdoc-status"]'); if (s2) setRefStatus(s2.dataset.id, s2.value, s2); });
+
+  /* ---------- NHẬP HÀNG LOẠT CHUYÊN ĐỀ VÀ BÀI ---------- */
+  var BK = { payload: null, meta: [], key: '', busy: false };
+  var BK_ALIAS = {
+    ky_thi: ['ky_thi', 'kythi', 'exam', 'ma_ky_thi', 'ten_ky_thi'], khoi: ['khoi', 'lop', 'bang_de', 'level', 'khoi_lop', 'khoi_bang_de'],
+    chuyen_de: ['chuyen_de', 'chude', 'topic', 'ten_chuyen_de'], nhom: ['nhom', 'group'], so_thu_tu: ['so_thu_tu', 'stt', 'so', 'thu_tu', 'no'],
+    de_vi: ['de_vi', 'de', 'de_bai', 'de_tieng_viet', 'vi'], de_en: ['de_en', 'en', 'english', 'de_tieng_anh'], goi_y_1: ['goi_y_1', 'goi_y1', 'hint1', 'hint_1', 'goi_y_muc_1'],
+    goi_y_2: ['goi_y_2', 'goi_y2', 'hint2', 'hint_2', 'goi_y_muc_2'], dap_so: ['dap_so', 'dap_an', 'answer', 'ket_qua'], loi_giai: ['loi_giai', 'giai', 'solution', 'huong_dan'],
+    diem: ['diem', 'point', 'points'], nguon: ['nguon', 'source'], muc: ['muc', 'muc_do']
+  };
+  function bkErr(e) {
+    var m = (e && e.message) || '';
+    if (/Khong co quyen/i.test(m)) return 'Tài khoản này không có quyền Admin.';
+    if (/admin_bulk_import_problems|schema cache|does not exist/i.test(m)) return 'Chưa chạy SQL bản 15 (file supabase-content-v15-nhap-hang-loat.sql) nên chưa nhập hàng loạt được.';
+    if (/toi da 1000/i.test(m)) return 'Mỗi lần chỉ nhập tối đa 1000 dòng. Hãy tách thành nhiều lần.';
+    return 'Chưa thực hiện được: ' + friendlyError(e);
+  }
+  function initBulk() {
+    var keep = $('bk-exam').value;
+    $('bk-exam').innerHTML = '<option value="">(Không chọn)</option>' + S.exams.map(function (e) { return '<option value="' + esc(e.id) + '">' + esc(e.ten) + '</option>'; }).join('');
+    if (keep && S.exams.some(function (e) { return e.id === keep; })) $('bk-exam').value = keep;
+    bkLevels();
+  }
+  function bkLevels() {
+    var el = $('bk-level'), keep = el.value, ex = $('bk-exam').value, list = ex ? levelsOfExam(ex) : [];
+    el.innerHTML = '<option value="">(' + (ex ? 'Không chọn' : 'Chọn kỳ thi trước') + ')</option>' + list.map(function (l) { return '<option value="' + esc(l.id) + '">' + esc(l.ten) + '</option>'; }).join('');
+    if (keep && list.some(function (l) { return l.id === keep; })) el.value = keep; el.disabled = !ex;
+  }
+  function bkReset() { BK.payload = null; BK.key = ''; $('bk-apply').disabled = true; $('bk-plan-wrap').hidden = true; $('bk-errors').hidden = true; $('bk-msg').hidden = true; }
+  function bkSay(text, cls) { var m = $('bk-msg'); m.textContent = text; m.className = 'note' + (cls ? ' ' + cls : ''); m.hidden = !text; }
+  // Đọc các tệp, ghép thành một danh sách dòng; báo lỗi cấu trúc (thiếu cột) ngay ở máy, trước khi gửi.
+  async function bkRead() {
+    var files = Array.prototype.slice.call($('bk-files').files), rows = [], meta = [], errs = [];
+    var dEx = S.exams.find(function (e) { return e.id === $('bk-exam').value; }), dLv = S.levels.find(function (l) { return l.id === $('bk-level').value; });
+    for (var f = 0; f < files.length; f++) {
+      var file = files[f], text = (await file.text()).replace(/^\uFEFF/, ''), data;
+      try { data = parseCSV(text); } catch (e) { errs.push('Tệp "' + file.name + '": không đọc được (' + e.message + ').'); continue; }
+      if (data.length < 2) { errs.push('Tệp "' + file.name + '": cần có dòng tên cột và ít nhất một dòng bài.'); continue; }
+      var heads = data[0].map(slugHeader), col = {};
+      Object.keys(BK_ALIAS).forEach(function (k) { var i = heads.findIndex(function (h) { return BK_ALIAS[k].indexOf(h) >= 0; }); if (i >= 0) col[k] = i; });
+      if (col.so_thu_tu == null) { errs.push('Tệp "' + file.name + '": thiếu cột so_thu_tu.'); continue; }
+      if (col.de_vi == null && col.de_en == null) { errs.push('Tệp "' + file.name + '": thiếu cột de_vi hoặc de_en.'); continue; }
+      var fileTopic = file.name.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').trim();
+      for (var r = 1; r < data.length; r++) {
+        var cells = data[r];
+        if (cells.length > heads.length) { errs.push('Tệp "' + file.name + '", dòng dữ liệu thứ ' + r + ': có ' + cells.length + ' ô nhưng tiêu đề chỉ có ' + heads.length + ' cột (thường do thiếu dấu ngoặc kép quanh ô có dấu phẩy).'); continue; }
+        var o = {}; Object.keys(BK_ALIAS).forEach(function (k) { o[k] = col[k] == null ? '' : String(cells[col[k]] == null ? '' : cells[col[k]]).trim(); });
+        if (!o.ky_thi && dEx) o.ky_thi = dEx.ma || dEx.ten;
+        if (!o.khoi && dLv) o.khoi = dLv.ten;
+        if (!o.chuyen_de && col.chuyen_de == null && $('bk-name').checked) o.chuyen_de = fileTopic;
+        o._line = rows.length + 1; rows.push(o); meta.push({ file: file.name, n: r });
+      }
+    }
+    return { rows: rows, meta: meta, errs: errs, files: files.length };
+  }
+  function bkRender(res, applied) {
+    var plan = res.plan || [], created = plan.filter(function (p) { return p.will_create; }).length;
+    $('bk-plan').innerHTML = plan.map(function (p) {
+      return '<tr><td>' + esc(p.exam) + ' › ' + esc(p.level) + '</td><td><b>' + esc(p.topic) + '</b>' + (p.will_create ? ' <span class="chip">MỚI (Nháp)</span>' : '') + '</td><td class="num">' + p.rows + '</td><td class="num">' + p.inserts + '</td><td class="num">' + p.updates + '</td></tr>';
+    }).join('');
+    $('bk-plan-wrap').hidden = !plan.length; return created;
+  }
+  async function bkCheck() {
+    if (BK.busy) return; bkReset();
+    if (!$('bk-files').files.length) { bkSay('Hãy chọn ít nhất một tệp CSV.', 'warn'); return; }
+    BK.busy = true; $('bk-check').disabled = true;
+    try {
+      var rd = await bkRead();
+      if (rd.errs.length) { bkShowErrors(rd.errs); bkSay('Có ' + rd.errs.length + ' lỗi ở cấu trúc tệp. Sửa rồi kiểm tra lại. Chưa gửi gì lên hệ thống.', 'warn'); return; }
+      if (!rd.rows.length) { bkSay('Các tệp không có dòng bài nào.', 'warn'); return; }
+      if (rd.rows.length > 1000) { bkSay('Có ' + rd.rows.length + ' dòng, quá giới hạn 1000 dòng mỗi lần. Hãy tách thành nhiều lần.', 'warn'); return; }
+      var res = await sb.rpc('admin_bulk_import_problems', { p_rows: rd.rows, p_apply: false, p_publish: $('bk-pub').checked, p_confirm_public: $('bk-pub2').checked });
+      if (res.error) { bkSay(bkErr(res.error), 'warn'); return; }
+      var d = res.data;
+      if (!d.ok) {
+        bkShowErrors(d.errors.map(function (x) { var m = rd.meta[x.line - 1] || {}; return (m.file ? 'Tệp "' + m.file + '", dòng dữ liệu thứ ' + m.n + ': ' : '') + x.msg; }));
+        bkSay('Có ' + d.error_count + ' dòng lỗi' + (d.error_count > d.errors.length ? ' (đang hiện ' + d.errors.length + ' dòng đầu)' : '') + '. KHÔNG ghi gì lên hệ thống. Sửa tệp rồi kiểm tra lại.', 'warn'); return;
+      }
+      var created = bkRender(d), ins = 0, upd = 0; d.plan.forEach(function (p) { ins += p.inserts; upd += p.updates; });
+      BK.payload = rd.rows; BK.meta = rd.meta; BK.key = JSON.stringify([rd.rows, $('bk-pub').checked, $('bk-pub2').checked]); $('bk-apply').disabled = false;
+      bkSay('Hợp lệ: ' + d.rows + ' bài từ ' + rd.files + ' tệp, thuộc ' + d.plan.length + ' chuyên đề (' + created + ' chuyên đề MỚI sẽ được tạo ở trạng thái Nháp). Sẽ thêm ' + ins + ' bài mới, cập nhật ' + upd + ' bài. Chưa ghi gì. Xem bảng bên dưới rồi bấm "Nhập tất cả".');
+    } catch (e) { bkSay('Chưa đọc được tệp: ' + (e && e.message ? e.message : 'lỗi không rõ'), 'warn'); }
+    finally { BK.busy = false; $('bk-check').disabled = false; }
+  }
+  function bkShowErrors(list) { var ol = $('bk-errors'); ol.innerHTML = list.slice(0, 100).map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('') + (list.length > 100 ? '<li>... và ' + (list.length - 100) + ' lỗi nữa</li>' : ''); ol.hidden = !list.length; $('bk-plan-wrap').hidden = true; }
+  async function bkApply() {
+    if (BK.busy || !BK.payload) return;
+    var now = JSON.stringify([BK.payload, $('bk-pub').checked, $('bk-pub2').checked]);
+    if (now !== BK.key) { bkSay('Lựa chọn đã thay đổi từ lần kiểm tra. Hãy bấm "Kiểm tra" lại.', 'warn'); $('bk-apply').disabled = true; return; }
+    if (!window.confirm('Nhập ' + BK.payload.length + ' bài vào hệ thống? Chuyên đề mới được tạo ở trạng thái Nháp, bài mới ở trạng thái Nháp (trừ khi bạn đã chọn "đăng ngay").')) return;
+    BK.busy = true; $('bk-apply').disabled = true; $('bk-check').disabled = true; bkSay('Đang nhập...');
+    try {
+      var res = await sb.rpc('admin_bulk_import_problems', { p_rows: BK.payload, p_apply: true, p_publish: $('bk-pub').checked, p_confirm_public: $('bk-pub2').checked });
+      if (res.error) { bkSay(bkErr(res.error).replace(/\.?\s*$/, '.') + ' Không có gì được ghi (cả lần nhập được hoàn tác).', 'warn'); $('bk-apply').disabled = false; return; }
+      var d = res.data;
+      if (!d.ok) { bkShowErrors(d.errors.map(function (x) { return x.msg; })); bkSay('Có lỗi nên không ghi gì. Hãy kiểm tra lại.', 'warn'); return; }
+      bkRender(d);
+      bkSay('Đã nhập xong: thêm ' + d.inserted + ' bài mới, cập nhật ' + d.updated + ' bài, tạo ' + d.topics_created.length + ' chuyên đề mới (Nháp). Hãy rà soát rồi đăng ở tab Nội dung.', 'ok'); toast('Đã nhập ' + d.rows + ' bài.', 'ok');
+      BK.payload = null; BK.key = ''; $('bk-files').value = ''; await reloadAll();
+    } catch (e) { bkSay('Chưa nhập được: ' + (e && e.message ? e.message : 'lỗi không rõ'), 'warn'); $('bk-apply').disabled = false; }
+    finally { BK.busy = false; $('bk-check').disabled = false; }
+  }
+  function bkSample() {
+    var ex = S.exams[0], lv = ex ? levelsOfExam(ex.id)[0] : null, q = function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; };
+    var kt = ex ? (ex.ma || ex.ten) : 'TIMO', kh = lv ? lv.ten : 'Khối 2';
+    var rows = [['ky_thi', 'khoi', 'chuyen_de', 'so_thu_tu', 'de_vi', 'de_en', 'goi_y_1', 'goi_y_2', 'dap_so', 'loi_giai', 'diem', 'nguon'],
+      [kt, kh, 'Dãy số có quy luật', 1, 'Điền số còn thiếu: 2, 4, 8, 16, ?', '', 'Mỗi số gấp mấy lần số đứng trước?', '', '32', 'Mỗi số gấp đôi số trước nên số tiếp theo là 32.', 1, 'Tự biên soạn'],
+      [kt, kh, 'Dãy số có quy luật', 2, 'Điền số còn thiếu: 5, 8, 11, 14, ?', '', '', '', '17', 'Mỗi số hơn số trước 3 đơn vị.', 1, 'Tự biên soạn'],
+      [kt, kh, 'Cộng ghép cặp', 1, 'Tính nhanh: 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8', '', '', '', '36', 'Ghép cặp: (1+8)+(2+7)+(3+6)+(4+5) = 4 x 9 = 36.', 1, 'Tự biên soạn']];
+    var url = URL.createObjectURL(new Blob(['\uFEFF' + rows.map(function (r) { return r.map(q).join(','); }).join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+    var a = document.createElement('a'); a.href = url; a.download = 'mau-nhap-hang-loat.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  }
+  $('bk-exam').addEventListener('change', function () { bkLevels(); bkReset(); });
+  ['bk-level', 'bk-name', 'bk-files'].forEach(function (i) { $(i).addEventListener('change', bkReset); });
+  $('bk-pub').addEventListener('change', function () { $('bk-pub2-wrap').hidden = !this.checked; if (!this.checked) $('bk-pub2').checked = false; bkReset(); });
+  $('bk-pub2').addEventListener('change', bkReset);
+  $('bk-check').addEventListener('click', bkCheck); $('bk-apply').addEventListener('click', bkApply); $('bk-sample').addEventListener('click', bkSample);
+
   /* ---------- NỘI DUNG CHUYÊN ĐỀ ---------- */
   var C = { topicId: null, problems: [], solutions: {}, links: {}, terms: [], editingId: null, plan: null };
 
@@ -2680,11 +3084,13 @@
   document.querySelectorAll('.tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
       document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
-      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'papers', 'examlib', 'enroll', 'progress', 'access', 'olympic-info', 'analytics'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
+      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'bulk', 'papers', 'examlib', 'refdocs', 'enroll', 'progress', 'access', 'olympic-info', 'analytics'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
       if (tab.dataset.tab === 'olympic-info') loadOlympicCompetitions();
       if (tab.dataset.tab === 'analytics') loadSiteAnalytics();
       if (tab.dataset.tab === 'videos') loadVideos();
       if (tab.dataset.tab === 'examlib') loadExamDocs();
+      if (tab.dataset.tab === 'bulk') initBulk();
+      if (tab.dataset.tab === 'refdocs') loadRefDocs();
       if (tab.dataset.tab === 'enroll') loadEnroll();
       if (tab.dataset.tab === 'progress') loadProgress(true);
       if (tab.dataset.tab === 'access') loadAccess();
