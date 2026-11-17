@@ -130,6 +130,10 @@
     header nav a { padding:8px 6px; font-size:12.5px; }
     header .btn-outline, header .btn-gold { padding:8px 10px; font-size:12px; }
   }
+
+  .tabs-lib { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 4px; }
+  .tabs-lib a { padding:9px 18px; border-radius:100px; border:1.5px solid var(--line); font-weight:700; font-size:14px; text-decoration:none; color:var(--navy); background:#fff; white-space:nowrap; }
+  .tabs-lib a.on { background:var(--navy); color:#fff; border-color:var(--navy); }
 </style>
 </head>
 <body>
@@ -167,6 +171,7 @@
     <h1>Thư viện đề thi</h1>
     <p>Đề các năm, đề mô phỏng và đề luyện tổng hợp của các kỳ thi Toán Olympic, kèm đáp án và lời giải. Chọn kỳ thi, khối, vòng và năm học để tìm đề.</p>
   </div>
+  <nav class="tabs-lib" aria-label="Thư viện"><a class="on" href="thu-vien-de.html" aria-current="page">Đề thi</a><a href="tai-lieu.html">Tài liệu tham khảo</a></nav>
   <div class="paynote" id="paynote">Danh mục ai cũng xem được. <b>Nội dung đề, đáp án và lời giải chỉ mở cho thành viên có gói phù hợp còn hạn.</b> <a href="../index.html#hocphi">Xem các gói →</a></div>
 
   <section class="card filters" id="filters" aria-label="Bộ lọc đề thi" hidden>
