@@ -180,6 +180,10 @@
   .kid-bar select { font:inherit; font-size:13.5px; padding:6px 10px; border:1.5px solid var(--line); border-radius:9px; background:#fff; color:var(--navy); max-width:100%; }
   .kid-bar a { color:var(--gold-deep); font-weight:700; text-decoration:none; white-space:nowrap; }
   .kid-note { color:var(--navy-light); }
+
+  /* Công thức Toán (KaTeX) */
+  .tbl-math { white-space:normal; } .tbl-math-display { display:block; overflow-x:auto; overflow-y:hidden; max-width:100%; padding:4px 0; }
+  .katex { font-size:1.1em; } .katex-display { margin:.5em 0; }
 </style>
 </head>
 <body>
@@ -380,10 +384,12 @@ window.TBLKid = (function () {
   return K;
 })();
 </script>
+<script src="tbl-math.js"></script>
 <script>
   var SUPABASE_URL = 'https://vmttxgndosucjpysdrzg.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdHR4Z25kb3N1Y2pweXNkcnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMTE5NjcsImV4cCI6MjEwNDg4Nzk2N30.q79YcNPMQhhtOhp3ei1kWV03_TdORAx1PnJi3BgYXlU';
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  function mathIn(el) { try { if (window.TBLMath) window.TBLMath.render(el); } catch (e) { /* giữ nguyên chữ */ } }
   // Thông báo đăng ký dễ hiểu: email đã có tài khoản (Supabase không báo lỗi mà trả danh tính rỗng), quá nhiều email, mật khẩu ngắn
   (function () {
     var orig = sb.auth.signUp.bind(sb.auth), EXISTS = 'Email này đã có tài khoản. Hãy đăng nhập, hoặc dùng "Quên mật khẩu" nếu bạn không nhớ mật khẩu.';
@@ -628,6 +634,7 @@ window.TBLKid = (function () {
     $('q-en').textContent = (q.de_vi && q.de_en) ? q.de_en : ''; $('q-en').hidden = !(q.de_vi && q.de_en);
     $('q-pts').textContent = 'Câu này ' + fmt(q.diem) + ' điểm';
     examRenderMedia(q);
+    mathIn($('q-vi')); mathIn($('q-en')); mathIn($('q-options'));
     var inp = $('q-ans'); if (document.activeElement !== inp || inp.dataset.pid !== q.problem_id) { inp.value = a.tra_loi || ''; }
     inp.dataset.pid = q.problem_id;
     var mk = $('btn-mark'); mk.classList.toggle('on', !!a.danh_dau); mk.textContent = a.danh_dau ? 'Đã đánh dấu xem lại' : 'Đánh dấu xem lại';
@@ -736,6 +743,7 @@ window.TBLKid = (function () {
       return '<tr><td><b>' + esc(it.so_thu_tu) + '</b></td><td>' + (it.tra_loi ? esc(it.tra_loi) : '<span class="note-lock">Bỏ trống</span>') + '</td>' +
         '<td>' + (it.dung ? '<span class="ok">✓ Đúng</span>' : '<span class="no">✗ Chưa đúng</span>') + '</td><td><b>' + esc(it.dap_so) + '</b></td><td>' + sol + '</td></tr>';
     }).join('');
+    mathIn($('res-body'));
   }
 
   /* ---------- SỰ KIỆN ---------- */

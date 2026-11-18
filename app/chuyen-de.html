@@ -196,6 +196,11 @@
   .kid-bar select { font:inherit; font-size:13.5px; padding:6px 10px; border:1.5px solid var(--line); border-radius:9px; background:#fff; color:var(--navy); max-width:100%; }
   .kid-bar a { color:var(--gold-deep); font-weight:700; text-decoration:none; white-space:nowrap; }
   .kid-note { color:var(--navy-light); }
+
+  /* Công thức Toán (KaTeX) */
+  .tbl-math { white-space:normal; } .tbl-math-display { display:block; overflow-x:auto; overflow-y:hidden; max-width:100%; padding:4px 0; }
+  .katex { font-size:1.1em; } .katex-display { margin:.5em 0; }
+  .stmt-img-wrap { margin:8px 0; } .stmt-img { display:block; max-width:100%; max-height:380px; object-fit:contain; border-radius:12px; background:#fff; border:1px solid var(--line); }
 </style>
 </head>
 <body>
@@ -351,10 +356,12 @@ window.TBLKid = (function () {
   return K;
 })();
 </script>
+<script src="tbl-math.js"></script>
 <script>
   var SUPABASE_URL = 'https://vmttxgndosucjpysdrzg.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdHR4Z25kb3N1Y2pweXNkcnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMTE5NjcsImV4cCI6MjEwNDg4Nzk2N30.q79YcNPMQhhtOhp3ei1kWV03_TdORAx1PnJi3BgYXlU';
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  function mathIn(el) { try { if (window.TBLMath) window.TBLMath.render(el); } catch (e) { /* giữ nguyên chữ */ } }
   // Thông báo đăng ký dễ hiểu: email đã có tài khoản (Supabase không báo lỗi mà trả danh tính rỗng), quá nhiều email, mật khẩu ngắn
   (function () {
     var orig = sb.auth.signUp.bind(sb.auth), EXISTS = 'Email này đã có tài khoản. Hãy đăng nhập, hoặc dùng "Quên mật khẩu" nếu bạn không nhớ mật khẩu.';
@@ -539,10 +546,25 @@ window.TBLKid = (function () {
           return '<tr><td><b>' + esc(m.en) + '</b></td><td>' + esc(m.vi) + '</td><td><button class="say" type="button" data-say="' + esc(m.en) + '" aria-label="Nghe đọc ' + esc(m.en) + '">🔊</button></td></tr>';
         }).join('') + '</tbody></table>'
       : '<p>Sổ tay từ khoá của chuyên đề này đang được cập nhật. <span class="tag-soon">Sắp ra mắt</span></p>';
+    mathIn($('pane-ly-thuyet')); mathIn($('pane-so-tay'));
     renderProblems();
     renderLessons();
   }
 
+  /* Hình đề bài: lấy đường dẫn có ký tên từ kho riêng (quyền xem theo quyền của chuyên đề). Không xem được thì chỉ báo nhẹ, không làm hỏng bài. */
+  var IMG_CACHE = {};
+  function imgHtml(p) { return p.hinh_anh ? '<div class="stmt-img-wrap"><img class="stmt-img" data-img="' + esc(p.hinh_anh) + '" alt="Hình minh hoạ cho bài ' + esc(p.so_thu_tu) + '" hidden></div>' : ''; }
+  function loadProblemImages(root) {
+    Array.prototype.forEach.call(root.querySelectorAll('img[data-img]'), function (img) {
+      var path = img.dataset.img, c = IMG_CACHE[path];
+      var show = function (url) { img.src = url; img.hidden = false; };
+      if (c && c.exp > Date.now()) { show(c.url); return; }
+      sb.storage.from('hinh-bai-tap').createSignedUrl(path, 120).then(function (r) {
+        if (r.error || !r.data) { img.insertAdjacentHTML('afterend', '<span class="muted">Chưa xem được hình của bài này.</span>'); img.remove(); return; }
+        IMG_CACHE[path] = { url: r.data.signedUrl, exp: Date.now() + 100000 }; show(r.data.signedUrl);
+      }, function () { img.remove(); });
+    });
+  }
   function stmtHtml(p) {
     var vi = p.de_vi, en = p.de_en;
     if (lang === 'vi') return '<div class="stmt">' + esc(vi || en) + '</div>';
@@ -564,7 +586,7 @@ window.TBLKid = (function () {
         '<span class="tag ok solved-tag"' + (s.solved ? '' : ' hidden') + '>✓ Đã giải</span>' +
         (p.trang_thai !== 'da_dang' ? '<span class="tag nhap">Nháp</span>' : '') +
         (p.nguon ? '<span class="prob-src">Nguồn: ' + esc(p.nguon) + '</span>' : '') + '</div>' +
-        stmtHtml(p) +
+        stmtHtml(p) + imgHtml(p) +
         '<label class="field-label" for="w-' + esc(p.id) + '">Chỗ trình bày bài làm (chỉ lưu trên máy này)</label>' +
         '<textarea class="work" id="w-' + esc(p.id) + '" data-work="' + esc(p.id) + '"></textarea>' +
         '<label class="field-label" for="a-' + esc(p.id) + '">Đáp số của con</label>' +
@@ -580,6 +602,8 @@ window.TBLKid = (function () {
       el.querySelector('.work').value = lsGet('lm-work:' + id);
       if (keep[id]) { el.querySelector('.ans').value = keep[id].ans; el.querySelector('.fb-area').innerHTML = keep[id].fb; }
     });
+    mathIn(pane);
+    loadProblemImages(pane);
   }
 
   function setTab(name) {
@@ -590,7 +614,7 @@ window.TBLKid = (function () {
   }
 
   /* ---------- LÀM BÀI ---------- */
-  function fb(card, kind, html) { card.querySelector('.fb-area').innerHTML = '<div class="fb ' + kind + '">' + html + '</div>'; }
+  function fb(card, kind, html) { var area = card.querySelector('.fb-area'); area.innerHTML = '<div class="fb ' + kind + '">' + html + '</div>'; mathIn(area); }
   function addFb(card, kind, html) { card.querySelector('.fb-area').insertAdjacentHTML('beforeend', '<div class="fb ' + kind + '">' + html + '</div>'); }
 
   async function doCheck(card, btn) {
@@ -623,6 +647,7 @@ window.TBLKid = (function () {
     var box = card.querySelector('.fb-area');
     var html = r.data ? '<div class="hint"><b>Gợi ý ' + level + ':</b> ' + esc(r.data) + '</div>' : '<div class="hint">Bài này chưa có gợi ý mức ' + level + '.</div>';
     box.insertAdjacentHTML('beforeend', html);
+    mathIn(box);
   }
   async function doReveal(card, btn) {
     var kid = TBLKid.pick();

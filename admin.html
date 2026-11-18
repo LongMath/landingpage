@@ -94,6 +94,14 @@
   .pg-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-top:14px; }
   .pg-kpi { background:#fff; border:1px solid var(--line, #E4D9BE); border-radius:12px; padding:12px 14px; } .pg-kl { font-size:12px; font-weight:700; opacity:.75; } .pg-kv { font-size:26px; font-weight:700; margin-top:2px; } .pg-ks { font-size:12px; opacity:.75; margin-top:4px; line-height:1.45; }
   .pg-tag { display:inline-block; border-radius:999px; padding:2px 9px; font-size:11.5px; font-weight:700; background:#F1ECE4; white-space:nowrap; } .pg-tag.warn { background:#FFF1D6; color:#8A5A0B; } .pg-tag.ok { background:#DDF3E6; color:#178A50; }
+
+  /* Duyệt và đăng */
+  .rv-card { border:1.5px solid var(--line); border-radius:14px; padding:14px; margin:12px 0; background:#fff; } .rv-card.bad { border-color:#E8B4B0; background:#FFF8F7; } .rv-card.warn { border-color:#E3A038; background:#FFFBF1; }
+  .rv-head { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:6px; } .rv-head b { font-size:16px; } .rv-head input { width:18px; height:18px; }
+  .rv-chip { font-size:12px; font-weight:700; border-radius:100px; padding:2px 10px; background:#F1ECE4; } .rv-chip.bad { background:#FDECEA; color:#B3261E; } .rv-chip.warn { background:#FFF1D6; color:#8A5A0B; } .rv-chip.ok { background:#DDF3E6; color:#178A50; }
+  .rv-stmt { white-space:pre-wrap; line-height:1.7; margin:6px 0; } .rv-en { color:var(--navy-light); font-size:14.5px; } .rv-ans { margin:6px 0; font-size:14.5px; } .rv-opts { margin:4px 0 4px 6px; line-height:1.8; }
+  .rv-card details { margin-top:6px; font-size:14px; } .rv-card .katex { font-size:1.08em; } .rv-card .tbl-math-display { display:block; overflow-x:auto; }
+  .rv-img { max-width:100%; max-height:260px; border-radius:8px; border:1px solid var(--line); background:#fff; margin:6px 0; }
 </style>
 </head>
 <body>
@@ -167,6 +175,7 @@
       <button class="tab" type="button" data-tab="levels">Bảng đề</button>
       <button class="tab" type="button" data-tab="content">Nội dung</button>
     <button class="tab" type="button" data-tab="bulk">Nhập hàng loạt</button>
+    <button class="tab" type="button" data-tab="review">Duyệt và đăng</button>
       <button class="tab" type="button" data-tab="papers">Đề thi</button>
       <button class="tab" type="button" data-tab="examlib">Thư viện đề</button>
     <button class="tab" type="button" data-tab="refdocs">Tài liệu tham khảo</button>
@@ -516,13 +525,13 @@
     <div id="tab-bulk" hidden>
       <div class="card">
         <h2>Nhập hàng loạt chuyên đề và bài</h2>
-        <p class="hint">Chọn <b>một hoặc nhiều tệp CSV</b> một lúc. Mỗi dòng ghi rõ <code>ky_thi</code>, <code>khoi</code> (hoặc tên bảng đề), <code>chuyen_de</code> và <code>so_thu_tu</code>, cùng các cột như phần "Nhập nhiều bài từ CSV": <code>de_vi, de_en, goi_y_1, goi_y_2, dap_so, loi_giai, diem, nguon</code> (thêm được <code>nhom</code> và <code>muc</code> = thuc_hanh, nang_cao, ve_nha). Tên kỳ thi, khối, chuyên đề <b>không phân biệt hoa thường và dấu</b>. Chuyên đề chưa có sẽ được <b>tạo ở trạng thái Nháp</b>; bài mới luôn ở trạng thái Nháp. Bài trùng chuyên đề và số thứ tự được cập nhật, không nhân đôi; ô để trống không xoá dữ liệu đang có. Toàn bộ chạy trong <b>một giao dịch</b>: có lỗi ở đâu cũng không ghi gì.</p>
+        <p class="hint">Chọn <b>một hoặc nhiều tệp CSV hoặc Excel (.xlsx)</b> một lúc (Excel: đọc trang tính đầu tiên, dòng 1 là tên cột). <b>Bài có hình vẽ:</b> gom vào <b>một tệp ZIP</b> gồm bảng (.xlsx hoặc .csv) và các tệp hình (.png, .jpg, .webp; mỗi hình tối đa 5 MB); cột <code>hinh_de</code> ghi tên tệp hình (hoặc đường dẫn trong ZIP). Hình được tải lên kho riêng và chỉ người có quyền xem chuyên đề mới thấy. Mỗi dòng ghi rõ <code>ky_thi</code>, <code>khoi</code> (hoặc tên bảng đề), <code>chuyen_de</code> và <code>so_thu_tu</code>, cùng các cột như phần "Nhập nhiều bài từ CSV": <code>de_vi, de_en, goi_y_1, goi_y_2, dap_so, loi_giai, diem, nguon</code> (thêm được <code>nhom</code> và <code>muc</code> = thuc_hanh, nang_cao, ve_nha). Tên kỳ thi, khối, chuyên đề <b>không phân biệt hoa thường và dấu</b>. Chuyên đề chưa có sẽ được <b>tạo ở trạng thái Nháp</b>; bài mới luôn ở trạng thái Nháp. Bài trùng chuyên đề và số thứ tự được cập nhật, không nhân đôi; ô để trống không xoá dữ liệu đang có. Toàn bộ chạy trong <b>một giao dịch</b>: có lỗi ở đâu cũng không ghi gì.</p>
         <div class="grid3">
           <div><label for="bk-exam">Kỳ thi mặc định (dùng khi tệp không có cột ky_thi)</label><select id="bk-exam"></select></div>
           <div><label for="bk-level">Khối / bảng đề mặc định (khi không có cột khoi)</label><select id="bk-level"></select></div>
         </div>
-        <label for="bk-files">Chọn các tệp CSV (nhiều tệp, tối đa 1000 dòng mỗi lần)</label>
-        <input type="file" id="bk-files" accept=".csv,.txt,text/csv" multiple>
+        <label for="bk-files">Chọn các tệp CSV, Excel .xlsx hoặc gói ZIP kèm hình (tối đa 1000 dòng mỗi lần)</label>
+        <input type="file" id="bk-files" accept=".csv,.txt,.xlsx,.zip,text/csv,application/zip,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple>
         <label class="check"><input type="checkbox" id="bk-name"> Tệp nào không có cột chuyen_de thì lấy <b>tên tệp</b> làm tên chuyên đề (ví dụ "Dãy số có quy luật.csv")</label>
         <label class="check"><input type="checkbox" id="bk-pub"> Đăng ngay các bài nhập (mọi bài phải có đáp số). Bỏ chọn thì lưu ở trạng thái Nháp để rà soát (nên dùng).</label>
         <label class="check" id="bk-pub2-wrap" hidden><input type="checkbox" id="bk-pub2"> Tôi xác nhận đăng vào chuyên đề đang <b>Công khai</b> (bài sẽ hiện cho mọi người ngay).</label>
@@ -530,6 +539,22 @@
         <p class="note" id="bk-msg" hidden role="status"></p>
         <div class="tablewrap" id="bk-plan-wrap" hidden><table><thead><tr><th>Kỳ thi › bảng đề</th><th>Chuyên đề</th><th class="num">Số bài</th><th class="num">Thêm mới</th><th class="num">Cập nhật</th></tr></thead><tbody id="bk-plan"></tbody></table></div>
         <ol class="hint" id="bk-errors" hidden style="margin-top:12px; padding-left:20px;"></ol>
+      </div>
+    </div>
+
+    <div id="tab-review" hidden>
+      <div class="card">
+        <h2>Duyệt và đăng bài hàng loạt</h2>
+        <p class="hint">Chọn chuyên đề, xem từng bài <b>đúng như học sinh thấy</b> (công thức LaTeX được vẽ thật), để máy <b>kiểm tra tự động</b>, rồi đăng cùng lúc các bài đạt. Máy chặn việc đăng bài <b>thiếu đề, thiếu đáp số hoặc có công thức lỗi</b>. Công thức viết trong <code>$...$</code> (trong dòng) hoặc <code>$$...$$</code> (riêng một khối); muốn hiện dấu đô la thường thì viết <code>\$</code>.</p>
+        <div class="grid3">
+          <div><label for="rv-exam">Kỳ thi</label><select id="rv-exam"></select></div>
+          <div><label for="rv-level">Khối / bảng đề</label><select id="rv-level"></select></div>
+          <div><label for="rv-topic">Chuyên đề</label><select id="rv-topic"></select></div>
+        </div>
+        <label class="check"><input type="checkbox" id="rv-draft" checked> Chỉ hiện bài đang ở trạng thái Nháp</label>
+        <div class="btn-row"><button class="btn primary" type="button" id="rv-load">Tải và kiểm tra</button><button class="btn ghost" type="button" id="rv-selok" disabled>Chọn mọi bài nháp đạt</button><button class="btn" type="button" id="rv-publish" disabled>Đăng các bài đã chọn</button><button class="btn ghost" type="button" id="rv-unpub" disabled>Chuyển về Nháp các bài đã chọn</button></div>
+        <p class="note" id="rv-msg" hidden role="status"></p>
+        <div id="rv-list"></div>
       </div>
     </div>
 
@@ -847,6 +872,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="app/tbl-math.js"></script>
 <script>
   // Trang này chỉ là giao diện tiện dụng. Bảo vệ thật nằm ở phân quyền (RLS) trong Supabase:
   // người không phải admin có mở trang này cũng không đọc hay sửa được gì.
@@ -2611,7 +2637,7 @@
     chuyen_de: ['chuyen_de', 'chude', 'topic', 'ten_chuyen_de'], nhom: ['nhom', 'group'], so_thu_tu: ['so_thu_tu', 'stt', 'so', 'thu_tu', 'no'],
     de_vi: ['de_vi', 'de', 'de_bai', 'de_tieng_viet', 'vi'], de_en: ['de_en', 'en', 'english', 'de_tieng_anh'], goi_y_1: ['goi_y_1', 'goi_y1', 'hint1', 'hint_1', 'goi_y_muc_1'],
     goi_y_2: ['goi_y_2', 'goi_y2', 'hint2', 'hint_2', 'goi_y_muc_2'], dap_so: ['dap_so', 'dap_an', 'answer', 'ket_qua'], loi_giai: ['loi_giai', 'giai', 'solution', 'huong_dan'],
-    diem: ['diem', 'point', 'points'], nguon: ['nguon', 'source'], muc: ['muc', 'muc_do']
+    diem: ['diem', 'point', 'points'], nguon: ['nguon', 'source'], muc: ['muc', 'muc_do'], hinh_de: ['hinh_de', 'hinh', 'hinh_anh', 'anh', 'image']
   };
   function bkErr(e) {
     var m = (e && e.message) || '';
@@ -2631,32 +2657,137 @@
     el.innerHTML = '<option value="">(' + (ex ? 'Không chọn' : 'Chọn kỳ thi trước') + ')</option>' + list.map(function (l) { return '<option value="' + esc(l.id) + '">' + esc(l.ten) + '</option>'; }).join('');
     if (keep && list.some(function (l) { return l.id === keep; })) el.value = keep; el.disabled = !ex;
   }
-  function bkReset() { BK.payload = null; BK.key = ''; $('bk-apply').disabled = true; $('bk-plan-wrap').hidden = true; $('bk-errors').hidden = true; $('bk-msg').hidden = true; }
+  function bkReset() { BK.payload = null; BK.imgs = {}; BK.key = ''; $('bk-apply').disabled = true; $('bk-plan-wrap').hidden = true; $('bk-errors').hidden = true; $('bk-msg').hidden = true; }
   function bkSay(text, cls) { var m = $('bk-msg'); m.textContent = text; m.className = 'note' + (cls ? ' ' + cls : ''); m.hidden = !text; }
-  // Đọc các tệp, ghép thành một danh sách dòng; báo lỗi cấu trúc (thiếu cột) ngay ở máy, trước khi gửi.
+  var BK_IMG_MAX = 5 * 1024 * 1024;
+  function bkImgType(u) {
+    if (u.length > 12 && u[0] === 0x89 && u[1] === 0x50 && u[2] === 0x4E && u[3] === 0x47) return 'image/png';
+    if (u.length > 12 && u[0] === 0xFF && u[1] === 0xD8 && u[2] === 0xFF) return 'image/jpeg';
+    if (u.length > 12 && String.fromCharCode(u[0], u[1], u[2], u[3]) === 'RIFF' && String.fromCharCode(u[8], u[9], u[10], u[11]) === 'WEBP') return 'image/webp';
+    return '';
+  }
+  function bkImgName(base, type) {
+    var t = String(base).replace(/\.[^.]+$/, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/-+/g, '-').replace(/^[-.]+|[-.]+$/g, '').slice(0, 60) || 'hinh';
+    return t + '.' + ({ 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }[type]);
+  }
+  function bkText(u8, name, notes) {
+    try { return new TextDecoder('utf-8', { fatal: true }).decode(u8); }
+    catch (e) { notes.push('Tệp "' + name + '" không phải UTF-8 nên đã đọc theo bảng mã Windows tiếng Việt. Hãy xem kỹ chữ có dấu; tốt nhất lưu lại bằng "CSV UTF-8".'); return new TextDecoder('windows-1258').decode(u8); }
+  }
+  // Gói ZIP: bên trong có một hoặc nhiều tệp bảng (.xlsx, .csv) và các tệp hình. Mỗi bảng được xử lý như một tệp riêng.
+  async function bkZipUnits(file, units, notes) {
+    if (file.size > 60 * 1024 * 1024) throw new Error('ZIP lớn hơn 60 MB. Hãy tách nhỏ');
+    var zip; try { zip = await window.JSZip.loadAsync(await file.arrayBuffer()); } catch (e) { throw new Error('Không phải tệp ZIP hợp lệ'); }
+    var all = Object.keys(zip.files).map(function (k) { return zip.files[k]; }).filter(function (e) { return !e.dir && !/(^|\/)(__MACOSX\/|\._|~\$|\.DS_Store)/.test(e.name); });
+    if (all.length > 1000) throw new Error('ZIP có quá nhiều tệp (tối đa 1000)');
+    var tables = all.filter(function (e) { return /\.(csv|xlsx)$/i.test(e.name); }), imgs = all.filter(function (e) { return /\.(png|jpe?g|webp|gif|svg|bmp|tiff?)$/i.test(e.name); });
+    if (!tables.length) throw new Error('ZIP không có tệp bảng (.xlsx hoặc .csv)');
+    var bad = imgs.filter(function (e) { return !/\.(png|jpe?g|webp)$/i.test(e.name); });
+    if (bad.length) throw new Error('ZIP có hình không được nhận ("' + bad[0].name + '"): chỉ nhận .png, .jpg, .webp');
+    if (imgs.length > 300) throw new Error('ZIP có quá 300 hình. Hãy tách nhỏ');
+    var byPath = {}, byBase = {};
+    imgs.forEach(function (e) { var p = e.name.replace(/\\/g, '/').toLowerCase(), b = p.split('/').pop(); byPath[p] = e; byBase[b] = Object.prototype.hasOwnProperty.call(byBase, b) ? null : e; });
+    for (var i = 0; i < tables.length; i++) {
+      var e = tables[i], ext = e.name.split('.').pop().toLowerCase();
+      if (e._data && e._data.uncompressedSize > 8 * 1024 * 1024) throw new Error('Tệp bảng "' + e.name + '" lớn hơn 8 MB');
+      var u8 = await e.async('uint8array'), data = ext === 'xlsx' ? await bkXlsxRows(u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength)) : parseCSV(bkText(u8, e.name, notes).replace(/^\uFEFF/, ''));
+      units.push({ name: file.name + ' › ' + e.name, topic: e.name.split('/').pop().replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').trim(), data: data, zip: { byPath: byPath, byBase: byBase } });
+    }
+  }
+  // Đọc các tệp, ghép thành một danh sách dòng; báo lỗi cấu trúc (thiếu cột) và lỗi hình ngay ở máy, trước khi gửi.
   async function bkRead() {
-    var files = Array.prototype.slice.call($('bk-files').files), rows = [], meta = [], errs = [];
+    var files = Array.prototype.slice.call($('bk-files').files), units = [], rows = [], meta = [], errs = [], notes = [], imgs = {}, byEntry = new Map(), seq = 0;
     var dEx = S.exams.find(function (e) { return e.id === $('bk-exam').value; }), dLv = S.levels.find(function (l) { return l.id === $('bk-level').value; });
     for (var f = 0; f < files.length; f++) {
-      var file = files[f], text = (await file.text()).replace(/^\uFEFF/, ''), data;
-      try { data = parseCSV(text); } catch (e) { errs.push('Tệp "' + file.name + '": không đọc được (' + e.message + ').'); continue; }
-      if (data.length < 2) { errs.push('Tệp "' + file.name + '": cần có dòng tên cột và ít nhất một dòng bài.'); continue; }
+      var file = files[f], ext = ((file.name.match(/\.([A-Za-z0-9]+)$/) || [])[1] || '').toLowerCase();
+      try {
+        if (ext === 'zip') await bkZipUnits(file, units, notes);
+        else units.push({ name: file.name, topic: file.name.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').trim(), data: await bkReadFile(file, notes), zip: null });
+      } catch (e) { errs.push('Tệp "' + file.name + '": ' + (e && e.message ? e.message.replace(/\.$/, '') : 'không đọc được') + '.'); }
+    }
+    for (var u = 0; u < units.length; u++) {
+      var unit = units[u], data = unit.data;
+      if (data.length < 2) { errs.push('Tệp "' + unit.name + '": cần có dòng tên cột và ít nhất một dòng bài.'); continue; }
       var heads = data[0].map(slugHeader), col = {};
       Object.keys(BK_ALIAS).forEach(function (k) { var i = heads.findIndex(function (h) { return BK_ALIAS[k].indexOf(h) >= 0; }); if (i >= 0) col[k] = i; });
-      if (col.so_thu_tu == null) { errs.push('Tệp "' + file.name + '": thiếu cột so_thu_tu.'); continue; }
-      if (col.de_vi == null && col.de_en == null) { errs.push('Tệp "' + file.name + '": thiếu cột de_vi hoặc de_en.'); continue; }
-      var fileTopic = file.name.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').trim();
+      if (col.so_thu_tu == null) { errs.push('Tệp "' + unit.name + '": thiếu cột so_thu_tu.'); continue; }
+      if (col.de_vi == null && col.de_en == null) { errs.push('Tệp "' + unit.name + '": thiếu cột de_vi hoặc de_en.'); continue; }
       for (var r = 1; r < data.length; r++) {
         var cells = data[r];
-        if (cells.length > heads.length) { errs.push('Tệp "' + file.name + '", dòng dữ liệu thứ ' + r + ': có ' + cells.length + ' ô nhưng tiêu đề chỉ có ' + heads.length + ' cột (thường do thiếu dấu ngoặc kép quanh ô có dấu phẩy).'); continue; }
-        var o = {}; Object.keys(BK_ALIAS).forEach(function (k) { o[k] = col[k] == null ? '' : String(cells[col[k]] == null ? '' : cells[col[k]]).trim(); });
+        if (cells.length > heads.length) { errs.push('Tệp "' + unit.name + '", dòng dữ liệu thứ ' + r + ': có ' + cells.length + ' ô nhưng tiêu đề chỉ có ' + heads.length + ' cột (thường do thiếu dấu ngoặc kép quanh ô có dấu phẩy).'); continue; }
+        var o = {}; Object.keys(BK_ALIAS).forEach(function (k) { o[k] = col[k] == null ? '' : String(cells[col[k]] == null ? '' : cells[col[k]]).normalize('NFC').trim(); });
         if (!o.ky_thi && dEx) o.ky_thi = dEx.ma || dEx.ten;
         if (!o.khoi && dLv) o.khoi = dLv.ten;
-        if (!o.chuyen_de && col.chuyen_de == null && $('bk-name').checked) o.chuyen_de = fileTopic;
-        o._line = rows.length + 1; rows.push(o); meta.push({ file: file.name, n: r });
+        if (!o.chuyen_de && col.chuyen_de == null && $('bk-name').checked) o.chuyen_de = unit.topic;
+        if (o.hinh_de) {
+          var where = 'Tệp "' + unit.name + '", dòng dữ liệu thứ ' + r + ': ';
+          if (!unit.zip) { errs.push(where + 'có cột hinh_de nhưng tệp này không nằm trong gói ZIP kèm hình. Hãy gom bảng và hình vào một tệp ZIP.'); continue; }
+          var key = o.hinh_de.replace(/\\/g, '/').replace(/^\.?\//, '').toLowerCase(), ent = unit.zip.byPath[key];
+          if (!ent) { var bn = key.split('/').pop(); if (Object.prototype.hasOwnProperty.call(unit.zip.byBase, bn)) { ent = unit.zip.byBase[bn]; if (ent === null) { errs.push(where + 'có nhiều hình trùng tên "' + bn + '" ở các thư mục khác nhau, hãy ghi đường dẫn đầy đủ trong cột hinh_de.'); continue; } } }
+          if (!ent) { errs.push(where + 'không thấy hình "' + o.hinh_de + '" trong gói ZIP.'); continue; }
+          var logical = byEntry.get(ent);
+          if (!logical) {
+            if (ent._data && ent._data.uncompressedSize > BK_IMG_MAX) { errs.push(where + 'hình "' + o.hinh_de + '" lớn hơn 5 MB.'); continue; }
+            var u8 = await ent.async('uint8array'), type = bkImgType(u8);
+            if (u8.length > BK_IMG_MAX) { errs.push(where + 'hình "' + o.hinh_de + '" lớn hơn 5 MB.'); continue; }
+            if (!type) { errs.push(where + '"' + o.hinh_de + '" không phải hình PNG, JPG hoặc WebP thật (đuôi tệp không đúng nội dung).'); continue; }
+            logical = (++seq) + '-' + bkImgName(ent.name.split('/').pop(), type); byEntry.set(ent, logical); imgs[logical] = { blob: new Blob([u8], { type: type }), type: type };
+          }
+          o.hinh_de = logical;
+        }
+        o._line = rows.length + 1; rows.push(o); meta.push({ file: unit.name, n: r });
       }
     }
-    return { rows: rows, meta: meta, errs: errs, files: files.length };
+    return { rows: rows, meta: meta, errs: errs, files: files.length, notes: notes, imgs: imgs, imgCount: Object.keys(imgs).length };
+  }
+  /* Đọc tệp: Excel .xlsx (trang tính đầu tiên) hoặc CSV. CSV không phải UTF-8 (lưu từ Excel kiểu cũ) được đọc lại theo bảng mã Windows tiếng Việt. */
+  async function bkReadFile(file, notes) {
+    var name = file.name || '', ext = ((name.match(/\.([A-Za-z0-9]+)$/) || [])[1] || '').toLowerCase();
+    if (ext === 'xls') throw new Error('Tệp .xls (Excel đời cũ) chưa đọc được. Hãy mở trong Excel, chọn Lưu thành .xlsx hoặc CSV UTF-8 rồi chọn lại');
+    if (file.size > 10 * 1024 * 1024) throw new Error('Tệp lớn hơn 10 MB. Hãy tách nhỏ');
+    var buf = await file.arrayBuffer();
+    if (ext === 'xlsx') return bkXlsxRows(buf);
+    var text;
+    try { text = new TextDecoder('utf-8', { fatal: true }).decode(buf); }
+    catch (e) {
+      try { text = new TextDecoder('windows-1258').decode(buf); notes.push('Tệp "' + name + '" không phải UTF-8 nên đã đọc theo bảng mã Windows tiếng Việt. Hãy xem kỹ chữ có dấu trong bảng bên dưới; tốt nhất lưu lại bằng "CSV UTF-8".'); }
+      catch (e2) { throw new Error('không đọc được bảng mã của tệp. Hãy lưu lại bằng "CSV UTF-8"'); }
+    }
+    return parseCSV(text.replace(/^\uFEFF/, ''));
+  }
+  // Đọc .xlsx bằng JSZip (đã có sẵn trong trang), không cần thư viện Excel riêng: chỉ đọc giá trị ô của trang tính đầu tiên.
+  async function bkXlsxRows(buf) {
+    var zip;
+    try { zip = await window.JSZip.loadAsync(buf); } catch (e) { throw new Error('Không phải tệp Excel .xlsx hợp lệ'); }
+    var parse = function (str) { return new DOMParser().parseFromString(str, 'application/xml'); };
+    var rd = async function (path) { var f = zip.file(path); return f ? parse(await f.async('string')) : null; };
+    var wb = await rd('xl/workbook.xml'); if (!wb) throw new Error('Không phải tệp Excel .xlsx hợp lệ');
+    var RNS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships', sheet = wb.getElementsByTagName('sheet')[0];
+    if (!sheet) throw new Error('Tệp Excel không có trang tính nào');
+    var rid = sheet.getAttributeNS(RNS, 'id') || sheet.getAttribute('r:id'), rels = await rd('xl/_rels/workbook.xml.rels'), target = 'worksheets/sheet1.xml';
+    if (rels) Array.prototype.forEach.call(rels.getElementsByTagName('Relationship'), function (r) { if (r.getAttribute('Id') === rid) target = r.getAttribute('Target'); });
+    var path = target.charAt(0) === '/' ? target.slice(1) : 'xl/' + target.replace(/^\.\//, '');
+    var sh = await rd(path); if (!sh) throw new Error('Không đọc được trang tính đầu tiên');
+    var textOf = function (el) { var out = ''; Array.prototype.forEach.call(el.getElementsByTagName('t'), function (t) { if (t.parentNode.nodeName !== 'rPh') out += t.textContent; }); return out; };
+    var shared = [], ss = await rd('xl/sharedStrings.xml');
+    if (ss) Array.prototype.forEach.call(ss.getElementsByTagName('si'), function (si) { shared.push(textOf(si)); });
+    var colIdx = function (ref) { var m = /^([A-Z]+)/.exec(ref || ''), n = 0; if (!m) return -1; for (var i = 0; i < m[1].length; i++) n = n * 26 + (m[1].charCodeAt(i) - 64); return n - 1; };
+    var rows = [], rowEls = sh.getElementsByTagName('row');
+    for (var i = 0; i < rowEls.length && i < 20000; i++) {
+      var row = [], cs = rowEls[i].getElementsByTagName('c');
+      for (var j = 0; j < cs.length; j++) {
+        var c = cs[j], t = c.getAttribute('t'), vEl = c.getElementsByTagName('v')[0], v = vEl ? vEl.textContent : '', val = '';
+        if (t === 's') val = shared[parseInt(v, 10)] || '';
+        else if (t === 'inlineStr') val = textOf(c);
+        else if (t === 'b') val = v === '1' ? 'TRUE' : 'FALSE';
+        else if (t === 'e') val = '';
+        else val = v;
+        var ci = colIdx(c.getAttribute('r')); if (ci < 0) ci = row.length;
+        while (row.length < ci) row.push(''); row[ci] = val;
+      }
+      rows.push(row);
+    }
+    return rows.filter(function (r) { return r.some(function (x) { return String(x).trim() !== ''; }); });
   }
   function bkRender(res, applied) {
     var plan = res.plan || [], created = plan.filter(function (p) { return p.will_create; }).length;
@@ -2682,8 +2813,8 @@
         bkSay('Có ' + d.error_count + ' dòng lỗi' + (d.error_count > d.errors.length ? ' (đang hiện ' + d.errors.length + ' dòng đầu)' : '') + '. KHÔNG ghi gì lên hệ thống. Sửa tệp rồi kiểm tra lại.', 'warn'); return;
       }
       var created = bkRender(d), ins = 0, upd = 0; d.plan.forEach(function (p) { ins += p.inserts; upd += p.updates; });
-      BK.payload = rd.rows; BK.meta = rd.meta; BK.key = JSON.stringify([rd.rows, $('bk-pub').checked, $('bk-pub2').checked]); $('bk-apply').disabled = false;
-      bkSay('Hợp lệ: ' + d.rows + ' bài từ ' + rd.files + ' tệp, thuộc ' + d.plan.length + ' chuyên đề (' + created + ' chuyên đề MỚI sẽ được tạo ở trạng thái Nháp). Sẽ thêm ' + ins + ' bài mới, cập nhật ' + upd + ' bài. Chưa ghi gì. Xem bảng bên dưới rồi bấm "Nhập tất cả".');
+      BK.payload = rd.rows; BK.imgs = rd.imgs || {}; BK.meta = rd.meta; BK.key = JSON.stringify([rd.rows, $('bk-pub').checked, $('bk-pub2').checked]); $('bk-apply').disabled = false;
+      bkSay('Hợp lệ: ' + d.rows + ' bài từ ' + rd.files + ' tệp' + (rd.imgCount ? ', kèm ' + rd.imgCount + ' hình' : '') + ', thuộc ' + d.plan.length + ' chuyên đề (' + created + ' chuyên đề MỚI sẽ được tạo ở trạng thái Nháp). Sẽ thêm ' + ins + ' bài mới, cập nhật ' + upd + ' bài. Chưa ghi gì. Xem bảng bên dưới rồi bấm "Nhập tất cả".' + (rd.notes.length ? ' Lưu ý: ' + rd.notes.join(' ') : ''));
     } catch (e) { bkSay('Chưa đọc được tệp: ' + (e && e.message ? e.message : 'lỗi không rõ'), 'warn'); }
     finally { BK.busy = false; $('bk-check').disabled = false; }
   }
@@ -2695,16 +2826,30 @@
     if (!window.confirm('Nhập ' + BK.payload.length + ' bài vào hệ thống? Chuyên đề mới được tạo ở trạng thái Nháp, bài mới ở trạng thái Nháp (trừ khi bạn đã chọn "đăng ngay").')) return;
     BK.busy = true; $('bk-apply').disabled = true; $('bk-check').disabled = true; bkSay('Đang nhập...');
     try {
-      var res = await sb.rpc('admin_bulk_import_problems', { p_rows: BK.payload, p_apply: true, p_publish: $('bk-pub').checked, p_confirm_public: $('bk-pub2').checked });
+      var names = Object.keys(BK.imgs || {}), paths = {}, uploaded = [];
+      if (names.length) {
+        var batch = (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2);
+        for (var ui = 0; ui < names.length; ui++) {
+          bkSay('Đang tải hình ' + (ui + 1) + '/' + names.length + '...');
+          var path = 'bulk/' + batch + '/' + names[ui], up = await sb.storage.from('hinh-bai-tap').upload(path, BK.imgs[names[ui]].blob, { contentType: BK.imgs[names[ui]].type, upsert: false });
+          if (up.error) { await bkRemove(uploaded); bkSay((/bucket/i.test(up.error.message || '') ? 'Chưa chạy SQL bản 16 (file supabase-content-v16-hinh-bai-tap.sql) nên chưa tải được hình.' : 'Chưa tải được hình "' + names[ui] + '": ' + friendlyError(up.error) + '.') + ' Không có gì được ghi.', 'warn'); $('bk-apply').disabled = false; return; }
+          uploaded.push(path); paths[names[ui]] = path;
+        }
+        bkSay('Đang nhập...');
+      }
+      var rowsOut = BK.payload.map(function (r) { return r.hinh_de ? Object.assign({}, r, { hinh_de: paths[r.hinh_de] }) : r; });
+      var res = await sb.rpc('admin_bulk_import_problems', { p_rows: rowsOut, p_apply: true, p_publish: $('bk-pub').checked, p_confirm_public: $('bk-pub2').checked });
+      if (res.error || (res.data && !res.data.ok)) { await bkRemove(uploaded); }
       if (res.error) { bkSay(bkErr(res.error).replace(/\.?\s*$/, '.') + ' Không có gì được ghi (cả lần nhập được hoàn tác).', 'warn'); $('bk-apply').disabled = false; return; }
       var d = res.data;
       if (!d.ok) { bkShowErrors(d.errors.map(function (x) { return x.msg; })); bkSay('Có lỗi nên không ghi gì. Hãy kiểm tra lại.', 'warn'); return; }
       bkRender(d);
       bkSay('Đã nhập xong: thêm ' + d.inserted + ' bài mới, cập nhật ' + d.updated + ' bài, tạo ' + d.topics_created.length + ' chuyên đề mới (Nháp). Hãy rà soát rồi đăng ở tab Nội dung.', 'ok'); toast('Đã nhập ' + d.rows + ' bài.', 'ok');
-      BK.payload = null; BK.key = ''; $('bk-files').value = ''; await reloadAll();
+      BK.payload = null; BK.imgs = {}; BK.key = ''; $('bk-files').value = ''; await reloadAll();
     } catch (e) { bkSay('Chưa nhập được: ' + (e && e.message ? e.message : 'lỗi không rõ'), 'warn'); $('bk-apply').disabled = false; }
     finally { BK.busy = false; $('bk-check').disabled = false; }
   }
+  async function bkRemove(paths) { if (!paths.length) return; try { await sb.storage.from('hinh-bai-tap').remove(paths); } catch (e) { /* hình mồ côi sẽ không ai xem được; có thể xoá tay trong Storage */ } }
   function bkSample() {
     var ex = S.exams[0], lv = ex ? levelsOfExam(ex.id)[0] : null, q = function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; };
     var kt = ex ? (ex.ma || ex.ten) : 'TIMO', kh = lv ? lv.ten : 'Khối 2';
@@ -2720,6 +2865,137 @@
   $('bk-pub').addEventListener('change', function () { $('bk-pub2-wrap').hidden = !this.checked; if (!this.checked) $('bk-pub2').checked = false; bkReset(); });
   $('bk-pub2').addEventListener('change', bkReset);
   $('bk-check').addEventListener('click', bkCheck); $('bk-apply').addEventListener('click', bkApply); $('bk-sample').addEventListener('click', bkSample);
+
+  /* ---------- DUYỆT VÀ ĐĂNG BÀI HÀNG LOẠT ---------- */
+  var RV = { items: [], topicId: '', busy: false };
+  function rvSay(text, cls) { var m = $('rv-msg'); m.textContent = text; m.className = 'note' + (cls ? ' ' + cls : ''); m.hidden = !text; }
+  function initReview() {
+    var ex = $('rv-exam').value;
+    $('rv-exam').innerHTML = '<option value="">(Chọn kỳ thi)</option>' + S.exams.map(function (e) { return '<option value="' + esc(e.id) + '">' + esc(e.ten) + '</option>'; }).join('');
+    if (ex && S.exams.some(function (e) { return e.id === ex; })) $('rv-exam').value = ex;
+    rvLevels();
+  }
+  function rvLevels() {
+    var ex = $('rv-exam').value, keep = $('rv-level').value, list = ex ? levelsOfExam(ex) : [];
+    $('rv-level').innerHTML = '<option value="">(' + (ex ? 'Chọn khối / bảng đề' : 'Chọn kỳ thi trước') + ')</option>' + list.map(function (l) { return '<option value="' + esc(l.id) + '">' + esc(l.ten) + '</option>'; }).join('');
+    if (keep && list.some(function (l) { return l.id === keep; })) $('rv-level').value = keep; $('rv-level').disabled = !ex; rvTopics();
+  }
+  function rvTopics() {
+    var lv = $('rv-level').value, keep = $('rv-topic').value, list = lv ? topicsOfLevel(lv) : [];
+    $('rv-topic').innerHTML = '<option value="">(' + (lv ? 'Chọn chuyên đề' : 'Chọn khối trước') + ')</option>' + list.map(function (t) { return '<option value="' + esc(t.id) + '">' + esc(t.ten) + (t.trang_thai === 'da_dang' ? '' : ' (Nháp)') + '</option>'; }).join('');
+    if (keep && list.some(function (t) { return t.id === keep; })) $('rv-topic').value = keep; $('rv-topic').disabled = !lv;
+  }
+  function rvOptions(data) {
+    if (typeof data === 'string') { try { data = JSON.parse(data); } catch (e) { data = null; } }
+    if (Array.isArray(data)) return data;
+    if (data && typeof data === 'object') return Object.keys(data).sort().map(function (k) { return { key: k, text: data[k] }; });
+    return [];
+  }
+  async function rvChecks(it) {
+    var p = it.p, s2 = it.s, block = [], warn = [];
+    if (!String(p.de_vi || '').trim() && !String(p.de_en || '').trim()) block.push('Thiếu đề bài');
+    if (!String(s2.dap_so || '').trim()) block.push('Thiếu đáp số');
+    var fields = [['đề bài (Việt)', p.de_vi], ['đề bài (Anh)', p.de_en], ['lời giải', s2.loi_giai], ['gợi ý 1', s2.goi_y_1], ['gợi ý 2', s2.goi_y_2], ['đáp số', s2.dap_so]];
+    for (var i = 0; i < fields.length; i++) {
+      var v = fields[i][1]; if (!v || !String(v).trim()) continue;
+      var c = await window.TBLMath.check(v);
+      c.errors.forEach(function (e) { block.push(fields[i][0] + ': ' + e); });
+      c.warnings.forEach(function (w) { warn.push(fields[i][0] + ': ' + w); });
+    }
+    if (!String(s2.loi_giai || '').trim()) warn.push('Chưa có lời giải');
+    if (p.loai === 'trac_nghiem') {
+      var opts = rvOptions(p.phuong_an);
+      if (opts.length < 2) warn.push('Trắc nghiệm nhưng chỉ có ' + opts.length + ' lựa chọn');
+      else if (String(s2.dap_so || '').trim()) {
+        var alts = String(s2.dap_so).split('|').map(function (x) { return x.trim().toLowerCase(); });
+        var hit = opts.some(function (o) { var k = String(o.key || '').toLowerCase(), tx = String(o.text || '').trim().toLowerCase(); return alts.indexOf(k) >= 0 || (tx && alts.indexOf(tx) >= 0); });
+        if (!hit) warn.push('Đáp số không khớp lựa chọn nào (kiểm tra lại)');
+      }
+    }
+    // Không kiểm tra được công thức (không tải được KaTeX): chặn bài có công thức, để không đăng công thức chưa được kiểm tra.
+    if (warn.some(function (w) { return /Chưa tải được KaTeX/.test(w); }) && fields.some(function (f) { return f[1] && window.TBLMath.has(f[1]); })) block.push('Chưa kiểm tra được công thức (không tải được KaTeX). Hãy kiểm tra mạng rồi tải lại');
+    it.checks = { block: block, warn: warn };
+  }
+  async function rvLoad() {
+    if (RV.busy) return; var tid = $('rv-topic').value;
+    if (!tid) { rvSay('Hãy chọn kỳ thi, khối và chuyên đề.', 'warn'); return; }
+    RV.busy = true; RV.topicId = tid; $('rv-load').disabled = true; rvSay('Đang tải và kiểm tra...');
+    try {
+      var r = await sb.from('problems').select('id,so_thu_tu,de_vi,de_en,diem,trang_thai,loai,phuong_an,nguon,hinh_anh').eq('topic_id', tid).order('so_thu_tu');
+      if (r.error) { rvSay('Chưa tải được bài: ' + friendlyError(r.error), 'warn'); return; }
+      var rows = r.data || [], ids = rows.map(function (p) { return p.id; }), sol = {};
+      if (ids.length) {
+        var rs = await sb.from('problem_solutions').select('problem_id,dap_so,loi_giai,goi_y_1,goi_y_2').in('problem_id', ids);
+        if (rs.error) { rvSay('Chưa tải được đáp số: ' + friendlyError(rs.error), 'warn'); return; }
+        (rs.data || []).forEach(function (x) { sol[x.problem_id] = x; });
+      }
+      RV.items = rows.map(function (p) { return { p: p, s: sol[p.id] || {}, sel: false, checks: { block: [], warn: [] } }; });
+      for (var i = 0; i < RV.items.length; i++) await rvChecks(RV.items[i]);
+      rvRender(); rvSay('');
+    } catch (e) { rvSay('Chưa kiểm tra được: ' + (e && e.message ? e.message : 'lỗi không rõ'), 'warn'); }
+    finally { RV.busy = false; $('rv-load').disabled = false; }
+  }
+  function rvVisible() { var draftOnly = $('rv-draft').checked; return RV.items.filter(function (it) { return !draftOnly || it.p.trang_thai !== 'da_dang'; }); }
+  function rvRender() {
+    var all = RV.items, vis = rvVisible(), nd = all.filter(function (it) { return it.p.trang_thai === 'da_dang'; }).length, nb = all.filter(function (it) { return it.checks.block.length; }).length, nw = all.filter(function (it) { return !it.checks.block.length && it.checks.warn.length; }).length;
+    var topic = S.topics.find(function (t) { return t.id === RV.topicId; });
+    var head = '<p class="hint"><b>' + all.length + '</b> bài: <b>' + (all.length - nd) + '</b> nháp, <b>' + nd + '</b> đã đăng; <b>' + nb + '</b> bài có lỗi chặn, <b>' + nw + '</b> bài chỉ có cảnh báo.' + (topic && topic.trang_thai !== 'da_dang' ? ' Chuyên đề này đang <b>Nháp</b>: học sinh chưa thấy cho tới khi bạn đăng chuyên đề ở tab Chuyên đề.' : '') + '</p>';
+    if (!all.length) { $('rv-list').innerHTML = '<p class="hint">Chuyên đề này chưa có bài nào.</p>'; rvButtons(); return; }
+    $('rv-list').innerHTML = head + vis.map(function (it) {
+      var p = it.p, s2 = it.s, c = it.checks, published = p.trang_thai === 'da_dang', blocked = c.block.length > 0;
+      var opts = p.loai === 'trac_nghiem' ? rvOptions(p.phuong_an) : [];
+      return '<article class="rv-card ' + (blocked ? 'bad' : (c.warn.length ? 'warn' : '')) + '" data-id="' + esc(p.id) + '"><div class="rv-head"><input type="checkbox" data-sel="' + esc(p.id) + '" aria-label="Chọn bài ' + esc(p.so_thu_tu) + '"' + (it.sel ? ' checked' : '') + (!published && blocked ? ' disabled' : '') + '> <b>Bài ' + esc(p.so_thu_tu) + '</b> <span class="rv-chip ' + (published ? 'ok' : '') + '">' + (published ? 'Đã đăng' : 'Nháp') + '</span>' +
+        c.block.map(function (m) { return '<span class="rv-chip bad">' + esc(m) + '</span>'; }).join(' ') + c.warn.map(function (m) { return '<span class="rv-chip warn">' + esc(m) + '</span>'; }).join(' ') + '</div>' +
+        '<div class="rv-stmt">' + esc(p.de_vi || p.de_en || '') + '</div>' + (p.hinh_anh ? '<div><img class="rv-img" data-img="' + esc(p.hinh_anh) + '" alt="Hình đề bài" hidden></div>' : '') + (p.de_vi && p.de_en ? '<div class="rv-stmt rv-en">' + esc(p.de_en) + '</div>' : '') +
+        (opts.length ? '<div class="rv-opts">' + opts.map(function (o, i) { return '<div>' + esc(String(o.key || 'ABCDE'[i] || '').toUpperCase()) + '. ' + esc(o.text || '') + '</div>'; }).join('') + '</div>' : '') +
+        '<div class="rv-ans"><b>Đáp số:</b> ' + (s2.dap_so ? esc(s2.dap_so) : '<span class="muted">(chưa có)</span>') + ' · <b>Điểm:</b> ' + esc(p.diem) + '</div>' +
+        (s2.goi_y_1 || s2.goi_y_2 ? '<details><summary>Gợi ý</summary>' + (s2.goi_y_1 ? '<div class="rv-stmt">1. ' + esc(s2.goi_y_1) + '</div>' : '') + (s2.goi_y_2 ? '<div class="rv-stmt">2. ' + esc(s2.goi_y_2) + '</div>' : '') + '</details>' : '') +
+        (s2.loi_giai ? '<details><summary>Lời giải</summary><div class="rv-stmt">' + esc(s2.loi_giai) + '</div></details>' : '') + '</article>';
+    }).join('');
+    if (window.TBLMath) window.TBLMath.render($('rv-list'));
+    rvImages();
+    rvButtons();
+  }
+  // Hình đề bài: lấy đường dẫn có ký tên từ kho riêng (admin có quyền xem mọi hình).
+  function rvImages() {
+    Array.prototype.forEach.call($('rv-list').querySelectorAll('img[data-img]'), function (img) {
+      sb.storage.from('hinh-bai-tap').createSignedUrl(img.dataset.img, 300).then(function (r) {
+        if (r.error || !r.data) { img.insertAdjacentHTML('afterend', '<span class="muted">(chưa xem được hình)</span>'); img.remove(); return; }
+        img.src = r.data.signedUrl; img.hidden = false;
+      }, function () { img.remove(); });
+    });
+  }
+  function rvButtons() {
+    var sel = RV.items.filter(function (it) { return it.sel; });
+    $('rv-selok').disabled = !RV.items.some(function (it) { return it.p.trang_thai !== 'da_dang' && !it.checks.block.length; });
+    $('rv-publish').disabled = !sel.some(function (it) { return it.p.trang_thai !== 'da_dang' && !it.checks.block.length; });
+    $('rv-unpub').disabled = !sel.some(function (it) { return it.p.trang_thai === 'da_dang'; });
+  }
+  async function rvSetStatus(to) {
+    if (RV.busy) return;
+    var from = to === 'da_dang' ? 'nhap' : 'da_dang';
+    var pick = RV.items.filter(function (it) { return it.sel && it.p.trang_thai === from && (to !== 'da_dang' || !it.checks.block.length); });
+    if (!pick.length) return;
+    var topic = S.topics.find(function (t) { return t.id === RV.topicId; }), isPublic = topic && topic.access_level === 'cong_khai' && topic.trang_thai === 'da_dang';
+    var msg = to === 'da_dang'
+      ? (isPublic ? 'Chuyên đề này đang CÔNG KHAI và đã đăng: ' + pick.length + ' bài sẽ hiện cho MỌI NGƯỜI ngay lập tức. Đăng ' + pick.length + ' bài?' : 'Đăng ' + pick.length + ' bài? Người có quyền xem chuyên đề sẽ thấy ngay.')
+      : 'Chuyển ' + pick.length + ' bài về Nháp? Học sinh sẽ không còn thấy các bài này.';
+    if (!window.confirm(msg)) return;
+    RV.busy = true; $('rv-publish').disabled = true; $('rv-unpub').disabled = true;
+    try {
+      var r = await sb.from('problems').update({ trang_thai: to }).in('id', pick.map(function (it) { return it.p.id; }));
+      if (r.error) { rvSay('Chưa cập nhật được: ' + friendlyError(r.error) + ' Không có bài nào bị đổi.', 'warn'); rvButtons(); return; }
+      toast(to === 'da_dang' ? 'Đã đăng ' + pick.length + ' bài.' : 'Đã chuyển ' + pick.length + ' bài về Nháp.', 'ok');
+      RV.busy = false; await rvLoad(); await reloadAll();
+    } catch (e) { rvSay('Chưa cập nhật được: ' + (e && e.message ? e.message : 'lỗi không rõ'), 'warn'); }
+    finally { RV.busy = false; rvButtons(); }
+  }
+  $('rv-exam').addEventListener('change', rvLevels); $('rv-level').addEventListener('change', rvTopics);
+  $('rv-topic').addEventListener('change', function () { RV.items = []; $('rv-list').innerHTML = ''; rvSay(''); rvButtons(); });
+  $('rv-load').addEventListener('click', rvLoad); $('rv-draft').addEventListener('change', rvRender);
+  $('rv-list').addEventListener('change', function (ev) { var c = ev.target.closest('input[data-sel]'); if (!c) return; var it = RV.items.find(function (x) { return x.p.id === c.dataset.sel; }); if (it) it.sel = c.checked; rvButtons(); });
+  $('rv-selok').addEventListener('click', function () { RV.items.forEach(function (it) { it.sel = it.p.trang_thai !== 'da_dang' && !it.checks.block.length; }); rvRender(); });
+  $('rv-publish').addEventListener('click', function () { rvSetStatus('da_dang'); }); $('rv-unpub').addEventListener('click', function () { rvSetStatus('nhap'); });
 
   /* ---------- NỘI DUNG CHUYÊN ĐỀ ---------- */
   var C = { topicId: null, problems: [], solutions: {}, links: {}, terms: [], editingId: null, plan: null };
@@ -3084,12 +3360,13 @@
   document.querySelectorAll('.tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
       document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
-      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'bulk', 'papers', 'examlib', 'refdocs', 'enroll', 'progress', 'access', 'olympic-info', 'analytics'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
+      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'bulk', 'review', 'papers', 'examlib', 'refdocs', 'enroll', 'progress', 'access', 'olympic-info', 'analytics'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
       if (tab.dataset.tab === 'olympic-info') loadOlympicCompetitions();
       if (tab.dataset.tab === 'analytics') loadSiteAnalytics();
       if (tab.dataset.tab === 'videos') loadVideos();
       if (tab.dataset.tab === 'examlib') loadExamDocs();
       if (tab.dataset.tab === 'bulk') initBulk();
+      if (tab.dataset.tab === 'review') initReview();
       if (tab.dataset.tab === 'refdocs') loadRefDocs();
       if (tab.dataset.tab === 'enroll') loadEnroll();
       if (tab.dataset.tab === 'progress') loadProgress(true);
