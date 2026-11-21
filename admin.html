@@ -2928,7 +2928,8 @@
       var rows = [], okN = 0;
       for (var i = 0; i < rd.goi.length; i++) {
         var g = rd.goi[i];
-        var miss = (g.bai || []).filter(function (b) { return b.hinh && b.hinh[0] && !rd.hinh[g.ma + '/' + b.hinh[0]]; }).map(function (b) { return 'Bài ' + b.so + ': thiếu tệp hình ' + b.hinh[0] + ' trong ZIP.'; });
+        var miss = [];
+        (g.bai || []).forEach(function (b) { (b.hinh || []).forEach(function (h) { if (h && !rd.hinh[g.ma + '/' + h]) miss.push('Bài ' + b.so + ': thiếu tệp hình ' + h + ' trong ZIP.'); }); });
         goSay('Đang kiểm tra ' + (i + 1) + '/' + rd.goi.length + ': ' + g.ma + '...');
         var res = await sb.rpc('admin_import_goi', { p_goi: g, p_apply: false, p_ghi_de: $('go-ghide').checked });
         var r = res.error ? { ok: false, loi: [(/admin_import_goi|schema cache|does not exist/i.test(res.error.message || '') ? 'Chưa chạy SQL v17 (supabase-v17-nhap-goi.sql).' : friendlyError(res.error))] } : res.data;
@@ -2952,9 +2953,11 @@
       for (var i = 0; i < list.length; i++) {
         var g = list[i], r;
         try {
-          var imgs = (g.bai || []).filter(function (b) { return b.hinh && b.hinh[0]; });
+          // Tải MỌI hình của bài (hình chính và hình phụ).
+          var imgs = [];
+          (g.bai || []).forEach(function (b) { (b.hinh || []).forEach(function (h) { if (h && imgs.indexOf(h) < 0) imgs.push(h); }); });
           for (var k = 0; k < imgs.length; k++) {
-            var name = imgs[k].hinh[0], ent = GO.hinh[g.ma + '/' + name], ext = name.split('.').pop().toLowerCase();
+            var name = imgs[k], ent = GO.hinh[g.ma + '/' + name], ext = name.split('.').pop().toLowerCase();
             goSay('Gói ' + (i + 1) + '/' + list.length + ' (' + g.ma + '): tải hình ' + (k + 1) + '/' + imgs.length + '...');
             var blob = new Blob([await ent.async('uint8array')], { type: GO_IMG_TYPE[ext] });
             if (blob.size > 5 * 1024 * 1024) throw new Error('Hình ' + name + ' lớn hơn 5 MB');
