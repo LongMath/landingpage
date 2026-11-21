@@ -613,7 +613,15 @@ window.TBLKid = (function () {
 
   /* Hình đề bài: lấy đường dẫn có ký tên từ kho riêng (quyền xem theo quyền của chuyên đề). Không xem được thì chỉ báo nhẹ, không làm hỏng bài. */
   var IMG_CACHE = {};
-  function imgHtml(p) { return p.hinh_anh ? '<div class="stmt-img-wrap"><img class="stmt-img" data-img="' + esc(p.hinh_anh) + '" alt="Hình minh hoạ cho bài ' + esc(p.so_thu_tu) + '" hidden></div>' : ''; }
+  // Hình đề bài: hình chính (hinh_anh) và các hình phụ (hinh_phu, ví dụ hình các phương án), theo đúng thứ tự.
+  function imgHtml(p) {
+    var list = [];
+    if (p.hinh_anh) list.push(p.hinh_anh);
+    if (Array.isArray(p.hinh_phu)) p.hinh_phu.forEach(function (h) { if (h && list.indexOf(h) < 0) list.push(h); });
+    return list.map(function (h, i) {
+      return '<div class="stmt-img-wrap"><img class="stmt-img" data-img="' + esc(h) + '" alt="Hình ' + (i + 1) + ' của bài ' + esc(p.so_thu_tu) + '" hidden></div>';
+    }).join('');
+  }
   function loadProblemImages(root) {
     Array.prototype.forEach.call(root.querySelectorAll('img[data-img]'), function (img) {
       var path = img.dataset.img, c = IMG_CACHE[path];
