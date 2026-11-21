@@ -410,6 +410,8 @@ window.TBLKid = (function () {
   var lang = 'both';
   try { lang = localStorage.getItem('lm-lang') || 'both'; } catch (e) {}
 
+  // Đáp số có thể ghi nhiều cách viết được chấm đúng, ngăn bằng "|". Chỉ hiển thị cách viết đầu tiên.
+  function dapSo(v) { return String(v == null ? '' : v).split('|')[0].trim(); }
   function esc(v) {
     return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -666,7 +668,7 @@ window.TBLKid = (function () {
     if (r.data && r.data.correct) {
       st.solved = true;
       card.querySelector('.solved-tag').hidden = false;
-      fb(card, 'good', '<b>✓ Chính xác!</b> Đáp số: <b>' + esc(r.data.dap_so) + '</b>' + (r.data.loi_giai ? '<div class="rich" style="margin-top:8px;">' + renderRich(r.data.loi_giai) + '</div>' : ''));
+      fb(card, 'good', '<b>✓ Chính xác!</b> Đáp số: <b>' + esc(dapSo(r.data.dap_so)) + '</b>' + (r.data.loi_giai ? '<div class="rich" style="margin-top:8px;">' + renderRich(r.data.loi_giai) + '</div>' : ''));
       renderProgress();
     } else {
       fb(card, 'bad', 'Chưa đúng. Con thử lại, hoặc xem gợi ý nhé.');
@@ -701,7 +703,7 @@ window.TBLKid = (function () {
     if(seq!==reviewSeq || (reviewMode()&&!reviewKidOK()))return;
     if (r.error) { fb(card, 'bad', esc(rpcError(r.error))); return; }
     ST[id].revealed = true;
-    fb(card, 'info', 'Đáp số: <b>' + esc(r.data.dap_so) + '</b>' + (r.data.loi_giai ? '<div class="rich" style="margin-top:8px;">' + renderRich(r.data.loi_giai) + '</div>' : ''));
+    fb(card, 'info', 'Đáp số: <b>' + esc(dapSo(r.data.dap_so)) + '</b>' + (r.data.loi_giai ? '<div class="rich" style="margin-top:8px;">' + renderRich(r.data.loi_giai) + '</div>' : ''));
   }
   function say(text) {
     if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) { toast('Trình duyệt này chưa hỗ trợ đọc to.', 'err'); return; }

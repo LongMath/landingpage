@@ -742,7 +742,7 @@ window.TBLKid = (function () {
     $('res-body').innerHTML = (d.items || []).map(function (it) {
       var sol = it.loi_giai ? '<details class="sol"><summary>Xem lời giải</summary><div>' + esc(it.loi_giai) + '</div></details>' : '<span class="note-lock">Chưa có lời giải</span>';
       return '<tr><td><b>' + esc(it.so_thu_tu) + '</b></td><td>' + (it.tra_loi ? esc(it.tra_loi) : '<span class="note-lock">Bỏ trống</span>') + '</td>' +
-        '<td>' + (it.dung ? '<span class="ok">✓ Đúng</span>' : '<span class="no">✗ Chưa đúng</span>') + '</td><td><b>' + esc(it.dap_so) + '</b></td><td>' + sol + '</td></tr>';
+        '<td>' + (it.dung ? '<span class="ok">✓ Đúng</span>' : '<span class="no">✗ Chưa đúng</span>') + '</td><td><b>' + esc(String(it.dap_so == null ? '' : it.dap_so).split('|')[0].trim()) + '</b></td><td>' + sol + '</td></tr>';
     }).join('');
     mathIn($('res-body'));
   }
