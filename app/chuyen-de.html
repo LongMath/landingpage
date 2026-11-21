@@ -315,6 +315,7 @@
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="review-practice.js"></script>
 <script>
 /* ---------- BÉ ĐANG HỌC (dùng chung các trang) ---------- */
 window.TBLKid = (function () {
@@ -454,17 +455,25 @@ window.TBLKid = (function () {
   }
 
   /* ---------- TẢI DỮ LIỆU ---------- */
+  var reviewSeq = 0;
+  function reviewMode(){return new URLSearchParams(location.search).get('mode') === 'review';}
+  function reviewKidOK(){var id=new URLSearchParams(location.search).get('student');return !!user && TBLReviewPractice.uuid(id) && TBLKid.id===id;}
   async function loadAll() {
+    var seq=++reviewSeq;
+    if(reviewMode() && !reviewKidOK()){T=null;ST={};showState('<h2>Chọn đúng hồ sơ học sinh</h2><p>Hãy đăng nhập và chọn bé tương ứng, hoặc quay lại Dashboard phụ huynh.</p><a href="phu-huynh.html">Về hồ sơ học tập</a>');return;}
+
     topicId = decodeURIComponent((location.hash || '').replace(/^#/, ''));
     T = null; ST = {};
     if (!topicId) { showState('<h2>Chưa chọn chuyên đề</h2><p>Hãy chọn một chuyên đề trong kho.</p><p class="cta"><a class="btn-gold" href="luyen-thi-olympic.html">Mở kho chuyên đề</a></p>'); return; }
     showState('Đang tải chuyên đề...');
     var t = await sb.from('topics').select('*').eq('id', topicId).maybeSingle();
+    if (seq!==reviewSeq) return;
     if (t.error) { showState('<h2>Chưa tải được dữ liệu</h2><p>Bạn thử tải lại trang sau ít phút.</p>', true); return; }
     if (!t.data) { showState('<h2>Không tìm thấy chuyên đề</h2><p>Chuyên đề không tồn tại hoặc chưa được đăng.</p><p class="cta"><a class="btn-gold" href="luyen-thi-olympic.html">Về kho chuyên đề</a></p>'); return; }
     var topic = t.data;
     var lv = await sb.from('exam_levels').select('*').eq('id', topic.level_id).maybeSingle();
     var ex = lv.data ? await sb.from('exams').select('*').eq('id', lv.data.exam_id).maybeSingle() : { data: null };
+    if (seq!==reviewSeq) return;
     T = { topic: topic, level: lv.data, exam: ex.data, theory: '', terms: [], problems: [], locked: null, videos: [], mats: [], lvVideos: [], lvMats: [] };
 
     if (topic.access_level !== 'cong_khai' && !user) { T.locked = 'login'; renderAll(); return; }
@@ -475,9 +484,27 @@ window.TBLKid = (function () {
       sb.from('topic_terms').select('*').eq('topic_id', topicId).order('thu_tu'),
       sb.from('problems').select('*').eq('topic_id', topicId).order('so_thu_tu')
     ]);
+    if (seq!==reviewSeq) return;
     for (var i = 0; i < r.length; i++) if (r[i].error) { showState('<h2>Chưa tải được nội dung</h2><p>Bạn thử tải lại trang sau ít phút.</p>', true); return; }
     T.theory = (r[0].data && r[0].data.ly_thuyet) || '';
     T.terms = r[1].data || []; T.problems = r[2].data || [];
+    var practiceParams = new URLSearchParams(location.search);
+    if (practiceParams.get('mode') === 'practice') {
+      var n = Number(practiceParams.get('count'));
+      if ([5,10,15,20].indexOf(n) === -1) n = 10;
+      var group = practiceParams.get('muc');
+      if (['thuc_hanh','nang_cao','ve_nha'].indexOf(group) === -1) group = 'all';
+      T.problems = T.problems.filter(function(p){return p.trang_thai === 'da_dang' && p.loai === 'tu_luan' && (group === 'all' || p.muc === group);}).slice(0,n);
+      T.practiceMode = true; T.practiceRequested = n; tab = 'bai-tap';
+    }
+    if (reviewMode()) {
+      var wr=await sb.rpc('get_student_wrong_items',{p_student:TBLKid.id,p_limit:20});
+      if(seq!==reviewSeq || !reviewKidOK())return;
+      if(wr.error){showState('<h2>Chưa tải được sổ tay câu sai</h2><p>Vui lòng thử lại.</p>',true);return;}
+      T.problems=TBLReviewPractice.select(wr.data,topicId,T.problems);
+      T.practiceMode=true;T.reviewMode=true;T.practiceRequested=5;tab='bai-tap';
+      if(!T.problems.length){showState('<h2>Chưa có câu phù hợp để luyện lại</h2><p>Câu có thể đã bị khóa, không thuộc dạng tự luận hoặc không còn trong danh sách gần đây.</p><a href="phu-huynh.html">Về hồ sơ học tập</a>');return;}
+    }
     T.problems.forEach(function (p) { ST[p.id] = { hints: 0, solved: false, revealed: false }; });
     // Video và tài liệu là phần bổ sung: nếu chưa có bảng hoặc lỗi thì chỉ coi như trống, không làm hỏng trang.
     try {
@@ -487,16 +514,21 @@ window.TBLKid = (function () {
         sb.from('videos').select('*').eq('level_id', topic.level_id).order('thu_tu'),
         sb.from('materials').select('*').eq('level_id', topic.level_id).eq('trang_thai', 'da_dang').order('thu_tu')
       ]);
+      if(seq!==reviewSeq)return;
       T.videos = lr[0].error ? [] : (lr[0].data || []); T.mats = lr[1].error ? [] : (lr[1].data || []);
       T.lvVideos = lr[2].error ? [] : (lr[2].data || []); T.lvMats = lr[3].error ? [] : (lr[3].data || []);
     } catch (e) { /* bỏ qua */ }
-    if (user && T.problems.length) {
+    if(seq!==reviewSeq)return;
+    if (user && T.problems.length && !T.reviewMode) {
       var lgq = sb.from('practice_log').select('problem_id,correct,revealed').eq('topic_id', topicId);
       if (TBLKid.id) lgq = lgq.eq('student_id', TBLKid.id);   // dấu "đã giải" chỉ tính cho bé đang chọn
       var lg = await lgq;
+      if(seq!==reviewSeq)return;
       if (!lg.error) (lg.data || []).forEach(function (x) { if (ST[x.problem_id] && x.correct) ST[x.problem_id].solved = true; });
     }
-    if (!T.theory.trim() && T.problems.length) tab = 'bai-tap';
+    if(seq!==reviewSeq)return;
+    if (T.practiceMode) tab = 'bai-tap';
+    else if (!T.theory.trim() && T.problems.length) tab = 'bai-tap';
     else if (!T.theory.trim() && !T.problems.length && (T.videos.length + T.mats.length + T.lvVideos.length + T.lvMats.length)) tab = 'bai-giang';
     renderAll();
   }
@@ -507,10 +539,11 @@ window.TBLKid = (function () {
     var tp = T.topic, lvl = T.level, ex = T.exam;
     $('crumbs').innerHTML = '<a href="toanbaclong-platform.html">Trang chủ</a> / <a href="luyen-thi-olympic.html' + (lvl ? '#' + esc(lvl.id) : '') + '">Luyện thi Olympic</a>' +
       (ex ? ' / ' + esc(ex.ten) : '') + (lvl ? ' / ' + esc(lvl.ten) : '');
-    $('topic-name').textContent = tp.ten;
+    $('topic-name').textContent = T.reviewMode ? 'Luyện lại câu cần xem: '+tp.ten : T.practiceMode ? 'Luyện tập: ' + tp.ten : tp.ten;
     $('topic-meta').innerHTML = (tp.nhom ? '<span class="pill">Nhóm ' + esc(tp.nhom) + '</span>' : '') +
       (lvl ? '<span class="pill">' + esc(lvl.ten) + '</span>' : '') +
       (tp.trang_thai !== 'da_dang' ? '<span class="tag nhap">Nháp</span>' : '');
+    if (T.practiceMode) $('topic-meta').insertAdjacentHTML('beforeend', '<span class="pill">' + T.problems.length + '/' + T.practiceRequested + ' câu</span> <a href="luyen-tap.html#tuy-chon">Đổi bài luyện</a>');
     $('n-terms').textContent = T.terms.length ? '(' + T.terms.length + ')' : '';
     $('n-probs').textContent = T.problems.length ? '(' + T.problems.length + ')' : '';
     var nl = (T.videos || []).length + (T.mats || []).length + (T.lvVideos || []).length + (T.lvMats || []).length;
@@ -573,7 +606,7 @@ window.TBLKid = (function () {
   }
   function renderProblems() {
     var pane = $('pane-bai-tap');
-    if (!T.problems.length) { pane.innerHTML = '<div class="card"><p>Bài tập của chuyên đề này đang được cập nhật. <span class="tag-soon">Sắp ra mắt</span></p></div>'; return; }
+    if (!T.problems.length) { pane.innerHTML = '<div class="card"><p>Bài tập của chuyên đề này đang được cập nhật hoặc chưa có câu phù hợp. <a href="luyen-tap.html#tuy-chon">Chọn bài luyện</a></p></div>'; return; }
     // Giữ lại nội dung đang gõ khi vẽ lại (ví dụ đổi ngôn ngữ)
     var keep = {};
     pane.querySelectorAll('.prob').forEach(function (el) {
@@ -618,6 +651,8 @@ window.TBLKid = (function () {
   function addFb(card, kind, html) { card.querySelector('.fb-area').insertAdjacentHTML('beforeend', '<div class="fb ' + kind + '">' + html + '</div>'); }
 
   async function doCheck(card, btn) {
+    if(reviewMode()&&!reviewKidOK()){fb(card,'info','Hãy chọn đúng hồ sơ bé.');return;}
+    var seq=reviewSeq;
     var id = card.dataset.id, st = ST[id], ans = card.querySelector('.ans').value.trim();
     if (!ans) { fb(card, 'info', 'Hãy nhập đáp số của con trước khi kiểm tra.'); return; }
     var kid = TBLKid.pick();
@@ -626,6 +661,7 @@ window.TBLKid = (function () {
     var cargs = { p_problem: id, p_answer: ans, p_hints: st.hints }; if (kid) cargs.p_student = kid;
     var r = await sb.rpc('check_answer', cargs);
     btn.disabled = false;
+    if(seq!==reviewSeq || (reviewMode()&&!reviewKidOK()))return;
     if (r.error) { fb(card, 'bad', esc(rpcError(r.error))); return; }
     if (r.data && r.data.correct) {
       st.solved = true;
@@ -637,11 +673,14 @@ window.TBLKid = (function () {
     }
   }
   async function doHint(card, level, btn) {
+    if(reviewMode()&&!reviewKidOK()){fb(card,'info','Hãy chọn đúng hồ sơ bé.');return;}
+    var seq=reviewSeq;
     var id = card.dataset.id, st = ST[id];
     if (level === 2 && st.hints < 1) { fb(card, 'info', 'Hãy xem gợi ý 1 trước nhé.'); return; }
     btn.disabled = true;
     var r = await sb.rpc('get_hint', { p_problem: id, p_level: level });
     btn.disabled = false;
+    if(seq!==reviewSeq || (reviewMode()&&!reviewKidOK()))return;
     if (r.error) { fb(card, 'bad', esc(rpcError(r.error))); return; }
     st.hints = Math.max(st.hints, level);
     var box = card.querySelector('.fb-area');
@@ -650,6 +689,8 @@ window.TBLKid = (function () {
     mathIn(box);
   }
   async function doReveal(card, btn) {
+    if(reviewMode()&&!reviewKidOK()){fb(card,'info','Hãy chọn đúng hồ sơ bé.');return;}
+    var seq=reviewSeq;
     var kid = TBLKid.pick();
     if (kid === false) { fb(card, 'info', 'Hãy chọn bé đang học (ô phía trên) trước khi xem đáp án.'); return; }
     if (!window.confirm('Xem đáp án sẽ không được tính là con tự giải. Tiếp tục?')) return;
@@ -657,6 +698,7 @@ window.TBLKid = (function () {
     btn.disabled = true;
     var r = await sb.rpc('reveal_answer', kid ? { p_problem: id, p_student: kid } : { p_problem: id });
     btn.disabled = false;
+    if(seq!==reviewSeq || (reviewMode()&&!reviewKidOK()))return;
     if (r.error) { fb(card, 'bad', esc(rpcError(r.error))); return; }
     ST[id].revealed = true;
     fb(card, 'info', 'Đáp số: <b>' + esc(r.data.dap_so) + '</b>' + (r.data.loi_giai ? '<div class="rich" style="margin-top:8px;">' + renderRich(r.data.loi_giai) + '</div>' : ''));
@@ -709,11 +751,13 @@ window.TBLKid = (function () {
       (lvl.length ? '<div class="lesson-group"><h3>Dành cho cả ' + esc(T.level ? T.level.ten : 'bảng đề') + '</h3>' + lvl.join('') + '</div>' : '');
   }
   async function playVideo(id, btn) {
+    var seq=reviewSeq;
     var box = document.querySelector('.vplayer[data-for="' + id + '"]'); if (!box) return;
     if (box.firstChild) { box.textContent = ''; btn.textContent = '▶ Xem video'; return; }
     btn.disabled = true;
     var r = await sb.rpc('get_video', { p_video: id });
     btn.disabled = false;
+    if(seq!==reviewSeq || (reviewMode()&&!reviewKidOK()))return;
     if (r.error) { toast(lessonErr(r.error), 'err'); return; }
     var d = r.data || {};
     // Chỉ nhúng YouTube và chỉ khi mã đúng dạng 11 ký tự, để không bao giờ chèn địa chỉ lạ.
@@ -794,6 +838,7 @@ window.TBLKid = (function () {
   async function applySession(session) {
     var uid = session && session.user ? session.user.id : null;
     if (lastUid !== undefined && uid === lastUid) return;
+    ++reviewSeq;
     lastUid = uid; user = session ? session.user : null; isAdmin = false;
     $('auth-out').hidden = !!user; $('auth-in').hidden = !user;
     if (user) {
