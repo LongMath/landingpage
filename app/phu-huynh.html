@@ -246,7 +246,7 @@
       <section class="card" id="ph-next" style="margin-top:12px;"></section>
       <section class="card" style="margin-top:16px;"><h2>Câu cần xem lại</h2>
         <p class="hint">Đây là các dữ kiện đã ghi nhận (sai, bỏ trống, có dùng gợi ý hay xem đáp án). Hệ thống không suy đoán nguyên nhân. Không hiển thị nội dung đề hay đáp án ở đây.</p>
-        <div id="ph-wrong-sum"></div><div id="ph-wrong-list"></div></section>
+        <div id="ph-review-plan"></div><div id="ph-wrong-sum"></div><div id="ph-wrong-list"></div></section>
       <p style="margin-top:14px;"><a class="btn ghost" href="tien-do.html" id="ph-full">Xem tiến độ đầy đủ của bé</a></p>
     </div>
   </div>
@@ -285,6 +285,8 @@
 </div>
 <div id="toast"></div>
 
+<script src="learning-analytics.js"></script>
+<script src="review-practice.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ---------- BÉ ĐANG HỌC (dùng chung các trang) ---------- */
@@ -419,10 +421,10 @@ window.TBLKid = (function () {
   async function loadDetail() {
     var kid = TBLKid.id, seq = ++S.dseq; if (!kid) { $('ph-detail').hidden = true; return; }
     var r = await Promise.all([sb.rpc('get_student_progress_summary', { p_student: kid }), sb.rpc('get_student_topic_stats', { p_student: kid }), sb.rpc('get_student_wrong_items', { p_student: kid, p_limit: 20 })]);
-    if (seq !== S.dseq) return;
+    if (seq !== S.dseq || !user || kid !== TBLKid.id) return;
     var bad = r.filter(function (x) { return x.error; })[0];
     $('ph-detail').hidden = false; $('ph-detail-title').textContent = 'Chi tiết: ' + TBLKid.nameOf(kid);
-    if (bad) { $('ph-next').innerHTML = '<p class="hint">' + esc(errText(bad.error)) + '</p>'; $('ph-wrong-sum').innerHTML = ''; $('ph-wrong-list').innerHTML = ''; return; }
+    if (bad) { $('ph-next').innerHTML = '<p class="hint">' + esc(errText(bad.error)) + '</p>'; $('ph-review-plan').innerHTML = ''; $('ph-wrong-sum').innerHTML = ''; $('ph-wrong-list').innerHTML = ''; return; }
     var na = nextAction(r[0].data, r[1].data);
     $('ph-next').innerHTML = '<div class="next"><span class="tag">Gợi ý bước tiếp theo</span><h3 style="margin-top:8px;">' + esc(na.t) + '</h3><p>' + esc(na.why) + '</p><p style="margin-top:10px;">' + na.links.map(function (l) { return '<a class="btn primary small" style="margin-right:8px;" href="' + esc(l[0]) + '">' + esc(l[1]) + '</a>'; }).join('') + '</p></div>';
     var w = r[2].data, sm = w.summary || {};
@@ -430,6 +432,10 @@ window.TBLKid = (function () {
     $('ph-wrong-sum').innerHTML = total ? '<div class="chips">' +
       '<span class="chip2">Sai trong thi thử: <b>' + (sm.sai_thi_thu || 0) + '</b></span><span class="chip2">Bỏ trống trong thi thử: <b>' + (sm.bo_trong_thi_thu || 0) + '</b></span>' +
       '<span class="chip2">Sai khi luyện tập: <b>' + (sm.sai_luyen_tap || 0) + '</b></span><span class="chip2">Đã xem đáp án: <b>' + (sm.xem_dap_an || 0) + '</b></span><span class="chip2">Đúng nhưng có dùng gợi ý: <b>' + (sm.dung_nhung_co_goi_y || 0) + '</b></span></div>' : '<p class="hint" style="margin-top:10px;">Chưa ghi nhận câu sai nào.</p>';
+    var plan = window.TBLLearningAnalytics.plan(r[1].data, w);
+    $('ph-review-plan').innerHTML = '<h3 style="margin-top:12px;">Kế hoạch luyện tiếp</h3><p class="hint">Tối đa 3 chuyên đề; chỉ đánh giá tỷ lệ đúng lần đầu khi có ít nhất 5 câu khác nhau và dữ liệu đủ theo hệ thống. Số lượt cần xem lại lấy từ danh sách gần đây (tối đa 20), không phải tổng lịch sử.</p>' + (plan.actions.length ? plan.actions.map(function(a){return '<div class="row-item"><div><b>'+esc(a.name)+'</b><small>'+ (a.pct===null?'Chưa đủ dữ liệu để đánh giá':esc(pc(a.pct))+' đúng lần đầu · '+a.n+' câu khác nhau')+' · '+a.events+' lượt cần xem lại trong danh sách gần đây</small></div><a href="'+esc(a.href)+'">Luyện tối đa 5 câu</a></div>';}).join('') : '<p class="hint">Chưa có dữ liệu phù hợp để đề xuất luyện lại.</p>');
+    var groups = TBLReviewPractice.groups(w);
+    $('ph-review-plan').insertAdjacentHTML('beforeend', '<h3 style="margin-top:16px;">Luyện lại đúng câu cần xem</h3><p class="hint">Tối đa 5 câu tự luận còn truy cập được trong mỗi chuyên đề, lấy từ 20 sự kiện gần nhất. Không tự thay bằng câu khác.</p>' + (groups.length ? groups.map(function(g){return '<div class="row-item"><div><b>'+esc(g.name)+'</b><small>'+g.ids.length+' câu khác nhau cần xem</small></div><a href="'+esc(TBLReviewPractice.href(g,kid))+'">Luyện lại đúng câu</a></div>';}).join('') : '<p class="hint">Chưa có câu phù hợp.</p>'));
     var items = (w.items || []).slice(0, 10);
     $('ph-wrong-list').innerHTML = items.map(function (i) {
       var link = i.src === 'thi_thu' && i.attempt_id ? '<a href="thi-thu.html#ketqua/' + esc(i.attempt_id) + '">Xem kết quả</a>' : (i.topic_id ? '<a href="chuyen-de.html#' + esc(i.topic_id) + '">Luyện lại chuyên đề</a>' : '');
