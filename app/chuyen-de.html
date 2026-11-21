@@ -612,7 +612,8 @@ window.TBLKid = (function () {
     // Giữ lại nội dung đang gõ khi vẽ lại (ví dụ đổi ngôn ngữ)
     var keep = {};
     pane.querySelectorAll('.prob').forEach(function (el) {
-      keep[el.dataset.id] = { ans: el.querySelector('.ans').value, fb: el.querySelector('.fb-area').innerHTML };
+      var a = el.querySelector('.ans');
+      keep[el.dataset.id] = { ans: a ? a.value : '', fb: el.querySelector('.fb-area').innerHTML };
     });
     pane.innerHTML = T.problems.map(function (p) {
       var s = ST[p.id] || {};
@@ -624,18 +625,24 @@ window.TBLKid = (function () {
         stmtHtml(p) + imgHtml(p) +
         '<label class="field-label" for="w-' + esc(p.id) + '">Chỗ trình bày bài làm (chỉ lưu trên máy này)</label>' +
         '<textarea class="work" id="w-' + esc(p.id) + '" data-work="' + esc(p.id) + '"></textarea>' +
-        '<label class="field-label" for="a-' + esc(p.id) + '">Đáp số của con</label>' +
-        '<div class="ans-row"><input class="ans" id="a-' + esc(p.id) + '" type="text" autocomplete="off" inputmode="text" placeholder="Nhập đáp số">' +
-        '<button class="btn primary" type="button" data-act="check">Kiểm tra</button></div>' +
-        '<div class="actions"><button class="btn ghost" type="button" data-act="hint1">Gợi ý 1</button>' +
-        '<button class="btn ghost" type="button" data-act="hint2">Gợi ý 2</button>' +
-        '<button class="btn ghost" type="button" data-act="reveal">Xem đáp án</button></div>' +
+        (p.che_do_cham === 'tu_doi_chieu'
+          // Đáp án nhiều phần: làm xong thì xem đáp số và tự đối chiếu (vẫn ghi vào tiến độ và "Luyện lại").
+          ? '<p class="muted" style="margin:8px 0 0;">Bài này có đáp án nhiều phần. Làm xong, con bấm xem đáp số rồi tự đối chiếu nhé.</p>' +
+            '<div class="ans-row"><button class="btn primary" type="button" data-act="doichieu">Xem đáp số để tự đối chiếu</button></div>' +
+            '<div class="actions"><button class="btn ghost" type="button" data-act="hint1">Gợi ý 1</button>' +
+            '<button class="btn ghost" type="button" data-act="hint2">Gợi ý 2</button></div>'
+          : '<label class="field-label" for="a-' + esc(p.id) + '">Đáp số của con</label>' +
+            '<div class="ans-row"><input class="ans" id="a-' + esc(p.id) + '" type="text" autocomplete="off" inputmode="text" placeholder="Nhập đáp số">' +
+            '<button class="btn primary" type="button" data-act="check">Kiểm tra</button></div>' +
+            '<div class="actions"><button class="btn ghost" type="button" data-act="hint1">Gợi ý 1</button>' +
+            '<button class="btn ghost" type="button" data-act="hint2">Gợi ý 2</button>' +
+            '<button class="btn ghost" type="button" data-act="reveal">Xem đáp án</button></div>') +
         '<div class="fb-area"></div></article>';
     }).join('');
     pane.querySelectorAll('.prob').forEach(function (el) {
       var id = el.dataset.id;
       el.querySelector('.work').value = lsGet('lm-work:' + id);
-      if (keep[id]) { el.querySelector('.ans').value = keep[id].ans; el.querySelector('.fb-area').innerHTML = keep[id].fb; }
+      if (keep[id]) { var a = el.querySelector('.ans'); if (a) a.value = keep[id].ans; el.querySelector('.fb-area').innerHTML = keep[id].fb; }
     });
     mathIn(pane);
     loadProblemImages(pane);
@@ -704,6 +711,41 @@ window.TBLKid = (function () {
     if (r.error) { fb(card, 'bad', esc(rpcError(r.error))); return; }
     ST[id].revealed = true;
     fb(card, 'info', 'Đáp số: <b>' + esc(dapSo(r.data.dap_so)) + '</b>' + (r.data.loi_giai ? '<div class="rich" style="margin-top:8px;">' + renderRich(r.data.loi_giai) + '</div>' : ''));
+  }
+  // Bài "tự đối chiếu": xem đáp số (không tính là "xem đáp án"), rồi con tự đánh dấu đúng/sai.
+  async function doDoiChieu(card, btn) {
+    if(reviewMode()&&!reviewKidOK()){fb(card,'info','Hãy chọn đúng hồ sơ bé.');return;}
+    var seq=reviewSeq;
+    var kid = TBLKid.pick();
+    if (kid === false) { fb(card, 'info', 'Hãy chọn bé đang học (ô phía trên) trước khi đối chiếu.'); return; }
+    var id = card.dataset.id;
+    btn.disabled = true;
+    var r = await sb.rpc('doi_chieu_dap_so', kid ? { p_problem: id, p_student: kid } : { p_problem: id });
+    btn.disabled = false;
+    if(seq!==reviewSeq || (reviewMode()&&!reviewKidOK()))return;
+    if (r.error) { fb(card, 'bad', esc(rpcError(r.error))); return; }
+    fb(card, 'info', 'Đáp số: <b>' + esc(dapSo(r.data.dap_so)) + '</b>' + (r.data.loi_giai ? '<div class="rich" style="margin-top:8px;">' + renderRich(r.data.loi_giai) + '</div>' : '') +
+      '<div class="actions" style="margin-top:10px;"><span>Con đối chiếu bài làm:</span> <button class="btn primary" type="button" data-act="tudung">✓ Con làm đúng</button> <button class="btn ghost" type="button" data-act="tusai">✗ Con làm chưa đúng</button></div>');
+  }
+  async function doTuCham(card, dung, btn) {
+    if(reviewMode()&&!reviewKidOK()){fb(card,'info','Hãy chọn đúng hồ sơ bé.');return;}
+    var seq=reviewSeq;
+    var kid = TBLKid.pick();
+    if (kid === false) { fb(card, 'info', 'Hãy chọn bé đang học (ô phía trên) trước khi đối chiếu.'); return; }
+    var id = card.dataset.id, st = ST[id];
+    btn.disabled = true;
+    var args = { p_problem: id, p_dung: dung, p_hints: st.hints }; if (kid) args.p_student = kid;
+    var r = await sb.rpc('tu_cham', args);
+    btn.disabled = false;
+    if(seq!==reviewSeq || (reviewMode()&&!reviewKidOK()))return;
+    if (r.error) { fb(card, 'bad', esc(rpcError(r.error))); return; }
+    var box = card.querySelector('.fb-area .actions'); if (box) box.remove();
+    if (dung) {
+      st.solved = true; card.querySelector('.solved-tag').hidden = false; renderProgress();
+      addFb(card, 'good', '<b>✓ Tuyệt vời!</b> Đã ghi nhận con làm đúng.');
+    } else {
+      addFb(card, 'info', 'Đã ghi nhận. Bài này sẽ có trong phần "Luyện lại" để con làm lại sau nhé.');
+    }
   }
   function say(text) {
     if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) { toast('Trình duyệt này chưa hỗ trợ đọc to.', 'err'); return; }
@@ -798,6 +840,9 @@ window.TBLKid = (function () {
       else if (ab.dataset.act === 'hint1') doHint(card, 1, ab);
       else if (ab.dataset.act === 'hint2') doHint(card, 2, ab);
       else if (ab.dataset.act === 'reveal') doReveal(card, ab);
+      else if (ab.dataset.act === 'doichieu') doDoiChieu(card, ab);
+      else if (ab.dataset.act === 'tudung') doTuCham(card, true, ab);
+      else if (ab.dataset.act === 'tusai') doTuCham(card, false, ab);
     }
   });
   document.addEventListener('input', function (ev) {

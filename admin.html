@@ -175,6 +175,7 @@
       <button class="tab" type="button" data-tab="levels">Bảng đề</button>
       <button class="tab" type="button" data-tab="content">Nội dung</button>
     <button class="tab" type="button" data-tab="bulk">Nhập hàng loạt</button>
+    <button class="tab" type="button" data-tab="goi">Nhập gói</button>
     <button class="tab" type="button" data-tab="review">Duyệt và đăng</button>
       <button class="tab" type="button" data-tab="papers">Đề thi</button>
       <button class="tab" type="button" data-tab="examlib">Thư viện đề</button>
@@ -539,6 +540,19 @@
         <p class="note" id="bk-msg" hidden role="status"></p>
         <div class="tablewrap" id="bk-plan-wrap" hidden><table><thead><tr><th>Kỳ thi › bảng đề</th><th>Chuyên đề</th><th class="num">Số bài</th><th class="num">Thêm mới</th><th class="num">Cập nhật</th></tr></thead><tbody id="bk-plan"></tbody></table></div>
         <ol class="hint" id="bk-errors" hidden style="margin-top:12px; padding-left:20px;"></ol>
+      </div>
+    </div>
+
+    <div id="tab-goi" hidden>
+      <div class="card">
+        <h2>Nhập gói chuyên đề (TBL)</h2>
+        <p class="hint">Chọn <b>tệp ZIP gói</b> do công cụ <code>tbl-factory</code> tạo (mỗi chuyên đề là một tệp <code>MÃ.json</code>, hình nằm trong thư mục <code>MÃ/</code>). Mỗi gói gồm lý thuyết, thuật ngữ Anh – Việt, bài tập song ngữ, Gợi ý 1, Gợi ý 2, đáp số và hình. Chuyên đề được khớp <b>theo mã</b>, nếu chưa có mã thì <b>theo tên</b>, rồi <b>theo số thứ tự</b> trong bảng đề (bảng kiểm tra ghi rõ cách khớp). Bài khớp theo mã bài nên <b>nhập lại không tạo trùng</b>. Bài mới luôn ở trạng thái <b>Nháp</b>. Lý thuyết và thuật ngữ đang có được <b>giữ nguyên</b>, trừ khi chọn "Ghi đè". Mỗi gói ghi trong một giao dịch: lỗi ở đâu thì gói đó không ghi gì.</p>
+        <label for="go-files">Chọn tệp ZIP gói (có thể chọn nhiều)</label>
+        <input type="file" id="go-files" accept=".zip,application/zip" multiple>
+        <label class="check"><input type="checkbox" id="go-ghide"> Ghi đè: thay lý thuyết, thuật ngữ đang có và bài trùng số thứ tự (chỉ dùng khi chắc chắn)</label>
+        <div class="btn-row"><button class="btn primary" type="button" id="go-check">Kiểm tra</button><button class="btn" type="button" id="go-apply" disabled>Nhập các gói hợp lệ</button></div>
+        <p class="note" id="go-msg" hidden role="status"></p>
+        <div class="tablewrap" id="go-plan-wrap" hidden><table><thead><tr><th>Mã</th><th>Kỳ thi › bảng đề</th><th>Chuyên đề (cách khớp)</th><th class="num">Thêm</th><th class="num">Cập nhật</th><th class="num">Hình</th><th>Lý thuyết / thuật ngữ</th><th>Lỗi / cảnh báo</th></tr></thead><tbody id="go-plan"></tbody></table></div>
       </div>
     </div>
 
@@ -2866,6 +2880,102 @@
   $('bk-pub2').addEventListener('change', bkReset);
   $('bk-check').addEventListener('click', bkCheck); $('bk-apply').addEventListener('click', bkApply); $('bk-sample').addEventListener('click', bkSample);
 
+  /* ---------- NHẬP GÓI TBL (chuyên đề: lý thuyết, thuật ngữ, bài, gợi ý, đáp số, hình) ----------
+     Gói do công cụ tbl-factory tạo: mỗi chuyên đề là <MA>.json, hình nằm trong thư mục <MA>/.
+     Bước 1 "Kiểm tra": gọi admin_import_goi(p_apply = false), không ghi gì.
+     Bước 2 "Nhập": tải hình lên kho hinh-bai-tap/goi/<MA>/ rồi gọi admin_import_goi(p_apply = true). Nhập lại cùng gói không tạo trùng. */
+  var GO = { goi: [], hinh: {}, busy: false, checked: false };
+  var GO_IMG_TYPE = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp' };
+  function goSay(text, cls) { var m = $('go-msg'); m.textContent = text; m.className = 'note' + (cls ? ' ' + cls : ''); m.hidden = !text; }
+  function goReset() { GO.checked = false; $('go-apply').disabled = true; $('go-plan-wrap').hidden = true; goSay(''); }
+  async function goRead() {
+    var files = Array.prototype.slice.call($('go-files').files), goi = [], hinh = {}, errs = [];
+    for (var f = 0; f < files.length; f++) {
+      var file = files[f];
+      if (file.size > 80 * 1024 * 1024) { errs.push('Tệp "' + file.name + '" lớn hơn 80 MB.'); continue; }
+      var zip; try { zip = await window.JSZip.loadAsync(await file.arrayBuffer()); } catch (e) { errs.push('Tệp "' + file.name + '" không phải ZIP hợp lệ.'); continue; }
+      var entries = Object.keys(zip.files).map(function (k) { return zip.files[k]; }).filter(function (e) { return !e.dir && !/(^|\/)(__MACOSX\/|\._)/.test(e.name); });
+      for (var i = 0; i < entries.length; i++) {
+        var e = entries[i], parts = e.name.replace(/\\/g, '/').split('/'), base = parts[parts.length - 1], ext = (base.split('.').pop() || '').toLowerCase();
+        if (ext === 'json' && !/^_/.test(base)) {
+          var g; try { g = JSON.parse((await e.async('string')).replace(/^﻿/, '')); } catch (x) { errs.push('"' + e.name + '" không đọc được JSON.'); continue; }
+          if (g && g.phien_ban_goi === 'tbl-goi-1') goi.push(g);
+        } else if (GO_IMG_TYPE[ext] && parts.length >= 2) {
+          hinh[parts[parts.length - 2] + '/' + base] = e;
+        }
+      }
+    }
+    goi.sort(function (a, b) { return String(a.ma).localeCompare(String(b.ma)); });
+    return { goi: goi, hinh: hinh, errs: errs };
+  }
+  function goRow(g, r) {
+    var loi = (r.loi || []), cb = (r.canh_bao || []);
+    var tt = !r.ok ? '<span class="tag nhap">Lỗi</span>' : r.applied ? '<span class="tag ok">Đã nhập</span>' : '<span class="tag ok">Hợp lệ</span>';
+    return '<tr><td><b>' + esc(g.ma) + '</b><br>' + tt + '</td><td>' + esc((r.ky_thi || '?') + ' › ' + (r.bang_de || '?')) + '</td>' +
+      '<td>' + esc(r.chuyen_de || g.ten || '') + (r.khop ? '<br><small class="hint">' + esc(r.khop) + '</small>' : '') + '</td>' +
+      '<td class="num">' + (r.them || 0) + '</td><td class="num">' + (r.cap_nhat || 0) + '</td><td class="num">' + (r.hinh || 0) + '</td>' +
+      '<td><small>' + esc(r.ly_thuyet || '') + '<br>' + esc(r.thuat_ngu || '') + '</small></td>' +
+      '<td><small>' + loi.concat(cb).map(esc).join('<br>') + '</small></td></tr>';
+  }
+  async function goCheck() {
+    if (GO.busy) return; goReset();
+    if (!$('go-files').files.length) { goSay('Hãy chọn ít nhất một tệp ZIP gói.', 'warn'); return; }
+    GO.busy = true; $('go-check').disabled = true; goSay('Đang đọc gói...');
+    try {
+      var rd = await goRead(); GO.goi = rd.goi; GO.hinh = rd.hinh;
+      if (rd.errs.length) { goSay(rd.errs.join(' '), 'warn'); return; }
+      if (!rd.goi.length) { goSay('Không thấy gói nào (tệp .json có "phien_ban_goi": "tbl-goi-1") trong ZIP.', 'warn'); return; }
+      var rows = [], okN = 0;
+      for (var i = 0; i < rd.goi.length; i++) {
+        var g = rd.goi[i];
+        var miss = (g.bai || []).filter(function (b) { return b.hinh && b.hinh[0] && !rd.hinh[g.ma + '/' + b.hinh[0]]; }).map(function (b) { return 'Bài ' + b.so + ': thiếu tệp hình ' + b.hinh[0] + ' trong ZIP.'; });
+        goSay('Đang kiểm tra ' + (i + 1) + '/' + rd.goi.length + ': ' + g.ma + '...');
+        var res = await sb.rpc('admin_import_goi', { p_goi: g, p_apply: false, p_ghi_de: $('go-ghide').checked });
+        var r = res.error ? { ok: false, loi: [(/admin_import_goi|schema cache|does not exist/i.test(res.error.message || '') ? 'Chưa chạy SQL v17 (supabase-v17-nhap-goi.sql).' : friendlyError(res.error))] } : res.data;
+        if (miss.length) { r.ok = false; r.loi = (r.loi || []).concat(miss); }
+        g._ok = !!r.ok; if (r.ok) okN++;
+        rows.push(goRow(g, r));
+      }
+      $('go-plan').innerHTML = rows.join(''); $('go-plan-wrap').hidden = false;
+      GO.checked = okN > 0; $('go-apply').disabled = !okN;
+      goSay(okN + '/' + rd.goi.length + ' gói hợp lệ. Chưa ghi gì. Xem bảng, đặc biệt các dòng "khớp theo số thứ tự", rồi bấm "Nhập các gói hợp lệ".', okN === rd.goi.length ? 'ok' : 'warn');
+    } catch (e) { goSay('Chưa kiểm tra được: ' + (e && e.message ? e.message : 'lỗi không rõ'), 'warn'); }
+    finally { GO.busy = false; $('go-check').disabled = false; }
+  }
+  async function goApply() {
+    if (GO.busy || !GO.checked) return;
+    var list = GO.goi.filter(function (g) { return g._ok; });
+    if (!window.confirm('Nhập ' + list.length + ' gói? Bài mới vào trạng thái Nháp; chuyên đề mới (nếu có) vào trạng thái Nháp.')) return;
+    GO.busy = true; $('go-apply').disabled = true; $('go-check').disabled = true;
+    var rows = [], done = 0;
+    try {
+      for (var i = 0; i < list.length; i++) {
+        var g = list[i], r;
+        try {
+          var imgs = (g.bai || []).filter(function (b) { return b.hinh && b.hinh[0]; });
+          for (var k = 0; k < imgs.length; k++) {
+            var name = imgs[k].hinh[0], ent = GO.hinh[g.ma + '/' + name], ext = name.split('.').pop().toLowerCase();
+            goSay('Gói ' + (i + 1) + '/' + list.length + ' (' + g.ma + '): tải hình ' + (k + 1) + '/' + imgs.length + '...');
+            var blob = new Blob([await ent.async('uint8array')], { type: GO_IMG_TYPE[ext] });
+            if (blob.size > 5 * 1024 * 1024) throw new Error('Hình ' + name + ' lớn hơn 5 MB');
+            var up = await sb.storage.from('hinh-bai-tap').upload('goi/' + g.ma + '/' + name, blob, { contentType: GO_IMG_TYPE[ext], upsert: true });
+            if (up.error) throw new Error('Chưa tải được hình ' + name + ': ' + friendlyError(up.error));
+          }
+          goSay('Gói ' + (i + 1) + '/' + list.length + ' (' + g.ma + '): đang ghi...');
+          var res = await sb.rpc('admin_import_goi', { p_goi: g, p_apply: true, p_ghi_de: $('go-ghide').checked });
+          r = res.error ? { ok: false, loi: [friendlyError(res.error)] } : res.data;
+        } catch (e) { r = { ok: false, loi: [e && e.message ? e.message : 'lỗi không rõ'] }; }
+        if (r.ok && r.applied) done++;
+        rows.push(goRow(g, r));
+      }
+      $('go-plan').innerHTML = rows.join('');
+      goSay('Đã nhập ' + done + '/' + list.length + ' gói. Bài mới đang ở trạng thái Nháp: rà rồi đăng ở tab "Duyệt và đăng".', done === list.length ? 'ok' : 'warn');
+      toast('Đã nhập ' + done + ' gói.', 'ok'); GO.checked = false; await reloadAll();
+    } finally { GO.busy = false; $('go-check').disabled = false; }
+  }
+  $('go-files').addEventListener('change', goReset); $('go-ghide').addEventListener('change', goReset);
+  $('go-check').addEventListener('click', goCheck); $('go-apply').addEventListener('click', goApply);
+
   /* ---------- DUYỆT VÀ ĐĂNG BÀI HÀNG LOẠT ---------- */
   var RV = { items: [], topicId: '', busy: false };
   function rvSay(text, cls) { var m = $('rv-msg'); m.textContent = text; m.className = 'note' + (cls ? ' ' + cls : ''); m.hidden = !text; }
@@ -3360,7 +3470,7 @@
   document.querySelectorAll('.tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
       document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
-      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'bulk', 'review', 'papers', 'examlib', 'refdocs', 'enroll', 'progress', 'access', 'olympic-info', 'analytics'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
+      ['materials', 'videos', 'topics', 'exams', 'levels', 'content', 'bulk', 'goi', 'review', 'papers', 'examlib', 'refdocs', 'enroll', 'progress', 'access', 'olympic-info', 'analytics'].forEach(function (n) { $('tab-' + n).hidden = (n !== tab.dataset.tab); });
       if (tab.dataset.tab === 'olympic-info') loadOlympicCompetitions();
       if (tab.dataset.tab === 'analytics') loadSiteAnalytics();
       if (tab.dataset.tab === 'videos') loadVideos();
