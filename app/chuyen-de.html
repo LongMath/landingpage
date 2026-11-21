@@ -478,8 +478,18 @@ window.TBLKid = (function () {
     if (seq!==reviewSeq) return;
     T = { topic: topic, level: lv.data, exam: ex.data, theory: '', terms: [], problems: [], locked: null, videos: [], mats: [], lvVideos: [], lvMats: [] };
 
-    if (topic.access_level !== 'cong_khai' && !user) { T.locked = 'login'; renderAll(); return; }
-    if (topic.access_level === 'tra_phi' && !isAdmin && !entitledForLevel(lv.data, ex.data)) { T.locked = 'paid'; renderAll(); return; }
+    if (topic.access_level !== 'cong_khai' && !user) T.locked = 'login';
+    else if (topic.access_level === 'tra_phi' && !isAdmin && !entitledForLevel(lv.data, ex.data)) T.locked = 'paid';
+    if (T.locked) {
+      // Bài thử: máy chủ chỉ trả về các bài làm thử miễn phí của chuyên đề (topics.so_bai_thu). Không có thì giữ màn hình khoá như cũ.
+      var pv = await sb.from('problems').select('*').eq('topic_id', topicId).order('so_thu_tu');
+      if (seq!==reviewSeq) return;
+      T.problems = pv.error ? [] : (pv.data || []).filter(function (p) { return p.trang_thai === 'da_dang'; });
+      T.preview = T.problems.length > 0;
+      T.problems.forEach(function (p) { ST[p.id] = { hints: 0, solved: false, revealed: false }; });
+      if (T.preview) tab = 'bai-tap';
+      renderAll(); return;
+    }
 
     var r = await Promise.all([
       sb.from('topic_content').select('*').eq('topic_id', topicId).maybeSingle(),
@@ -573,8 +583,23 @@ window.TBLKid = (function () {
     if (T.locked === 'paid') return '<div class="state"><h2>Chuyên đề thuộc gói trả phí</h2><p>Hãy liên hệ Toán Bác Long để được tư vấn và mở chuyên đề này cho con.</p><p style="margin-top:10px; font-size:14px;"><a href="../index.html#hocphi" style="color:var(--gold-deep); font-weight:700; text-decoration:none;">Xem các gói và quyền lợi tài khoản →</a></p></div>';
     return '';
   }
+  // Dải mời ở đầu tab Bài tập khi đang làm thử.
+  function previewHtml() {
+    var n = T.problems.length;
+    var why = T.locked === 'login'
+      ? 'Đăng nhập hoặc tạo tài khoản miễn phí để làm toàn bộ bài, lưu kết quả và luyện lại câu sai.'
+      : 'Chuyên đề thuộc gói trả phí. Mở gói để làm toàn bộ bài, xem lý thuyết, sổ tay và luyện lại câu sai.';
+    var cta = T.locked === 'login'
+      ? '<button class="btn-gold" type="button" data-open="register">Tạo tài khoản miễn phí</button> <button class="btn-outline" type="button" data-open="login">Đăng nhập</button>'
+      : '<a class="btn-gold" href="../index.html#hocphi">Xem các gói học</a>' + (user ? '' : ' <button class="btn-outline" type="button" data-open="login">Đăng nhập</button>');
+    return '<div class="card" style="border:2px solid var(--gold,#E3A038);"><p style="margin:0 0 6px;"><b>🎁 Con đang làm thử ' + n + ' bài đầu miễn phí.</b></p><p class="muted" style="margin:0 0 10px;">' + why + '</p><p class="cta" style="margin:0;">' + cta + '</p></div>';
+  }
   function renderPanes() {
-    if (T.locked) { ['ly-thuyet', 'bai-giang', 'so-tay', 'bai-tap'].forEach(function (k) { $('pane-' + k).innerHTML = lockedHtml(); }); return; }
+    if (T.locked) {
+      ['ly-thuyet', 'bai-giang', 'so-tay'].forEach(function (k) { $('pane-' + k).innerHTML = lockedHtml(); });
+      if (T.preview) renderProblems(); else $('pane-bai-tap').innerHTML = lockedHtml();
+      return;
+    }
     $('pane-ly-thuyet').innerHTML = T.theory.trim() ? renderRich(T.theory) : '<p class="muted">Lý thuyết của chuyên đề này đang được cập nhật. <span class="tag-soon">Sắp ra mắt</span></p>';
     $('pane-so-tay').innerHTML = T.terms.length
       ? '<table><thead><tr><th>English</th><th>Tiếng Việt</th><th></th></tr></thead><tbody>' + T.terms.map(function (m) {
@@ -615,7 +640,7 @@ window.TBLKid = (function () {
       var a = el.querySelector('.ans');
       keep[el.dataset.id] = { ans: a ? a.value : '', fb: el.querySelector('.fb-area').innerHTML };
     });
-    pane.innerHTML = T.problems.map(function (p) {
+    pane.innerHTML = (T.preview ? previewHtml() : '') + T.problems.map(function (p) {
       var s = ST[p.id] || {};
       return '<article class="card prob" data-id="' + esc(p.id) + '">' +
         '<div class="prob-head"><span class="prob-no">Bài ' + esc(p.so_thu_tu) + '</span>' +
