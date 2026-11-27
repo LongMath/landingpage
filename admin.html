@@ -584,6 +584,24 @@
         <p style="margin-top:14px;"><button class="btn primary" type="button" id="btn-new-paper">+ Tạo đề mới</button></p>
       </div>
 
+      <div class="card" id="be-card">
+        <h2>Nhập nhiều đề một lần (bộ đề ZIP)</h2>
+        <p class="hint">Chọn một tệp ZIP "bộ đề" (có <code>bo-de.json</code> và mỗi đề một thư mục gồm <code>de.csv</code> và hình). Trang tự tạo từng đề, nhập câu, tải hình, gắn câu vào đề. Đề <b>trùng tên</b> với đề đã có thì bỏ qua, nên bấm nhập lại cũng không tạo đề trùng.</p>
+        <div class="grid3">
+          <div><label for="be-zip">Tệp ZIP bộ đề</label><input type="file" id="be-zip" accept=".zip,application/zip"></div>
+          <div><label for="be-access">Ai làm được</label><select id="be-access"></select></div>
+          <div><label class="check" style="margin-top:26px;"><input type="checkbox" id="be-publish"> Đăng ngay sau khi nhập</label></div>
+        </div>
+        <p class="hint">Bỏ chọn "Đăng ngay" thì đề và câu ở trạng thái <b>Nháp</b> để rà lại; sau đó đăng từng đề như cũ.</p>
+        <div class="row-actions" style="margin-top:10px;">
+          <button class="btn ghost small" type="button" id="be-check">Kiểm tra và xem trước</button>
+          <button class="btn primary small" type="button" id="be-import" disabled>Nhập các đề hợp lệ</button>
+        </div>
+        <p id="be-summary" class="note" style="margin-top:10px;white-space:pre-wrap" aria-live="polite">Chưa chọn tệp.</p>
+        <div class="tablewrap" id="be-preview"></div>
+        <pre id="be-log" class="note" hidden style="margin-top:10px;white-space:pre-wrap;max-height:320px;overflow:auto"></pre>
+      </div>
+
       <form id="form-paper" class="card" hidden>
         <h2 id="pp-title">Tạo đề mới</h2>
         <div class="grid2">
@@ -886,6 +904,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="admin-bo-de.js"></script>
 <script src="app/tbl-math.js"></script>
 <script>
   // Trang này chỉ là giao diện tiện dụng. Bảo vệ thật nằm ở phân quyền (RLS) trong Supabase:
@@ -1603,6 +1622,7 @@
       $('pp-loai').innerHTML = optionsFromMap(LOAI_DE, 'thi_thu');
       $('pp-access').innerHTML = optionsFromMap(QUYEN, 'thanh_vien');
       $('pp-status').innerHTML = optionsFromMap(TRANG_THAI, 'nhap');
+      $('be-access').innerHTML = optionsFromMap(QUYEN, 'thanh_vien');
     }
     var examOpts = S.exams.map(function (e) { return '<option value="' + esc(e.id) + '">' + esc(e.ten) + '</option>'; }).join('');
     var keep = $('pp-exam').value;
@@ -3653,6 +3673,57 @@
   }
   $('ei-template').addEventListener('click',eiSample);
   $('ei-validate').addEventListener('click',eiValidate);
+
+  /* --- Nhập nhiều đề một lần (bộ đề ZIP), logic trong admin-bo-de.js --- */
+  var BE = { items: null, busy: false };
+  function beStatus(msg) { $('be-summary').textContent = msg; }
+  function beReset() { BE.items = null; $('be-import').disabled = true; $('be-preview').innerHTML = ''; }
+  async function beCheck() {
+    if (BE.busy) return;
+    beReset(); $('be-log').hidden = true; $('be-log').textContent = '';
+    var f = $('be-zip').files[0];
+    if (!f) { beStatus('Hãy chọn tệp ZIP bộ đề.'); return; }
+    if (!window.TBLBoDe) { beStatus('Chưa tải được admin-bo-de.js. Hãy tải lại trang.'); return; }
+    beStatus('Đang đọc bộ đề…');
+    try {
+      var pr = await sb.rpc('list_papers');
+      if (pr.error) throw pr.error;
+      PP.papers = pr.data || []; renderPapers();
+      var items = await window.TBLBoDe.doc(f, { exams: S.exams, levels: S.levels, papers: PP.papers });
+      BE.items = items;
+      var ok = items.filter(function (x) { return !x.loi && !x.boQua; }), skip = items.filter(function (x) { return x.boQua; }), bad = items.filter(function (x) { return x.loi; });
+      $('be-preview').innerHTML = '<table><thead><tr><th>#</th><th>Tên đề</th><th>Phạm vi</th><th>Số câu</th><th>Hình</th><th>Tổng điểm</th><th>Phút</th><th>Kết quả kiểm tra</th></tr></thead><tbody>' + items.map(function (x) {
+        var st = x.loi ? '<span style="color:#b42318">Lỗi: ' + esc(x.loi) + '</span>' : x.boQua ? '<span class="muted">Bỏ qua: ' + esc(x.boQua) + '</span>' : '<b>Hợp lệ</b>';
+        return '<tr><td>' + x.stt + '</td><td>' + esc(x.ten) + '</td><td class="muted">' + esc(x.pham_vi || '') + '</td><td>' + (x.plan ? x.plan.length : '') + '</td><td>' + (x.plan ? x.so_hinh : '') + '</td><td>' + (x.plan ? x.tong_diem : '') + '</td><td>' + (x.row ? x.row.thoi_gian_phut : '') + '</td><td>' + st + '</td></tr>';
+      }).join('') + '</tbody></table>';
+      beStatus('Bộ đề có ' + items.length + ' đề: ' + ok.length + ' hợp lệ sẽ nhập, ' + skip.length + ' bỏ qua (đã có), ' + bad.length + ' lỗi (không nhập).' + (ok.length ? ' Kiểm tra bảng rồi bấm "Nhập các đề hợp lệ".' : ''));
+      $('be-import').disabled = !ok.length;
+    } catch (e) { beStatus('Lỗi kiểm tra: ' + friendlyError(e)); }
+  }
+  async function beImport() {
+    if (BE.busy || !BE.items) return;
+    var ok = BE.items.filter(function (x) { return !x.loi && !x.boQua; });
+    if (!ok.length) return;
+    var access = $('be-access').value, publish = $('be-publish').checked;
+    var soCau = ok.reduce(function (s, x) { return s + x.plan.length; }, 0);
+    if (!window.confirm('Nhập ' + ok.length + ' đề (' + soCau + ' câu), quyền "' + (QUYEN[access] || access) + '", ' + (publish ? 'ĐĂNG NGAY sau khi nhập' : 'để ở trạng thái Nháp') + '?\n\nViệc này có thể mất vài phút; đừng đóng trang khi đang chạy.')) return;
+    if (publish && access === 'cong_khai' && !confirmPublic('các đề này')) return;
+    BE.busy = true; $('be-import').disabled = true; $('be-check').disabled = true;
+    var logEl = $('be-log'); logEl.hidden = false; logEl.textContent = '';
+    function log(m) { logEl.textContent += m + '\n'; logEl.scrollTop = logEl.scrollHeight; beStatus(m); }
+    try {
+      var kq = await window.TBLBoDe.nhap(ok, { sb: sb, quyen: access, dang: publish, log: log });
+      var good = kq.filter(function (x) { return x.ok; }).length, fail = kq.length - good;
+      beStatus('Xong: nhập thành công ' + good + '/' + kq.length + ' đề' + (fail ? ', ' + fail + ' đề lỗi (xem nhật ký bên dưới)' : '') + '.');
+      toast('Đã nhập ' + good + '/' + kq.length + ' đề.', fail ? 'err' : 'ok');
+      BE.items = null; $('be-zip').value = ''; $('be-preview').innerHTML = '';
+      await loadPapers();
+    } catch (e) { beStatus('Dừng vì lỗi: ' + friendlyError(e) + '. Xem nhật ký; bấm "Kiểm tra" lại trước khi nhập tiếp (các đề đã nhập sẽ được bỏ qua).'); }
+    finally { BE.busy = false; $('be-check').disabled = false; }
+  }
+  $('be-check').addEventListener('click', beCheck);
+  $('be-import').addEventListener('click', beImport);
+  $('be-zip').addEventListener('change', function () { beReset(); beStatus($('be-zip').files[0] ? 'Bấm "Kiểm tra và xem trước".' : 'Chưa chọn tệp.'); });
   $('ei-import').addEventListener('click',eiImport);
   $('ei-csv').addEventListener('change',eiReset);
   $('ei-zip').addEventListener('change',eiReset);
